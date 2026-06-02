@@ -11,13 +11,13 @@ kafakafaya/
 ├── index.html                  # Giriş HTML dosyası (Vite modül girişi)
 ├── style.css                   # Minimalist CSS
 ├── vite.config.js              # Vite sunucu ayarları
-├── main.js                     # Oyun giriş noktası, sahne kurulumu ve çarpışma motoru
+├── main.js                     # Oyun giriş noktası, sahne kurulumu (menu/game) ve çarpışma motoru
 └── src/
     ├── kaplay.js               # Kaplay (Kaboom) motor başlatıcısı & global k.gameOver yönetimi
     ├── config.js               # Sınıf/Araba ayar şablonları (CAR_TYPES)
     ├── utils.js                # Patlama kıvılcımları ve hasar görsel efektleri
     ├── states.js               # FSM durum tanımları (CAR_STATES) ve geçiş yöneticisi (changeState)
-    └── car.js                  # Araç oluşturucu (addCar) bileşeni
+    └── car.js                  # Araç oluşturucu (addCar) bileşeni ve görsel giysiler
 ```
 
 ---
@@ -44,13 +44,20 @@ export const CAR_STATES = {
 };
 ```
 
-### Durum Geçişleri:
-* `changeState(car, newState)` fonksiyonu ile güvenli geçiş sağlanır.
-* Çarpışma anında araç durumları `CLASH` veya `RECOIL` olarak değiştirilir, böylece savrulurken oyuncunun gaza basma veya manevra yapma kontrolleri engellenir.
+---
+
+## 🏎️ 4. Araç Sınıfları & İstatistikleri (CAR_TYPES)
+
+* **BALANCED:** Dengeli şasi. Can: 100, Hız: 300, Kütle: 1.0. (Görsel: Standart tampon).
+* **FAST:** Rüzgarlıklı yarış arabası. Can: 80, Hız: 380, Kütle: 0.8. (Görsel: Arka Spoiler).
+* **HEAVY:** Ön korumalı jeep. Can: 130, Hız: 240, Kütle: 1.4. (Görsel: Ön Koruma Demiri).
+* **TANK:** Ağır zırhlı paletli. Can: 160, Hız: 200, Kütle: 1.8. (Görsel: Üst Zırh ve Çift Egzoz).
+* **DRIFT:** Hızlı viraj arabası. Can: 90, Hız: 320, Kütle: 0.9, Sürtünme: Düşük. (Görsel: Yarış Şeritleri).
+* **GLASS_CANNON:** Aşırı hızlı, kırılgan. Can: 60, Hız: 420, Kütle: 0.6. (Görsel: Neon Yan Çizgiler).
 
 ---
 
-## 📐 4. Kütle ve Çarpışma Fiziği (Mass-Based Recoil)
+## 📐 5. Kütle ve Çarpışma Fiziği (Mass-Based Recoil)
 
 Çarpışmalarda geri tepme (`speed`) sabit değerler yerine vuran ve vurulan araçların kütle oranlarına göre hesaplanır. Bu sayede ağır araçların hafifleri ezmesi, hafiflerin ise ağırları sarsamaması tek satırlık bir fizikle çözülür:
 
@@ -61,11 +68,11 @@ export const CAR_STATES = {
 
 ---
 
-## 🔮 5. Gelecek Geliştirme & Ağa Hazır (Multiplayer-Ready) Kuralları
+## 🔮 6. Gelecek Geliştirme & Ağa Hazır (Multiplayer-Ready) Kuralları
 
 1. **Sahne Ayrımı (Scenes):** 
-   Giriş menüsü (`k.scene("menu")`) ve oyun sahnesi (`k.scene("game")`) tamamen ayrılmalıdır. Oyun sahnesi, oyuncu seçimlerini (`playerSettings`) dışarıdan parametre alarak başlatmalıdır.
+   Giriş menüsü (`k.scene("menu")`) ve oyun sahnesi (`k.scene("game")`) tamamen ayrılmıştır. Oyun sahnesi, oyuncu seçimlerini (`playerSettings`) dışarıdan parametre alarak başlatır.
 2. **Klavye Kontrol Soyutlaması:**
-   Gelecekte multiplayer geldiğinde yerel veya ağ üzerinden gelen girdilerin eşleşebilmesi için, klavye kontrolleri doğrudan araca parametre geçilen `car.controls` nesnesi üzerinden tetiklenir.
+   Girdiler parametrik `car.controls` nesnesi üzerinden tetiklenir, ağ üzerinden gelen girdilerle kolayca beslenebilir.
 3. **Dash (Atılma):**
    `DASHING` durumu `CAR_STATES` nesnesine eklenecek, dash süresince arkada `k.lifespan(0.15)` ile silinen küçük iz kutucukları bırakılacaktır.
