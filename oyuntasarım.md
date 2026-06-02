@@ -1,0 +1,1 @@
+- Çarpışmayı kazanan nitrolanır.
