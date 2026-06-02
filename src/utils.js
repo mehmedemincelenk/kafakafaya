@@ -22,6 +22,7 @@ export function spawnExplosion(pos, intensity) {
 
 // Hasar uygulama ve geribildirim fonksiyonu (flaş efekti)
 export function inflictDamage(victim, damage) {
+  if (victim.isInvulnerable) return; // Kalkan veya Demir Duvar etkisindeyse hasar alma
   victim.hp = Math.max(0, victim.hp - damage);
 
   const origColor = victim.color;

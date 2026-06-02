@@ -7,5 +7,6 @@ export const k = kaplay({
   background: [18, 18, 20], // Koyu gri minimalist arka plan
 });
 
-// Küresel oyun bitiş bayrağını k nesnesi üzerinde tutarak dairesel import bağımlılığını önlüyoruz.
+// Küresel oyun durum bayraklarını k nesnesi üzerinde tutarak dairesel import bağımlılığını önlüyoruz.
 k.gameOver = false;
+k.isGamePaused = false;
