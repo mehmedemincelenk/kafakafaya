@@ -71,6 +71,19 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     car.add([k.rect(4, 30), k.pos(25, 0), k.color(75, 75, 80), k.anchor("center")]);
     car.add([k.rect(8, 4), k.pos(23, -11), k.color(75, 75, 80), k.anchor("center")]);
     car.add([k.rect(8, 4), k.pos(23, 11), k.color(75, 75, 80), k.anchor("center")]);
+  } else if (type === "TANK") {
+    // Üst Zırh Plakası ve Çift Egzoz
+    car.add([k.rect(20, 18, { radius: 2 }), k.pos(-4, 0), k.color(50, 55, 60), k.anchor("center")]);
+    car.add([k.rect(8, 4), k.pos(-25, -6), k.color(110, 110, 115), k.anchor("center")]);
+    car.add([k.rect(8, 4), k.pos(-25, 6), k.color(110, 110, 115), k.anchor("center")]);
+  } else if (type === "DRIFT") {
+    // Çift Beyaz Yarış Şeridi
+    car.add([k.rect(46, 3), k.pos(0, -6), k.color(255, 255, 255), k.anchor("center")]);
+    car.add([k.rect(46, 3), k.pos(0, 6), k.color(255, 255, 255), k.anchor("center")]);
+  } else if (type === "GLASS_CANNON") {
+    // Neon Yan Çizgiler (Cam Gövde Hissiyatı)
+    car.add([k.rect(34, 2), k.pos(0, -10), k.color(0, 255, 200), k.anchor("center")]);
+    car.add([k.rect(34, 2), k.pos(0, 10), k.color(0, 255, 200), k.anchor("center")]);
   }
 
   // Araç Fizik ve Kontrol Güncelleme Döngüsü (Her Karede Çalışır)

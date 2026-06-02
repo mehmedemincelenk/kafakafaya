@@ -25,5 +25,32 @@ export const CAR_TYPES = {
     turnSpeed: 180,
     maxHp: 130,
     mass: 1.4,
+  },
+  TANK: {
+    maxSpeed: 200,
+    reverseSpeed: -200,
+    acceleration: 80,
+    deceleration: 110,
+    turnSpeed: 140,
+    maxHp: 160,
+    mass: 1.8,
+  },
+  DRIFT: {
+    maxSpeed: 320,
+    reverseSpeed: -320,
+    acceleration: 130,
+    deceleration: 60,
+    turnSpeed: 330,
+    maxHp: 90,
+    mass: 0.9,
+  },
+  GLASS_CANNON: {
+    maxSpeed: 420,
+    reverseSpeed: -420,
+    acceleration: 180,
+    deceleration: 170,
+    turnSpeed: 290,
+    maxHp: 60,
+    mass: 0.6,
   }
 };

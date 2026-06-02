@@ -7,7 +7,7 @@ import { spawnExplosion, inflictDamage } from "./src/utils.js";
 // 1. ARAÇ SEÇİM MENÜSÜ SAHNESİ (MENU SCENE)
 // ==========================================
 k.scene("menu", () => {
-  const options = ["BALANCED", "FAST", "HEAVY"];
+  const options = ["BALANCED", "FAST", "HEAVY", "TANK", "DRIFT", "GLASS_CANNON"];
   let p1Idx = 0;
   let p2Idx = 0;
   let p1Ready = false;
@@ -30,7 +30,7 @@ k.scene("menu", () => {
 
   // Oyuncu 1 Seçim Paneli (Sol)
   const p1Panel = k.add([
-    k.rect(420, 500, { radius: 8 }),
+    k.rect(420, 520, { radius: 8 }),
     k.pos(k.width() / 2 - 320, k.height() / 2 + 50),
     k.anchor("center"),
     k.color(30, 35, 45),
@@ -39,15 +39,15 @@ k.scene("menu", () => {
 
   p1Panel.add([
     k.text("OYUNCU 1 (MAVİ)", { size: 28 }),
-    k.pos(0, -180),
+    k.pos(0, -210),
     k.anchor("center"),
     k.color(0, 140, 255),
   ]);
 
   const p1Labels = options.map((opt, i) => {
     return p1Panel.add([
-      k.text(opt, { size: 24 }),
-      k.pos(0, -60 + i * 65),
+      k.text(opt, { size: 22 }),
+      k.pos(0, -100 + i * 48),
       k.anchor("center"),
       k.color(255, 255, 255),
     ]);
@@ -55,14 +55,14 @@ k.scene("menu", () => {
 
   const p1Status = p1Panel.add([
     k.text("SEC: W / S - ONAY: SPACE", { size: 16 }),
-    k.pos(0, 190),
+    k.pos(0, 210),
     k.anchor("center"),
     k.color(150, 150, 155),
   ]);
 
   // Oyuncu 2 Seçim Paneli (Sağ)
   const p2Panel = k.add([
-    k.rect(420, 500, { radius: 8 }),
+    k.rect(420, 520, { radius: 8 }),
     k.pos(k.width() / 2 + 320, k.height() / 2 + 50),
     k.anchor("center"),
     k.color(45, 30, 30),
@@ -71,15 +71,15 @@ k.scene("menu", () => {
 
   p2Panel.add([
     k.text("OYUNCU 2 (KIRMIZI)", { size: 28 }),
-    k.pos(0, -180),
+    k.pos(0, -210),
     k.anchor("center"),
     k.color(255, 60, 60),
   ]);
 
   const p2Labels = options.map((opt, i) => {
     return p2Panel.add([
-      k.text(opt, { size: 24 }),
-      k.pos(0, -60 + i * 65),
+      k.text(opt, { size: 22 }),
+      k.pos(0, -100 + i * 48),
       k.anchor("center"),
       k.color(255, 255, 255),
     ]);
@@ -87,7 +87,7 @@ k.scene("menu", () => {
 
   const p2Status = p2Panel.add([
     k.text("SEC: YÖN TUŞLARI - ONAY: ENTER", { size: 16 }),
-    k.pos(0, 190),
+    k.pos(0, 210),
     k.anchor("center"),
     k.color(150, 150, 155),
   ]);
