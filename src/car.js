@@ -61,6 +61,18 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     car.add([k.rect(5, 8, { radius: 1 }), k.pos(23, y), k.color(255, 235, 120), k.anchor("center")]);
   });
 
+  // Sınıf Bazlı Görsel Süslemeler (Basit Araba Kıyafetleri)
+  if (type === "FAST") {
+    // Rüzgarlık (Spoiler)
+    car.add([k.rect(4, 28), k.pos(-18, 0), k.color(20, 20, 22), k.anchor("center")]);
+    car.add([k.rect(6, 32), k.pos(-21, 0), k.color(color), k.anchor("center")]);
+  } else if (type === "HEAVY") {
+    // Ön Koruma Bumper Demiri (Bullbar)
+    car.add([k.rect(4, 30), k.pos(25, 0), k.color(75, 75, 80), k.anchor("center")]);
+    car.add([k.rect(8, 4), k.pos(23, -11), k.color(75, 75, 80), k.anchor("center")]);
+    car.add([k.rect(8, 4), k.pos(23, 11), k.color(75, 75, 80), k.anchor("center")]);
+  }
+
   // Araç Fizik ve Kontrol Güncelleme Döngüsü (Her Karede Çalışır)
   car.onUpdate(() => {
     if (k.gameOver) {
