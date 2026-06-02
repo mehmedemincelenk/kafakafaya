@@ -1,15 +1,15 @@
 export const CAR_TYPES = {
-  BALANCED: {
+  TB2: {
     maxSpeed: 300,
     reverseSpeed: -300,
-    acceleration: 130, // Hızlanma hafifçe artırıldı, sürüş hissi iyileştirildi
+    acceleration: 130,
     deceleration: 150,
     turnSpeed: 240,
     maxHp: 100,
     mass: 1.0,
   },
-  FAST: {
-    maxSpeed: 370, // Kontrol kaybını azaltmak için hız hafifçe dengelendi
+  KIZILELMA: {
+    maxSpeed: 370,
     reverseSpeed: -370,
     acceleration: 170,
     deceleration: 180,
@@ -17,7 +17,7 @@ export const CAR_TYPES = {
     maxHp: 80,
     mass: 0.8,
   },
-  HEAVY: {
+  AKINCI: {
     maxSpeed: 250,
     reverseSpeed: -250,
     acceleration: 100,
@@ -26,31 +26,31 @@ export const CAR_TYPES = {
     maxHp: 130,
     mass: 1.4,
   },
-  TANK: {
-    maxSpeed: 210, // Çok yavaş kalmaması için hafifçe artırıldı
+  KALKAN: {
+    maxSpeed: 210,
     reverseSpeed: -210,
     acceleration: 85,
     deceleration: 110,
-    turnSpeed: 150, // Flanklenmeyi önlemek için dönüş hafifçe artırıldı
+    turnSpeed: 150,
     maxHp: 160,
     mass: 1.8,
   },
-  DRIFT: {
+  KEMANKES: {
     maxSpeed: 330,
     reverseSpeed: -330,
     acceleration: 140,
-    deceleration: 60, // Düşük frenleme ile kayma hissi korundu
+    deceleration: 60,
     turnSpeed: 320,
     maxHp: 90,
     mass: 0.9,
   },
-  GLASS_CANNON: {
+  KAMIKAZE: {
     maxSpeed: 410,
     reverseSpeed: -410,
-    acceleration: 200, // Anında kaçabilmesi için hızlanma maksimuma çekildi
+    acceleration: 200,
     deceleration: 170,
     turnSpeed: 270,
-    maxHp: 65, // Tek darbede ölmemesi için canı 65'e yuvarlandı
-    mass: 0.6, // Çarptığında aşırı savrulması için kütle hafifçe düşürüldü
+    maxHp: 65,
+    mass: 0.6,
   }
 };

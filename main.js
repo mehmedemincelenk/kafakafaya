@@ -7,7 +7,7 @@ import { spawnExplosion, inflictDamage } from "./src/utils.js";
 // 1. ARAÇ SEÇİM MENÜSÜ SAHNESİ (MENU SCENE)
 // ==========================================
 k.scene("menu", () => {
-  const options = ["BALANCED", "FAST", "HEAVY", "TANK", "DRIFT", "GLASS_CANNON"];
+  const options = ["TB2", "KIZILELMA", "AKINCI", "KALKAN", "KEMANKES", "KAMIKAZE"];
   let p1Idx = 0;
   let p2Idx = 0;
   let p1Ready = false;
