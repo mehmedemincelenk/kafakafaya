@@ -24,7 +24,7 @@ export function initGameScene() {
 
     if (gameMode === "KAFA_KAFAYA") {
       const modeNotice = k.add([
-        k.text("KAFA KAFAYA MODU", { size: 12, letterSpacing: 1 }),
+        k.text("KAFA KAFAYA MODU", { size: 12, font: "sans-serif", weight: "bold", letterSpacing: 1 }),
         k.pos(k.width() / 2, 60),
         k.anchor("center"),
         k.color(255, 215, 0),
@@ -32,7 +32,7 @@ export function initGameScene() {
       k.wait(1.5, () => modeNotice.destroy());
     } else {
       const modeNotice = k.add([
-        k.text("MOMENTUM SAVAŞI", { size: 12, letterSpacing: 1 }),
+        k.text("MOMENTUM SAVASI", { size: 12, font: "sans-serif", weight: "bold", letterSpacing: 1 }),
         k.pos(k.width() / 2, 60),
         k.anchor("center"),
         k.color(150, 150, 155),

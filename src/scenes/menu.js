@@ -71,27 +71,27 @@ export function initMenuScene() {
       });
     });
 
-    // --- MODERNIZE EDILMIS BAŞLIK ---
+    // --- VALHALLA DERBY BAŞLIK ---
     // Gölgeli/Glow Efektli Başlık Katmanı
     k.add([
-      k.text("KAFA KAFAYA", { size: 66, letterSpacing: 6 }),
+      k.text("VALHALLA DERBY", { size: 48, font: "sans-serif", weight: "bold", letterSpacing: 4 }),
       k.pos(k.width() / 2, 110),
       k.anchor("center"),
       k.color(0, 150, 255),
-      k.opacity(0.2),
+      k.opacity(0.15),
     ]);
     k.add([
-      k.text("KAFA KAFAYA", { size: 64, letterSpacing: 6 }),
+      k.text("VALHALLA DERBY", { size: 46, font: "sans-serif", weight: "bold", letterSpacing: 4 }),
       k.pos(k.width() / 2, 110),
       k.anchor("center"),
       k.color(255, 255, 255),
     ]);
     k.add([
-      k.text("VEHICULAR COMBAT", { size: 11, letterSpacing: 8 }),
+      k.text("THE GAME OF BORED HEAVENLY SOLDIERS", { size: 11, font: "sans-serif", weight: "bold", letterSpacing: 6 }),
       k.pos(k.width() / 2, 160),
       k.anchor("center"),
       k.color(140, 142, 145),
-      k.opacity(0.8),
+      k.opacity(0.7),
     ]);
 
     // ----------------------------------
@@ -100,7 +100,7 @@ export function initMenuScene() {
     const playTypeUIGroup = [];
 
     const typeTitle = k.add([
-      k.text("OYUN BAGLANTISINI SECIN", { size: 24, font: "sans-serif", weight: "bold", letterSpacing: 2 }),
+      k.text("OYUN BAGLANTISINI SECIN", { size: 20, font: "sans-serif", weight: "bold", letterSpacing: 2 }),
       k.pos(k.width() / 2, k.height() / 2 - 120),
       k.anchor("center"),
       k.color(255, 215, 0),
@@ -109,38 +109,37 @@ export function initMenuScene() {
 
     function createSelectionCard(parentGroup, titleText, descText, xOffset) {
       const card = k.add([
-        k.rect(380, 160, { radius: 16 }),
+        k.rect(360, 130, { radius: 6 }),
         k.pos(k.width() / 2 + xOffset, k.height() / 2 + 10),
         k.anchor("center"),
-        k.color(24, 28, 36),
-        k.outline(4, k.rgb(0, 0, 0)),
-        k.scale(1.0),
+        k.color(20, 21, 25),
+        k.outline(1.5, k.rgb(55, 58, 66)),
         k.area(),
       ]);
       const title = card.add([
-        k.text(titleText, { size: 20, font: "sans-serif", weight: "bold", letterSpacing: 1 }),
-        k.pos(0, -35),
+        k.text(titleText, { size: 16, font: "sans-serif", weight: "bold", letterSpacing: 1.5 }),
+        k.pos(0, -25),
         k.anchor("center"),
-        k.color(255, 255, 255),
+        k.color(220, 225, 235),
       ]);
       card.add([
-        k.text(descText, { size: 13, font: "sans-serif", lineSpacing: 6 }),
-        k.pos(0, 25),
+        k.text(descText, { size: 12, font: "sans-serif", lineSpacing: 4 }),
+        k.pos(0, 20),
         k.anchor("center"),
-        k.color(170, 175, 185),
+        k.color(150, 155, 165),
       ]);
       parentGroup.push(card);
       return { card, title };
     }
 
-    const localCard = createSelectionCard(playTypeUIGroup, "YEREL OYNA", "Ayni bilgisayardan\n2 Oyuncu (Klavye paylasimi)", -210);
-    const onlineCard = createSelectionCard(playTypeUIGroup, "BERABER OYNA", "Cevrimici cok oyunculu\n(Playroom Kit ile)", 210);
+    const localCard = createSelectionCard(playTypeUIGroup, "YEREL OYNA", "Ayni bilgisayardan\n2 Oyuncu (Klavye paylasimi)", -200);
+    const onlineCard = createSelectionCard(playTypeUIGroup, "BERABER OYNA", "Cevrimici cok oyunculu\n(Playroom Kit ile)", 200);
 
     const typeHelpText = k.add([
-      k.text("Secmek icin Tiklayin • Onaylamak icin Tekrar Tiklayin veya SPACE/ENTER'a Basin", { size: 12, font: "sans-serif" }),
-      k.pos(k.width() / 2, k.height() / 2 + 140),
+      k.text("Secmek icin Tiklayin • Onaylamak icin Tekrar Tiklayin veya SPACE/ENTER'a Basin", { size: 11, font: "sans-serif" }),
+      k.pos(k.width() / 2, k.height() / 2 + 130),
       k.anchor("center"),
-      k.color(150, 150, 155),
+      k.color(140, 142, 145),
     ]);
     playTypeUIGroup.push(typeHelpText);
 
@@ -155,15 +154,16 @@ export function initMenuScene() {
 
     function updatePlayTypeUI() {
       const activeColor = k.rgb(0, 140, 255);
-      localCard.card.outline.color = selectedPlayTypeIdx === 0 ? activeColor : k.rgb(0, 0, 0);
-      localCard.card.outline.width = selectedPlayTypeIdx === 0 ? 6 : 4;
-      localCard.title.color = selectedPlayTypeIdx === 0 ? activeColor : k.rgb(255, 255, 255);
-      localCard.card.scaleTo(selectedPlayTypeIdx === 0 ? 1.05 : 1.0);
+      
+      localCard.card.color = selectedPlayTypeIdx === 0 ? k.rgb(32, 33, 40) : k.rgb(20, 21, 25);
+      localCard.card.outline.color = selectedPlayTypeIdx === 0 ? activeColor : k.rgb(55, 58, 66);
+      localCard.card.outline.width = selectedPlayTypeIdx === 0 ? 2.0 : 1.5;
+      localCard.title.color = selectedPlayTypeIdx === 0 ? activeColor : k.rgb(220, 225, 235);
 
-      onlineCard.card.outline.color = selectedPlayTypeIdx === 1 ? activeColor : k.rgb(0, 0, 0);
-      onlineCard.card.outline.width = selectedPlayTypeIdx === 1 ? 6 : 4;
-      onlineCard.title.color = selectedPlayTypeIdx === 1 ? activeColor : k.rgb(255, 255, 255);
-      onlineCard.card.scaleTo(selectedPlayTypeIdx === 1 ? 1.05 : 1.0);
+      onlineCard.card.color = selectedPlayTypeIdx === 1 ? k.rgb(32, 33, 40) : k.rgb(20, 21, 25);
+      onlineCard.card.outline.color = selectedPlayTypeIdx === 1 ? activeColor : k.rgb(55, 58, 66);
+      onlineCard.card.outline.width = selectedPlayTypeIdx === 1 ? 2.0 : 1.5;
+      onlineCard.title.color = selectedPlayTypeIdx === 1 ? activeColor : k.rgb(220, 225, 235);
     }
 
     updatePlayTypeUI();
@@ -227,21 +227,21 @@ export function initMenuScene() {
       ]);
 
       const modeTitle = k.add([
-        k.text(k.isMultiplayer ? "OYUN MODUNU SECIN (Sadece Kurucu)" : "OYUN MODUNU SECIN", { size: 24, font: "sans-serif", weight: "bold", letterSpacing: 2 }),
+        k.text(k.isMultiplayer ? "OYUN MODUNU SECIN (Sadece Kurucu)" : "OYUN MODUNU SECIN", { size: 20, font: "sans-serif", weight: "bold", letterSpacing: 2 }),
         k.pos(k.width() / 2, k.height() / 2 - 120),
         k.anchor("center"),
         k.color(255, 215, 0),
       ]);
       modeUIGroup.push(modeTitle);
 
-      norm = createSelectionCard(modeUIGroup, "NORMAL MOD", "Farkli araclar secilebilir\nMomentum ve asimetrik fizik odaklidir", -210);
-      clash = createSelectionCard(modeUIGroup, "KAFA KAFAYA MODU", "Oyuncular ayni araci kullanir\nKafa kafaya carpismalar duello tetikler", 210);
+      norm = createSelectionCard(modeUIGroup, "CENNET KAOSU", "Farkli araclar secilebilir\nMomentum ve asimetrik fizik odaklidir", -200);
+      clash = createSelectionCard(modeUIGroup, "ILAHI DUELLO", "Oyuncular ayni araci kullanir\nKafa kafaya carpismalar duello tetikler", 200);
 
       const modeHelpText = k.add([
-        k.text((k.isMultiplayer && !isHost()) ? "Kurucunun mod secmesi bekleniyor..." : "Secmek icin Tiklayin • Onaylamak icin Tekrar Tiklayin veya SPACE/ENTER'a Basin", { size: 12, font: "sans-serif" }),
-        k.pos(k.width() / 2, k.height() / 2 + 140),
+        k.text((k.isMultiplayer && !isHost()) ? "Kurucunun mod secmesi bekleniyor..." : "Secmek icin Tiklayin • Onaylamak icin Tekrar Tiklayin veya SPACE/ENTER'a Basin", { size: 11, font: "sans-serif" }),
+        k.pos(k.width() / 2, k.height() / 2 + 130),
         k.anchor("center"),
-        k.color(150, 150, 155),
+        k.color(140, 142, 145),
       ]);
       modeUIGroup.push(modeHelpText);
 
@@ -283,15 +283,16 @@ export function initMenuScene() {
     function updateModeUI() {
       if (!norm || !clash) return;
       const activeColor = selectedModeIdx === 0 ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60);
-      norm.card.outline.color = selectedModeIdx === 0 ? activeColor : k.rgb(0, 0, 0);
-      norm.card.outline.width = selectedModeIdx === 0 ? 6 : 4;
-      norm.title.color = selectedModeIdx === 0 ? activeColor : k.rgb(255, 255, 255);
-      norm.card.scaleTo(selectedModeIdx === 0 ? 1.05 : 1.0);
 
-      clash.card.outline.color = selectedModeIdx === 1 ? activeColor : k.rgb(0, 0, 0);
-      clash.card.outline.width = selectedModeIdx === 1 ? 6 : 4;
-      clash.title.color = selectedModeIdx === 1 ? activeColor : k.rgb(255, 255, 255);
-      clash.card.scaleTo(selectedModeIdx === 1 ? 1.05 : 1.0);
+      norm.card.color = selectedModeIdx === 0 ? k.rgb(32, 33, 40) : k.rgb(20, 21, 25);
+      norm.card.outline.color = selectedModeIdx === 0 ? activeColor : k.rgb(55, 58, 66);
+      norm.card.outline.width = selectedModeIdx === 0 ? 2.0 : 1.5;
+      norm.title.color = selectedModeIdx === 0 ? activeColor : k.rgb(220, 225, 235);
+
+      clash.card.color = selectedModeIdx === 1 ? k.rgb(32, 33, 40) : k.rgb(20, 21, 25);
+      clash.card.outline.color = selectedModeIdx === 1 ? activeColor : k.rgb(55, 58, 66);
+      clash.card.outline.width = selectedModeIdx === 1 ? 2.0 : 1.5;
+      clash.title.color = selectedModeIdx === 1 ? activeColor : k.rgb(220, 225, 235);
     }
 
     // ----------------------------------
@@ -542,7 +543,7 @@ export function initMenuScene() {
     function revealCarSelect() {
       menuState = "CAR_SELECT";
       stageTitle = k.add([
-        k.text(`HARITA: ${k.isMultiplayer ? (getState("gameMap") || "SADE") : k.selectedMapName} • MOD: ${gameMode === "NORMAL" ? "NORMAL" : "KAFA KAFAYA"}`, { size: 16, font: "sans-serif", weight: "bold", letterSpacing: 1 }),
+        k.text(`HARITA: ${k.isMultiplayer ? (getState("gameMap") || "SADE") : k.selectedMapName} • MOD: ${gameMode === "NORMAL" ? "CENNET KAOSU" : "ILAHI DUELLO"}`, { size: 16, font: "sans-serif", weight: "bold", letterSpacing: 1 }),
         k.pos(k.width() / 2, 205),
         k.anchor("center"),
         k.color(255, 215, 0),
