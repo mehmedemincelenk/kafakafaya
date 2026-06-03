@@ -17,17 +17,7 @@ export const SKILLS = {
       car.unuse("outline"); // Kalkan hattını kaldır
     }
   },
-  HIZLI: {
-    name: "DASH",
-    cooldown: 4,
-    duration: 0.3,
-    activate: (car) => {
-      car.speed = car.maxSpeed * 3.2; // Aşırı yüksek anlık hız patlaması (akıcı dash)
-    },
-    deactivate: (car) => {
-      car.speed = Math.min(car.maxSpeed, car.speed); // Normal maksimum hıza çek
-    }
-  },
+
   HIPHIZLI: {
     name: "HAYALET",
     cooldown: 6,

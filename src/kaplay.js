@@ -10,3 +10,4 @@ export const k = kaplay({
 // Küresel oyun durum bayraklarını k nesnesi üzerinde tutarak dairesel import bağımlılığını önlüyoruz.
 k.gameOver = false;
 k.isGamePaused = false;
+k.isMultiplayer = false;

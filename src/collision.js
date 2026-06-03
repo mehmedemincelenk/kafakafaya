@@ -2,12 +2,15 @@ import { k } from "./kaplay.js";
 import { changeState } from "./states.js";
 import { spawnExplosion, inflictDamage } from "./utils.js";
 import { startDuel } from "./clash.js";
+import { playroomPlayers } from "./multiplayer.js";
 
 /**
  * Setup vehicle collisions, momentum-based attacker decisions, and Clash triggers.
  */
 export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
-  k.onCollide("player1", "player2", (car1, car2) => {
+  k.onCollide("player", "player", (car1, car2) => {
+    // Güvenlik kontrolleri
+    if (car1.id === car2.id) return;
     if (k.gameOver || car1.state === "CLASH" || car2.state === "CLASH") return;
     if (car1.isGhost || car2.isGhost) return;
     if (car1.collisionCooldown || car2.collisionCooldown) return;
@@ -58,14 +61,17 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
     let car1TookDamage = false;
     let car2TookDamage = false;
 
+    // Takım kontrolü: Aynı takımdakiler birbirine hasar veremez ve düello başlatamaz.
+    const isTeammate = car1.playerInfo && car2.playerInfo && 
+                        (getPlayersIndex(car1.playerInfo) % 2 === getPlayersIndex(car2.playerInfo) % 2);
+
     // DURUM A: Kafa Kafaya Düello (Clash) Tetikleyici Şartları (Yalnızca KAFA_KAFAYA modunda tetiklenir)
-    // Her iki araç da tampon tampona (bumper-to-bumper) çarpışıyorsa ve aktif şekilde ileri sürüyorsa
-    if (gameMode === "KAFA_KAFAYA" && car1HitsWithBumper && car2HitsWithBumper && car1.speed > 50 && car2.speed > 50) {
+    if (gameMode === "KAFA_KAFAYA" && !isTeammate && car1HitsWithBumper && car2HitsWithBumper && car1.speed > 50 && car2.speed > 50) {
       startDuel(car1, car2, collisionNormal, midPoint);
       return;
     }
 
-    // DURUM B: Normal Momentum Tabanlı Çarpışma
+    // DURUM B: Normal Momentum Tabanlı Çarpışma (Takım arkadaşı ise hasar almaz, sadece iter)
     applyCooldown(0.4);
 
     // Momentum = Hız * Kütle
@@ -75,7 +81,7 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
     let attacker = mom1 > mom2 ? car1 : car2;
     let victim = mom1 > mom2 ? car2 : car1;
 
-    // DEMİR yeteneği aktifse roller değişir: Demir olan her zaman saldıran (hasar veren) konumundadır.
+    // DEMİR yeteneği aktifse roller değişir
     if (car1.skillActive && car1.skillName === "DEMIR") {
       attacker = car1;
       victim = car2;
@@ -86,7 +92,7 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
 
     const attackerHitsWithBumper = attacker === car1 ? car1HitsWithBumper : car2HitsWithBumper;
 
-    if (attackerHitsWithBumper) {
+    if (attackerHitsWithBumper && !isTeammate) {
       inflictDamage(victim, damage);
       if (victim === car1) car1TookDamage = true;
       if (victim === car2) car2TookDamage = true;
@@ -98,7 +104,7 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
     changeState(attacker, "RECOIL");
     changeState(victim, "RECOIL");
 
-    // İtme mesafesi kütle oranlarına göre şekillenir (Aşırı fırlamayı/ışınlanmayı önlemek için max 3.5 ile sınırlanmıştır)
+    // İtme mesafesi kütle oranlarına göre şekillenir (Aşırı fırlamayı önlemek için max 3.5 ile sınırlanmıştır)
     const massRatioAttacker = Math.min(3.5, victim.mass / attacker.mass);
     const massRatioVictim = Math.min(3.5, attacker.mass / victim.mass);
 
@@ -119,4 +125,9 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
       spawnExplosion(midPoint, 4);
     }
   });
+}
+
+// Yardımcı fonksiyon: Oyuncunun playroomPlayers içindeki indeksini döndürür
+function getPlayersIndex(playerInfo) {
+  return playroomPlayers.findIndex(p => p.id === playerInfo.id);
 }

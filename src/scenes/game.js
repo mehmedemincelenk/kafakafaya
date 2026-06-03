@@ -1,25 +1,30 @@
 import { k } from "../kaplay.js";
 import { addCar } from "../car.js";
 import { setupCollisions } from "../collision.js";
-import { spawnPowerup, setupPowerupCollisions } from "../powerup.js";
+import { spawnPowerup, setupPowerupCollisions, syncPowerups } from "../powerup.js";
+import { myPlayer, isHost, getState, setState } from "playroomkit";
+import { playroomPlayers } from "../multiplayer.js";
+import { MAPS } from "../maps.js";
+import { SKILLS } from "../skill.js";
+import { setupHUD } from "../hud.js";
+import { setupArena } from "../arena.js";
+import { setupPauseMenu } from "../pause.js";
 
 export function initGameScene() {
-  k.scene("game", ({ p1Type, p2Type, gameMode = "NORMAL", p1Score = 0, p2Score = 0 }) => {
+  k.scene("game", (localParams) => {
     k.gameOver = false;
+    k.isGamePaused = false;
 
-    // Kafa Kafaya Mod Kontrolü: Farklı arabalar seçilmişse birini rastgele seç ve ikisini de o yap
-    let finalP1Type = p1Type;
-    let finalP2Type = p2Type;
+    // Mod, skorlar ve araç tiplerini bağlantı türüne göre belirle
+    const gameMode = k.isMultiplayer ? (getState("gameMode") || "NORMAL") : (localParams?.gameMode || "NORMAL");
+    const p1Score = k.isMultiplayer ? 0 : (localParams?.p1Score || 0);
+    const p2Score = k.isMultiplayer ? 0 : (localParams?.p2Score || 0);
+    const p1Type = localParams?.p1Type || "DENGELI";
+    const p2Type = localParams?.p2Type || "DENGELI";
 
     if (gameMode === "KAFA_KAFAYA") {
-      if (p1Type !== p2Type) {
-        const chosen = k.choose([p1Type, p2Type]);
-        finalP1Type = chosen;
-        finalP2Type = chosen;
-      }
-      
       const modeNotice = k.add([
-        k.text(`KAFA KAFAYA • ${finalP1Type}`, { size: 12, letterSpacing: 1 }),
+        k.text("KAFA KAFAYA MODU", { size: 12, letterSpacing: 1 }),
         k.pos(k.width() / 2, 60),
         k.anchor("center"),
         k.color(255, 215, 0),
@@ -35,167 +40,144 @@ export function initGameScene() {
       k.wait(1.5, () => modeNotice.destroy());
     }
 
-    let pauseSelectionIdx = 0;
-    const pauseOptions = ["DEVAM ET", "YENIDEN BASLA", "ANA MENU"];
-    let pauseTexts = [];
+    const pauseMenu = setupPauseMenu({
+      p1Type,
+      p2Type,
+      gameMode,
+    });
 
     // ESC Tuşu ile Oyunu Duraklatma (Pause)
     k.onKeyPress("escape", () => {
-      if (k.gameOver || p1.controlsLocked) return;
+      if (k.gameOver) return;
+      if (k.isMultiplayer && !isHost()) return; // Çok oyunculuda sadece Host duraklatabilir
 
-      k.isGamePaused = !k.isGamePaused;
-
-      if (k.isGamePaused) {
-        pauseSelectionIdx = 0;
-        showPauseMenu();
-      } else {
-        hidePauseMenu();
-      }
-    });
-
-    function showPauseMenu() {
-      // Duraklatma Overlay Kutusu (Koyu Transparan)
-      k.add([
-        k.rect(k.width() - 48, k.height() - 48, { radius: 8 }),
-        k.pos(24, 24),
-        k.color(14, 15, 18),
-        k.opacity(0.85),
-        "pauseUI",
-      ]);
-
-      // Duraklatıldı Metni
-      k.add([
-        k.text("DURAKLATILDI", { size: 36, font: "monospace", weight: "bold", letterSpacing: 2 }),
-        k.pos(k.width() / 2, k.height() / 2 - 120),
-        k.anchor("center"),
-        k.color(255, 215, 0),
-        "pauseUI",
-      ]);
-
-      // Seçenek Metinlerini Ekle
-      pauseTexts = [];
-      pauseOptions.forEach((opt, idx) => {
-        const txt = k.add([
-          k.text(opt, { size: 18, font: "monospace", weight: "bold" }),
-          k.pos(k.width() / 2, k.height() / 2 - 20 + idx * 50),
-          k.anchor("center"),
-          "pauseUI",
-        ]);
-        pauseTexts.push(txt);
-      });
-
-      // Kontroller Alt Bilgisi
-      k.add([
-        k.text("Secim: W-S / YON TUSLARI  •  Onay: ENTER / SPACE", { size: 11, font: "monospace" }),
-        k.pos(k.width() / 2, k.height() / 2 + 160),
-        k.anchor("center"),
-        k.color(120, 122, 125),
-        "pauseUI",
-      ]);
-
-      updatePauseSelection();
-    }
-
-    function updatePauseSelection() {
-      pauseTexts.forEach((txt, idx) => {
-        if (idx === pauseSelectionIdx) {
-          txt.color = k.rgb(255, 215, 0); // Seçili olan sarı
-          txt.text = `> ${pauseOptions[idx]} <`;
+      if (k.isMultiplayer) {
+        const nextPaused = !getState("isGamePaused");
+        setState("isGamePaused", nextPaused);
+        if (nextPaused) {
+          pauseMenu.show();
         } else {
-          txt.color = k.rgb(150, 150, 155); // Seçilmeyen gri
-          txt.text = pauseOptions[idx];
+          pauseMenu.hide();
         }
+      } else {
+        k.isGamePaused = !k.isGamePaused;
+        if (k.isGamePaused) {
+          pauseMenu.show();
+        } else {
+          pauseMenu.hide();
+        }
+      }
+    });
+
+    // Harita Tanımlarını Yükle
+    const mapName = k.isMultiplayer ? (getState("gameMap") || "SADE") : (k.selectedMapName || "SADE");
+    const mapData = MAPS.find(m => m.name === mapName) || MAPS[0];
+
+    // Arena ve Engellerin Çizilmesi
+    setupArena(mapData);
+
+    // --- DİNAMİK ARAÇ OLUŞTURMA ---
+    const cars = [];
+
+    if (k.isMultiplayer) {
+      const roomPlayers = playroomPlayers;
+      let hostCarType = "DENGELI";
+      if (roomPlayers.length > 0) {
+        const host = roomPlayers.find(p => p.id === getState("hostId")) || roomPlayers[0];
+        const hostSelectedIdx = host.getState("carTypeIdx") || 0;
+        const options = ["DENGELI", "HIPHIZLI", "GUCLU", "TANK", "DRIFT"];
+        hostCarType = options[hostSelectedIdx];
+      }
+
+      roomPlayers.forEach((p, idx) => {
+        let startPos;
+        let startAngle;
+
+        if (idx === 0) {
+          startPos = k.vec2(180, k.height() / 2);
+          startAngle = 0;
+        } else if (idx === 1) {
+          startPos = k.vec2(k.width() - 180, k.height() / 2);
+          startAngle = 180;
+        } else if (idx === 2) {
+          startPos = k.vec2(k.width() / 2, 180);
+          startAngle = 90;
+        } else {
+          startPos = k.vec2(k.width() / 2, k.height() - 180);
+          startAngle = 270;
+        }
+
+        const options = ["DENGELI", "HIPHIZLI", "GUCLU", "TANK", "DRIFT"];
+        const carType = gameMode === "KAFA_KAFAYA" ? hostCarType : options[p.getState("carTypeIdx") || 0];
+
+        const color = idx % 2 === 0 ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60);
+        const tag = idx % 2 === 0 ? "teamBlue" : "teamRed";
+
+        const car = addCar({
+          name: p.getProfile().name || `Oyuncu ${idx + 1}`,
+          tag,
+          color,
+          startPos,
+          startAngle,
+          type: carType,
+          playerInfo: p,
+        });
+
+        cars.push(car);
       });
-    }
+    } else {
+      // YEREL MOD ARAÇ OLUŞTURMA
+      let finalP1Type = p1Type;
+      let finalP2Type = p2Type;
 
-    function hidePauseMenu() {
-      k.isGamePaused = false;
-      k.destroyAll("pauseUI");
-      pauseTexts = [];
-    }
-
-    // Duraklatma Menüsü Klavye Kontrolleri
-    const pauseMenuKeys = k.onKeyPress((key) => {
-      if (!k.isGamePaused) return;
-
-      if (key === "up" || key === "w") {
-        pauseSelectionIdx = (pauseSelectionIdx - 1 + pauseOptions.length) % pauseOptions.length;
-        updatePauseSelection();
-      } else if (key === "down" || key === "s") {
-        pauseSelectionIdx = (pauseSelectionIdx + 1) % pauseOptions.length;
-        updatePauseSelection();
-      } else if (key === "enter" || key === "space") {
-        const action = pauseOptions[pauseSelectionIdx];
-        if (action === "DEVAM ET") {
-          hidePauseMenu();
-        } else if (action === "YENIDEN BASLA") {
-          hidePauseMenu();
-          pauseMenuKeys.cancel();
-          k.go("game", { p1Type, p2Type, gameMode, p1Score: 0, p2Score: 0 });
-        } else if (action === "ANA MENU") {
-          hidePauseMenu();
-          pauseMenuKeys.cancel();
-          k.go("menu");
+      if (gameMode === "KAFA_KAFAYA") {
+        if (p1Type !== p2Type) {
+          const chosen = k.choose([p1Type, p2Type]);
+          finalP1Type = chosen;
+          finalP2Type = chosen;
         }
       }
-    });
 
-    // Arena Sınır Kutusu ve Izgara Çizimi
-    k.add([
-      k.rect(k.width() - 48, k.height() - 48, { radius: 8 }),
-      k.pos(24, 24),
-      k.color(18, 18, 20),
-      k.outline(1.5, k.rgb(45, 45, 50)),
-    ]);
+      const p1 = addCar({
+        name: "Oyuncu 1",
+        tag: "player1",
+        color: k.rgb(0, 140, 255),
+        startPos: k.vec2(180, k.height() / 2),
+        startAngle: 0,
+        controls: {
+          forward: "w",
+          backward: "s",
+          left: "a",
+          right: "d",
+          dash: "shift",
+          skill: "q",
+        },
+        type: finalP1Type,
+      });
 
-    const gridSize = 60;
-    for (let x = 60; x < k.width() - 30; x += gridSize) {
-      for (let y = 60; y < k.height() - 30; y += gridSize) {
-        k.add([
-          k.pos(x, y),
-          k.circle(1.5),
-          k.color(55, 55, 60),
-        ]);
-      }
+      const p2 = addCar({
+        name: "Oyuncu 2",
+        tag: "player2",
+        color: k.rgb(255, 60, 60),
+        startPos: k.vec2(k.width() - 180, k.height() / 2),
+        startAngle: 180,
+        controls: {
+          forward: "up",
+          backward: "down",
+          left: "left",
+          right: "right",
+          dash: "enter",
+          skill: "numpad0",
+        },
+        type: finalP2Type,
+      });
+
+      cars.push(p1);
+      cars.push(p2);
     }
-
-    // Oyuncu 1
-    const p1 = addCar({
-      name: "Player 1",
-      tag: "player1",
-      color: k.rgb(0, 140, 255),
-      startPos: k.vec2(180, k.height() / 2),
-      startAngle: 0,
-      controls: {
-        forward: "w",
-        backward: "s",
-        left: "a",
-        right: "d",
-        skill: "shift",
-      },
-      type: finalP1Type,
-    });
-
-    // Oyuncu 2
-    const p2 = addCar({
-      name: "Player 2",
-      tag: "player2",
-      color: k.rgb(255, 60, 60),
-      startPos: k.vec2(k.width() - 180, k.height() / 2),
-      startAngle: 180,
-      controls: {
-        forward: "up",
-        backward: "down",
-        left: "left",
-        right: "right",
-        skill: "enter",
-      },
-      type: finalP2Type,
-    });
 
     // Raund Başı Geri Sayım ve Kontrol Kilidi
-    p1.controlsLocked = true;
-    p2.controlsLocked = true;
+    cars.forEach(c => c.controlsLocked = true);
 
     const countdownText = k.add([
       k.text("3", { size: 64, font: "monospace", weight: "bold" }),
@@ -211,8 +193,7 @@ export function initGameScene() {
         k.wait(0.5, () => {
           countdownText.text = "BAŞLA!";
           countdownText.color = k.rgb(0, 255, 100);
-          p1.controlsLocked = false;
-          p2.controlsLocked = false;
+          cars.forEach(c => c.controlsLocked = false);
           k.wait(0.4, () => {
             countdownText.destroy();
           });
@@ -220,15 +201,14 @@ export function initGameScene() {
       });
     });
 
-    // Minimal Skor Göstergesi
-    k.add([
-      k.text(`${p1Score} - ${p2Score}`, { size: 22, font: "monospace" }),
+    // Skor Göstergesi
+    const scoreText = k.add([
+      k.text(k.isMultiplayer ? "MAVİ 0 - 0 KIRMIZI" : `MAVİ ${p1Score} - ${p2Score} KIRMIZI`, { size: 22, font: "monospace" }),
       k.pos(k.width() / 2, 30),
       k.anchor("center"),
       k.color(200, 200, 205),
     ]);
 
-    // Raund Süresi Göstergesi (Maksimum 2 Dakika)
     const timerText = k.add([
       k.text("02:00", { size: 14, font: "monospace" }),
       k.pos(k.width() / 2, 60),
@@ -236,50 +216,68 @@ export function initGameScene() {
       k.color(150, 150, 155),
     ]);
 
+    setupHUD(cars);
+
     let roundTimeLeft = 120; // 2 Dakika
 
     k.onUpdate(() => {
-      if (k.gameOver || p1.controlsLocked) return;
+      if (k.gameOver) return;
 
-      roundTimeLeft -= k.dt();
-      if (roundTimeLeft <= 0) {
-        roundTimeLeft = 0;
-        triggerTimeOut();
+      const controlsLocked = cars.some(c => c.controlsLocked);
+      if (!controlsLocked && !k.isGamePaused) {
+        if (k.isMultiplayer) {
+          if (isHost()) {
+            roundTimeLeft -= k.dt();
+            if (roundTimeLeft <= 0) {
+              roundTimeLeft = 0;
+              triggerTimeOut();
+            }
+            setState("roundTime", roundTimeLeft);
+          } else {
+            roundTimeLeft = getState("roundTime") ?? 120;
+          }
+        } else {
+          // Yerel Mod Geri Sayım
+          roundTimeLeft -= k.dt();
+          if (roundTimeLeft <= 0) {
+            roundTimeLeft = 0;
+            triggerTimeOut();
+          }
+        }
       }
 
       const mins = Math.floor(roundTimeLeft / 60);
       const secs = Math.floor(roundTimeLeft % 60);
       timerText.text = `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
 
-      // Son 10 saniye kala yanıp sönen kırmızı uyarı
       if (roundTimeLeft <= 10) {
         timerText.color = k.rgb(255, 60, 60);
         timerText.scale = k.vec2(1 + Math.sin(k.time() * 10) * 0.1);
+      } else {
+        timerText.color = k.rgb(150, 150, 155);
+        timerText.scale = k.vec2(1);
       }
     });
 
     function triggerTimeOut() {
       k.gameOver = true;
-      p1.speed = 0;
-      p2.speed = 0;
-      p1.controlsLocked = true;
-      p2.controlsLocked = true;
-      
-      k.shake(8);
-      winnerText.scale = 0;
-      winnerText.text = "SÜRE BİTTİ • BERABERE";
-      winnerText.color = k.rgb(200, 200, 205);
-      winnerText.hidden = false;
+      cars.forEach(c => { c.speed = 0; c.controlsLocked = true; });
 
-      k.wait(3.0, () => {
-        k.go("game", {
-          p1Type,
-          p2Type,
-          gameMode,
-          p1Score,
-          p2Score,
+      if (k.isMultiplayer) {
+        if (!isHost()) return;
+        setState("roundWinner", null);
+        setState("roundOver", true);
+      } else {
+        k.shake(8);
+        winnerText.scaleTo(0);
+        winnerText.text = "SÜRE BİTTİ • BERABERE";
+        winnerText.color = k.rgb(200, 200, 205);
+        winnerText.hidden = false;
+        k.wait(2.5, () => {
+          pauseMenu.cancel();
+          k.go("game", { p1Type, p2Type, gameMode, p1Score, p2Score });
         });
-      });
+      }
     }
 
     // Kazanan Yazısı (Dopaminerjik Yaylanma Efektli)
@@ -293,56 +291,188 @@ export function initGameScene() {
     winnerText.hidden = true;
     winnerText.onUpdate(() => {
       if (!winnerText.hidden) {
-        winnerText.scale = k.lerp(winnerText.scale, 1, k.dt() * 12);
+        winnerText.scaleTo(k.lerp(winnerText.scale.x, 1, k.dt() * 12));
       }
     });
 
-    // Çarpışma Mekaniği
-    setupCollisions(checkGameOver, gameMode);
+    // Çarpışmalar ve Power-up kurulumu
+    if (k.isMultiplayer) {
+      if (isHost()) {
+        setupCollisions(checkGameOver, gameMode);
+        setupPowerupCollisions();
+        k.loop(10, spawnPowerup);
+      }
+    } else {
+      setupCollisions(checkGameOver, gameMode);
+      setupPowerupCollisions();
+      k.loop(10, spawnPowerup);
+    }
 
-    // Power-up Kurulumu ve Döngüsü
-    setupPowerupCollisions();
-    k.loop(10, spawnPowerup);
-
+    // Raund Sonu Kontrolü (Sadece Host veya Yerel Mod tetikler)
     function checkGameOver() {
-      if (p1.hp <= 0 || p2.hp <= 0) {
-        k.gameOver = true;
-        p1.speed = 0;
-        p2.speed = 0;
+      if (k.isMultiplayer) {
+        if (!isHost()) return;
 
-        let roundWinner = null;
-        if (p1.hp <= 0 && p2.hp <= 0) {
-          // Beraberlik
-        } else if (p1.hp <= 0) {
-          roundWinner = 2;
-        } else {
-          roundWinner = 1;
+        const blueTeam = cars.filter((c, idx) => idx % 2 === 0);
+        const redTeam = cars.filter((c, idx) => idx % 2 === 1);
+
+        const blueAlive = blueTeam.some(c => c.hp > 0);
+        const redAlive = redTeam.some(c => c.hp > 0);
+
+        if (!blueAlive || !redAlive) {
+          k.gameOver = true;
+          cars.forEach(c => { c.speed = 0; c.controlsLocked = true; });
+
+          let roundWinner = null;
+          if (!blueAlive && !redAlive) {
+            // Beraberlik
+          } else if (!blueAlive) {
+            roundWinner = 2;
+            setState("redScore", (getState("redScore") || 0) + 1);
+          } else {
+            roundWinner = 1;
+            setState("blueScore", (getState("blueScore") || 0) + 1);
+          }
+
+          k.shake(12);
+          winnerText.scaleTo(0);
+
+          setState("roundWinner", roundWinner);
+          setState("roundOver", true);
         }
+      } else {
+        // YEREL MOD GAME OVER KONTROLÜ
+        const p1 = cars[0];
+        const p2 = cars[1];
 
-        const nextP1Score = p1Score + (roundWinner === 1 ? 1 : 0);
-        const nextP2Score = p2Score + (roundWinner === 2 ? 1 : 0);
+        if (p1.hp <= 0 || p2.hp <= 0) {
+          k.gameOver = true;
+          cars.forEach(c => { c.speed = 0; c.controlsLocked = true; });
 
-        k.shake(12);
+          let roundWinner = null;
+          if (p1.hp <= 0 && p2.hp <= 0) {
+            // Berabere
+          } else if (p1.hp <= 0) {
+            roundWinner = 2;
+          } else {
+            roundWinner = 1;
+          }
 
-        winnerText.scale = 0; // Her raund sonu yaylanma animasyonu için ölçeği sıfırla
+          const nextP1Score = p1Score + (roundWinner === 1 ? 1 : 0);
+          const nextP2Score = p2Score + (roundWinner === 2 ? 1 : 0);
 
-        // 5 Raundu kazanan maçı alır
-        if (nextP1Score >= 5 || nextP2Score >= 5) {
-          winnerText.text = nextP1Score >= 5 ? "🏆 MAVİ ŞAMPİYON! 🏆" : "🏆 KIRMIZI ŞAMPİYON! 🏆";
-          winnerText.color = nextP1Score >= 5 ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60);
-          winnerText.hidden = false;
-          k.wait(3.0, () => {
-            k.go("menu");
-          });
-        } else {
-          winnerText.text = roundWinner === 1 ? "MAVİ RAUND!" : roundWinner === 2 ? "KIRMIZI RAUND!" : "BERABERE";
-          winnerText.color = roundWinner === 1 ? k.rgb(0, 140, 255) : roundWinner === 2 ? k.rgb(255, 60, 60) : k.rgb(255, 255, 255);
-          winnerText.hidden = false;
-          k.wait(1.5, () => {
-            k.go("game", { p1Type, p2Type, gameMode, p1Score: nextP1Score, p2Score: nextP2Score });
-          });
+          k.shake(12);
+          winnerText.scaleTo(0);
+
+          if (nextP1Score >= 3 || nextP2Score >= 3) {
+            winnerText.text = nextP1Score >= 3 ? "🏆 MAVİ ŞAMPİYON! 🏆" : "🏆 KIRMIZI ŞAMPİYON! 🏆";
+            winnerText.color = nextP1Score >= 3 ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60);
+            winnerText.hidden = false;
+            k.wait(3.5, () => {
+              pauseMenu.cancel();
+              k.go("menu");
+            });
+          } else {
+            winnerText.text = roundWinner === 1 ? "MAVİ RAUND!" : roundWinner === 2 ? "KIRMIZI RAUND!" : "BERABERE";
+            winnerText.color = roundWinner === 1 ? k.rgb(0, 140, 255) : roundWinner === 2 ? k.rgb(255, 60, 60) : k.rgb(255, 255, 255);
+            winnerText.hidden = false;
+            k.wait(2.5, () => {
+              pauseMenu.cancel();
+              k.go("game", { p1Type, p2Type, gameMode, p1Score: nextP1Score, p2Score: nextP2Score });
+            });
+          }
         }
       }
     }
+
+    // Playroom Eş Zamanlı Ağ Durum Takipçisi (Sadece Çevrimiçiyse Çalışır)
+    let lastReloadTrigger = 0;
+    if (k.isMultiplayer) {
+      lastReloadTrigger = getState("gameReloadTrigger") || 0;
+    }
+
+    k.onUpdate(() => {
+      if (!k.isMultiplayer) return;
+
+      if (isHost()) {
+        setState("hostId", myPlayer().id);
+      }
+
+      // 1. Skorları eşitle
+      const blueScore = getState("blueScore") || 0;
+      const redScore = getState("redScore") || 0;
+      scoreText.text = `MAVİ ${blueScore} - ${redScore} KIRMIZI`;
+
+      // 2. Powerup'ları senkronize et
+      syncPowerups();
+
+      // 3. Duraklatma (Pause) durumunu eşitle
+      const paused = getState("isGamePaused") || false;
+      if (k.isGamePaused !== paused) {
+        k.isGamePaused = paused;
+        if (paused) {
+          pauseMenu.show();
+        } else {
+          pauseMenu.hide();
+        }
+      }
+
+      // 4. Raund sonu ekranını yönet
+      if (getState("roundOver") && !k.gameOver) {
+        k.gameOver = true;
+        cars.forEach(c => { c.speed = 0; c.controlsLocked = true; });
+
+        const winner = getState("roundWinner");
+        const nextBlue = getState("blueScore") || 0;
+        const nextRed = getState("redScore") || 0;
+
+        winnerText.scaleTo(0);
+
+        if (nextBlue >= 3 || nextRed >= 3) {
+          winnerText.text = nextBlue >= 3 ? "🏆 MAVİ TAKIM ŞAMPİYON! 🏆" : "🏆 KIRMIZI TAKIM ŞAMPİYON! 🏆";
+          winnerText.color = nextBlue >= 3 ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60);
+          winnerText.hidden = false;
+
+          k.wait(4.0, () => {
+            if (isHost()) {
+              pauseMenu.cancel();
+              setState("blueScore", 0);
+              setState("redScore", 0);
+              setState("roundOver", false);
+              setState("gameState", "lobby");
+              setState("menuState", "MODE_SELECT");
+              playroomPlayers.forEach(p => p.setState("ready", false));
+            }
+          });
+        } else {
+          winnerText.text = winner === 1 ? "MAVİ RAUND!" : winner === 2 ? "KIRMIZI RAUND!" : "BERABERE";
+          winnerText.color = winner === 1 ? k.rgb(0, 140, 255) : winner === 2 ? k.rgb(255, 60, 60) : k.rgb(255, 255, 255);
+          winnerText.hidden = false;
+
+          k.wait(2.5, () => {
+            if (isHost()) {
+              pauseMenu.cancel();
+              setState("roundOver", false);
+              setState("roundWinner", null);
+              setState("gameReloadTrigger", (getState("gameReloadTrigger") || 0) + 1);
+            }
+          });
+        }
+      }
+
+      // 5. Yeniden başlama/sonraki raunt tetikleyicisi
+      const currentTrigger = getState("gameReloadTrigger") || 0;
+      if (currentTrigger !== lastReloadTrigger) {
+        lastReloadTrigger = currentTrigger;
+        pauseMenu.cancel();
+        k.go("game");
+      }
+
+      // 6. Ana menüye dönme tetikleyicisi
+      if (getState("gameState") === "lobby") {
+        pauseMenu.cancel();
+        k.go("menu");
+      }
+    });
   });
 }

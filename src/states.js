@@ -8,17 +8,26 @@ export const CAR_STATES = {
         car.speed = 0;
         return;
       }
-      const isMoving = k.isKeyDown(car.controls.forward);
-      const isReversing = k.isKeyDown(car.controls.backward);
+      const isMoving = car.driveInputs?.forward || false;
+      const isReversing = car.driveInputs?.backward || false;
 
-      const currentMax = car.skillActive && (car.carType === "HIZLI" || car.carType === "DENGELI") ? car.maxSpeed * 3.5 : car.maxSpeed;
+      let currentMax = car.maxSpeed;
+      if (car.dashActive) {
+        currentMax = car.maxSpeed * 3.0;
+      } else if (car.skillActive && car.carType === "DENGELI") {
+        currentMax = car.maxSpeed * 2.2;
+      }
+
       if (isMoving) car.speed = Math.min(currentMax, car.speed + car.acceleration * k.dt());
       if (isReversing) car.speed = Math.max(car.reverseSpeed, car.speed - car.acceleration * k.dt());
 
       // Direksiyon (Hızla orantılı dönme hızı, geri giderken yön değişimi)
       const turnFactor = Math.min(1, Math.abs(car.speed) / 10) * (car.speed >= 0 ? 1 : -1);
-      if (k.isKeyDown(car.controls.left)) car.angle -= car.turnSpeed * turnFactor * k.dt();
-      if (k.isKeyDown(car.controls.right)) car.angle += car.turnSpeed * turnFactor * k.dt();
+      const turnLeft = car.driveInputs?.left || false;
+      const turnRight = car.driveInputs?.right || false;
+
+      if (turnLeft) car.angle -= car.turnSpeed * turnFactor * k.dt();
+      if (turnRight) car.angle += car.turnSpeed * turnFactor * k.dt();
 
       // Doğal Yavaşlama (Sürtünme)
       if (!isMoving && !isReversing && car.speed !== 0) {

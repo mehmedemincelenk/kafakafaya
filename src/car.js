@@ -2,6 +2,8 @@ import { k } from "./kaplay.js";
 import { CAR_TYPES } from "./config.js";
 import { CAR_STATES } from "./states.js";
 import { SKILLS } from "./skill.js";
+import { isHost, myPlayer } from "playroomkit";
+import { getCarInputs } from "./input.js";
 
 // Araç tekerlekleri, farları ve sınıf detaylarını çizmeye yarayan yardımcı fonksiyon (menü ve oyun sahnelerinde DRY uyumluluğu için ortaktır)
 export function drawCarDetails(parent, type, color) {
@@ -22,10 +24,7 @@ export function drawCarDetails(parent, type, color) {
   });
 
   // Sınıf Bazlı Süslemeler
-  if (type === "HIZLI") {
-    parent.add([k.rect(4, cfg.height + 2), k.pos(-wHalf + 5, 0), k.color(20, 20, 22), k.anchor("center")]);
-    parent.add([k.rect(6, cfg.height + 6), k.pos(-wHalf + 2, 0), k.color(color), k.anchor("center")]);
-  } else if (type === "GUCLU") {
+  if (type === "GUCLU") {
     parent.add([k.rect(4, cfg.height + 4), k.pos(wHalf + 2, 0), k.color(20, 20, 22), k.anchor("center")]);
     parent.add([k.rect(8, 4), k.pos(wHalf, -hHalf + 4), k.color(color), k.anchor("center")]);
     parent.add([k.rect(8, 4), k.pos(wHalf, hHalf - 4), k.color(color), k.anchor("center")]);
@@ -40,6 +39,17 @@ export function drawCarDetails(parent, type, color) {
     parent.add([k.rect(cfg.width - 12, 2), k.pos(0, -hHalf + 3), k.color(color), k.anchor("center")]);
     parent.add([k.rect(cfg.width - 12, 2), k.pos(0, hHalf - 3), k.color(color), k.anchor("center")]);
   }
+}
+
+// Dash tetikleyici fonksiyon
+export function triggerDash(car) {
+  if (car.dashActive || car.dashCooldownTimer > 0 || car.controlsLocked) return;
+  car.dashActive = true;
+  car.dashDurationTimer = car.dashDuration || 0.25;
+  car.dashCooldownTimer = car.dashCooldown || 3.5;
+
+  car.speed = car.maxSpeed * 3.0; // Universal dash speed boost
+  k.shake(1.0); // Dash hissi için hafif ekran sarsıntısı
 }
 
 // Yetenek tetikleyici fonksiyon
@@ -57,9 +67,9 @@ export function triggerSkill(car) {
 }
 
 // İki oyuncunun da arabasını aynı standartta üreten bileşen fonksiyonu.
-export function addCar({ name, tag, color, startPos, startAngle, controls, type = "DENGELI" }) {
+export function addCar({ name, tag, color, startPos, startAngle, controls, type = "DENGELI", playerInfo }) {
   const config = CAR_TYPES[type] || CAR_TYPES.DENGELI;
-  const HEALTH_BAR_OFFSET_Y = -25;
+  const HEALTH_BAR_OFFSET_Y = -28;
   const HEALTH_BAR_OFFSET_X = -20;
   const car = k.add([
     k.rect(config.width, config.height, { radius: config.radius }), // Aracın ana gövde kutusu
@@ -71,6 +81,8 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     tag,      // Oyuncuyu ayırt eden benzersiz etiket (örn. 'player1')
     "player", // Genel grup etiketi
     {
+      carTag: tag,
+      playerInfo,
       state: "DRIVING",
       controls,
       speed: 0,
@@ -93,6 +105,14 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
       skillDurationTimer: 0,
       isGhost: false,
       originalColor: color,
+
+      // Dash State Özellikleri
+      isBlue: tag === "teamBlue" || tag === "player1",
+      dashActive: false,
+      dashCooldownTimer: 0,
+      dashDurationTimer: 0,
+      dashCooldown: 3.5,
+      dashDuration: 0.25,
     },
   ]);
 
@@ -104,38 +124,19 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     k.anchor("center"),
   ]);
 
-  // Klasik Can Barı Dolgusu (Oyuncu Renginde)
+  // Klasik Can Barı Dolgusu (Her iki tarafta da kırmızı)
   const healthBarFill = k.add([
     k.rect(40, 5, { radius: 1.5 }),
-    k.color(color),
+    k.color(255, 60, 60),
     k.pos(startPos.add(HEALTH_BAR_OFFSET_X, HEALTH_BAR_OFFSET_Y)),
     k.anchor("left"),
     k.scale(1),
   ]);
 
-  // Yetenek Cooldown Barı Arka Planı (Koyu Gri)
-  const skillBarBg = k.add([
-    k.rect(40, 3, { radius: 1 }),
-    k.color(30, 30, 32),
-    k.pos(startPos.add(0, HEALTH_BAR_OFFSET_Y - 6)),
-    k.anchor("center"),
-  ]);
-
-  // Yetenek Cooldown Barı Dolgusu (Açık Mavi/Gri/Yeşil dinamik geçişli)
-  const skillBarFill = k.add([
-    k.rect(40, 3, { radius: 1 }),
-    k.color(0, 255, 100),
-    k.pos(startPos.add(HEALTH_BAR_OFFSET_X, HEALTH_BAR_OFFSET_Y - 6)),
-    k.anchor("left"),
-    k.scale(1),
-  ]);
-
-  // Hafıza Yönetimi (Oyuncu yok edildiğinde can ve yetenek barlarını da siler)
+  // Hafıza Yönetimi (Oyuncu yok edildiğinde can barlarını da siler)
   car.onDestroy(() => {
-    healthBarBg.destroy();
-    healthBarFill.destroy();
-    skillBarBg.destroy();
-    skillBarFill.destroy();
+    try { healthBarBg.destroy(); } catch (e) {}
+    try { healthBarFill.destroy(); } catch (e) {}
   });
 
   // Tekerlekler, farlar ve gövde detaylarını çiz
@@ -148,24 +149,42 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     if (k.gameOver) {
       healthBarBg.hidden = true;
       healthBarFill.hidden = true;
-      skillBarBg.hidden = true;
-      skillBarFill.hidden = true;
       return; // Oyun bittiyse hareketleri dondur
     }
 
     healthBarBg.hidden = false;
     healthBarFill.hidden = false;
-    skillBarBg.hidden = false;
-    skillBarFill.hidden = false;
+
+    // --- PLAYROOM CLIENT SYNCHRONIZATION ---
+    // Host fizik simülasyonunu yapar. Client ise sadece Host'un gönderdiği verileri ekrana yansıtır.
+    if (playerInfo && !isHost()) {
+      const data = playerInfo.getState("carData");
+      if (data) {
+        car.pos = car.pos.lerp(k.vec2(data.x, data.y), 0.35);
+        car.angle = k.lerp(car.angle, data.angle, 0.35);
+        car.hp = data.hp;
+        car.speed = data.speed;
+        car.state = data.state;
+        car.skillActive = data.skillActive;
+        car.skillCooldownTimer = data.skillCooldownTimer;
+        car.skillDurationTimer = data.skillDurationTimer;
+        car.dashActive = data.dashActive;
+        car.dashCooldownTimer = data.dashCooldownTimer;
+        car.dashDurationTimer = data.dashDurationTimer;
+      }
+      
+      // Can barını araca göre konumlandır
+      healthBarBg.pos = car.pos.add(0, HEALTH_BAR_OFFSET_Y);
+      healthBarFill.pos = car.pos.add(HEALTH_BAR_OFFSET_X, HEALTH_BAR_OFFSET_Y);
+      healthBarFill.scale.x = Math.max(0, car.hp / car.maxHp);
+      
+      return; // Client tarafında diğer fizik hesaplamalarını atla
+    }
 
     // Can barını araca göre konumlandır (Dönüşlerden etkilenmemesi için bağımsız)
     healthBarBg.pos = car.pos.add(0, HEALTH_BAR_OFFSET_Y);
     healthBarFill.pos = car.pos.add(HEALTH_BAR_OFFSET_X, HEALTH_BAR_OFFSET_Y);
     healthBarFill.scale.x = Math.max(0, car.hp / car.maxHp);
-
-    // Yetenek barını araca göre konumlandır
-    skillBarBg.pos = car.pos.add(0, HEALTH_BAR_OFFSET_Y - 6);
-    skillBarFill.pos = car.pos.add(HEALTH_BAR_OFFSET_X, HEALTH_BAR_OFFSET_Y - 6);
 
     // Yetenek zamanlayıcılarını güncelle
     if (car.skillDurationTimer > 0) {
@@ -179,27 +198,31 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
       car.skillCooldownTimer -= k.dt();
     }
 
-    // Yetenek bar doluluk oranı ve rengini güncelle
-    if (car.skillActive) {
-      const skill = SKILLS[car.carType];
-      skillBarFill.scale.x = Math.max(0, car.skillDurationTimer / skill.duration);
-      skillBarFill.color = k.rgb(0, 255, 255); // Aktifken açık mavi
-    } else if (car.skillCooldownTimer > 0) {
-      const skill = SKILLS[car.carType];
-      skillBarFill.scale.x = Math.max(0, 1 - (car.skillCooldownTimer / skill.cooldown));
-      skillBarFill.color = k.rgb(100, 100, 105); // Beklemedeyken gri
-    } else {
-      skillBarFill.scale.x = 1;
-      skillBarFill.color = k.rgb(0, 255, 100); // Hazırken yeşil
+    // Dash zamanlayıcılarını güncelle
+    if (car.dashDurationTimer > 0) {
+      car.dashDurationTimer -= k.dt();
+      if (car.dashDurationTimer <= 0) {
+        car.dashActive = false;
+        car.speed = Math.min(car.maxSpeed, car.speed);
+      }
+    }
+    if (car.dashCooldownTimer > 0) {
+      car.dashCooldownTimer -= k.dt();
     }
 
-    // Yetenek tuş vuruşu kontrolü
-    if (car.state === "DRIVING" && controls.skill && k.isKeyPressed(controls.skill)) {
-      triggerSkill(car);
+    // --- INPUT TOPLAMA & GÖNDERME ---
+    const { driveInput, triggerDashPress, triggerSkillPress } = getCarInputs(car, playerInfo, controls);
+
+    if (car.state === "DRIVING") {
+      if (triggerDashPress) triggerDash(car);
+      if (triggerSkillPress) triggerSkill(car);
     }
+
+    // Inputları araca ata (states.js okuması için)
+    car.driveInputs = driveInput;
 
     // Akıcı Dash Kuyruk Efekti (Hayalet İz)
-    if (car.skillActive && (car.carType === "HIZLI" || car.carType === "DENGELI") && k.chance(0.45)) {
+    if ((car.dashActive || (car.skillActive && car.carType === "DENGELI")) && k.chance(0.45)) {
       const trail = k.add([
         k.rect(config.width, config.height, { radius: config.radius }),
         k.pos(car.pos),
@@ -215,6 +238,24 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     }
 
     CAR_STATES[car.state]?.update?.(car);
+
+    // --- HOST FİZİK YAYINI ---
+    if (playerInfo && isHost()) {
+      playerInfo.setState("carData", {
+        x: car.pos.x,
+        y: car.pos.y,
+        angle: car.angle,
+        hp: car.hp,
+        speed: car.speed,
+        state: car.state,
+        skillActive: car.skillActive,
+        skillCooldownTimer: car.skillCooldownTimer,
+        skillDurationTimer: car.skillDurationTimer,
+        dashActive: car.dashActive,
+        dashCooldownTimer: car.dashCooldownTimer,
+        dashDurationTimer: car.dashDurationTimer,
+      });
+    }
   });
 
   return car;

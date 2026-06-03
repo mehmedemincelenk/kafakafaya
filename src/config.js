@@ -11,18 +11,7 @@ export const CAR_TYPES = {
     maxHp: 100,
     mass: 1.0,
   },
-  HIZLI: {
-    width: 52,
-    height: 24,
-    radius: 4,
-    maxSpeed: 400,
-    reverseSpeed: -300,
-    acceleration: 200,
-    deceleration: 160,
-    turnSpeed: 220,
-    maxHp: 80,
-    mass: 0.8,
-  },
+
   GUCLU: {
     width: 56,
     height: 34,

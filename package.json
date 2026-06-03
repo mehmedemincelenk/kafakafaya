@@ -12,6 +12,7 @@
     "vite": "^5.2.11"
   },
   "dependencies": {
-    "kaplay": "^3001.0.0-alpha.20"
+    "kaplay": "^3001.0.0-alpha.20",
+    "playroomkit": "^0.0.96"
   }
 }

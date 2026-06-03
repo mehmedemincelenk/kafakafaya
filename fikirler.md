@@ -1,0 +1,7 @@
+- bomba
+- portal
+- kurye mod
+- bayrak kapmaca
+- güneş tutulması
+- son 30 sn duvarlar daralsın
+- ucak ateş edecegi alan ocneden gözükür

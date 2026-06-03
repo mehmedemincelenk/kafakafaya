@@ -1,6 +1,7 @@
 import { k } from "./kaplay.js";
 import { changeState } from "./states.js";
 import { spawnExplosion } from "./utils.js";
+import { isHost } from "playroomkit";
 
 /**
  * Handle head-on duel clash state, inputs, physics push, and finish triggers.
@@ -28,8 +29,9 @@ export function startDuel(car1, car2, collisionNormal, midPoint) {
     if (duelEnded) return;
     duelEnded = true;
 
-    cancel1.cancel();
-    cancel2.cancel();
+    if (cancel1) cancel1.cancel();
+    if (cancel2) cancel2.cancel();
+    if (tapWatcher) tapWatcher.cancel();
     clashLabel.destroy();
 
     changeState(car1, "RECOIL");
@@ -59,27 +61,60 @@ export function startDuel(car1, car2, collisionNormal, midPoint) {
     });
   };
 
-  const cancel1 = k.onKeyPress(car1.controls.forward, () => {
+  const processTap = (playerIndex, amount) => {
     if (duelEnded) return;
-    m1++;
     k.shake(1.5);
-    car1.pos = car1.pos.add(collisionNormal.scale(5));
-    car2.pos = car2.pos.add(collisionNormal.scale(5));
-    spawnExplosion(car1.pos.add(k.Vec2.fromAngle(car1.angle).scale(23)), 1);
+    if (playerIndex === 1) {
+      m1 += amount;
+      car1.pos = car1.pos.add(collisionNormal.scale(5 * amount));
+      car2.pos = car2.pos.add(collisionNormal.scale(5 * amount));
+      spawnExplosion(car1.pos.add(k.Vec2.fromAngle(car1.angle).scale(23)), 1);
+      if (m1 - m2 >= 5) finishClash();
+    } else {
+      m2 += amount;
+      car1.pos = car1.pos.sub(collisionNormal.scale(5 * amount));
+      car2.pos = car2.pos.sub(collisionNormal.scale(5 * amount));
+      spawnExplosion(car2.pos.add(k.Vec2.fromAngle(car2.angle).scale(23)), 1);
+      if (m2 - m1 >= 5) finishClash();
+    }
+  };
 
-    if (m1 - m2 >= 5) finishClash();
-  });
-  
-  const cancel2 = k.onKeyPress(car2.controls.forward, () => {
-    if (duelEnded) return;
-    m2++;
-    k.shake(1.5);
-    car1.pos = car1.pos.sub(collisionNormal.scale(5));
-    car2.pos = car2.pos.sub(collisionNormal.scale(5));
-    spawnExplosion(car2.pos.add(k.Vec2.fromAngle(car2.angle).scale(23)), 1);
+  let cancel1 = null;
+  let cancel2 = null;
+  let tapWatcher = null;
 
-    if (m2 - m1 >= 5) finishClash();
-  });
+  // MULTIPLAYER PLAYROOM MODE
+  if (car1.playerInfo && car2.playerInfo) {
+    let lastTaps1 = car1.playerInfo.getState("clashTaps") || 0;
+    let lastTaps2 = car2.playerInfo.getState("clashTaps") || 0;
+
+    tapWatcher = k.onUpdate(() => {
+      if (duelEnded) return;
+
+      const currentTaps1 = car1.playerInfo.getState("clashTaps") || 0;
+      if (currentTaps1 > lastTaps1) {
+        const diff = currentTaps1 - lastTaps1;
+        lastTaps1 = currentTaps1;
+        processTap(1, diff);
+      }
+
+      const currentTaps2 = car2.playerInfo.getState("clashTaps") || 0;
+      if (currentTaps2 > lastTaps2) {
+        const diff = currentTaps2 - lastTaps2;
+        lastTaps2 = currentTaps2;
+        processTap(2, diff);
+      }
+    });
+  } else {
+    // LOCAL/OFFLINE FALLBACK MODE
+    cancel1 = k.onKeyPress(car1.controls?.forward || "w", () => {
+      processTap(1, 1);
+    });
+
+    cancel2 = k.onKeyPress(car2.controls?.forward || "up", () => {
+      processTap(2, 1);
+    });
+  }
 
   k.wait(1.8, () => {
     finishClash();

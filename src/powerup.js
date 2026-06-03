@@ -1,5 +1,7 @@
 import { k } from "./kaplay.js";
 import { spawnExplosion } from "./utils.js";
+import { getState, setState, isHost } from "playroomkit";
+import { MAPS } from "./maps.js";
 
 // Rekabetçi, sade ve anlık itiş/can/yetenek desteği sunan 3 temel güçlendirici
 export const POWERUPS = {
@@ -13,7 +15,7 @@ export const POWERUPS = {
   },
   NITRO: {
     name: "NITRO",
-    color: k.rgb(255, 215, 0), // Sarı/Altın: Anlık ileri itiş gücü (Zamanlayıcısız, sade)
+    color: k.rgb(255, 215, 0), // Sarı/Altın: Anlık ileri itiş gücü
     activate: (car) => {
       car.speed = Math.min(car.maxSpeed * 1.4, Math.max(car.speed, 0) + 160);
       k.shake(2.5);
@@ -29,25 +31,11 @@ export const POWERUPS = {
   }
 };
 
-// Tek bir power-up nesnesi oluşturur
-function createSinglePowerup() {
-  const r = k.rand(0, 1);
-  let chosenType = "TAMIR"; // %65 ihtimal
-  if (r < 0.10) {
-    chosenType = "NITRO"; // %10 ihtimal
-  } else if (r < 0.35) {
-    chosenType = "SARJ";  // %25 ihtimal
-  }
+// Diamond (Baklava) nesnesini yerel olarak ekrana çizen yardımcı fonksiyon
+function createLocalPowerup(sp) {
+  const config = POWERUPS[sp.type];
+  const pos = k.vec2(sp.x, sp.y);
 
-  const config = POWERUPS[chosenType];
-
-  const margin = 140;
-  const pos = k.vec2(
-    k.rand(margin, k.width() - margin),
-    k.rand(margin, k.height() - margin)
-  );
-
-  // Minimalist Dönen Diamond (Baklava) Geometrisi
   const pUp = k.add([
     k.rect(10, 10, { radius: 2 }),
     k.pos(pos),
@@ -56,10 +44,12 @@ function createSinglePowerup() {
     k.anchor("center"),
     k.area(),
     "powerup",
-    { type: chosenType }
+    { 
+      type: sp.type,
+      playroomPowerupId: sp.id
+    }
   ]);
 
-  // Diamond dış halka
   const glowRing = k.add([
     k.rect(14, 14, { radius: 2 }),
     k.pos(pos),
@@ -83,31 +73,118 @@ function createSinglePowerup() {
   });
 }
 
+// Playroom state üzerinden power-up senkronizasyonu
+export function syncPowerups() {
+  const syncedList = getState("powerups") || [];
+  const localPowerups = k.get("powerup");
+
+  // 1. Ağda silinen kitleri yerel ekrandan da temizle
+  localPowerups.forEach((lp) => {
+    const exists = syncedList.some((sp) => sp.id === lp.playroomPowerupId);
+    if (!exists) {
+      lp.destroy();
+    }
+  });
+
+  // 2. Ağda yeni eklenen kitleri yerel ekrana çiz
+  syncedList.forEach((sp) => {
+    const alreadyLocal = localPowerups.some((lp) => lp.playroomPowerupId === sp.id);
+    if (!alreadyLocal) {
+      createLocalPowerup(sp);
+    }
+  });
+}
+
+function isInsideObstacle(px, py, mapData) {
+  if (!mapData || !mapData.obstacles) return false;
+  return mapData.obstacles.some(obs => {
+    const halfW = obs.w / 2 + 40; // Ekstra güvenli marj
+    const halfH = obs.h / 2 + 40;
+    return px >= obs.x - halfW && px <= obs.x + halfW && py >= obs.y - halfH && py <= obs.y + halfH;
+  });
+}
+
+// Host veya yerel mod tarafında power-up oluşturma
+function createSinglePowerup() {
+  const r = k.rand(0, 1);
+  let chosenType = "TAMIR"; // %65 ihtimal
+  if (r < 0.10) {
+    chosenType = "NITRO"; // %10 ihtimal
+  } else if (r < 0.35) {
+    chosenType = "SARJ";  // %25 ihtimal
+  }
+
+  // Aktif haritayı alarak engellerin içine doğmasını engelle
+  const mapName = k.isMultiplayer ? (getState("gameMap") || "SADE") : (k.selectedMapName || "SADE");
+  const mapData = MAPS.find(m => m.name === mapName) || MAPS[0];
+
+  const margin = 140;
+  let x, y;
+  let attempts = 0;
+  do {
+    x = k.rand(margin, k.width() - margin);
+    y = k.rand(margin, k.height() - margin);
+    attempts++;
+  } while (attempts < 20 && isInsideObstacle(x, y, mapData));
+
+  const id = String(Math.random());
+  const sp = { id, type: chosenType, x, y };
+
+  if (k.isMultiplayer) {
+    const syncedList = getState("powerups") || [];
+    syncedList.push(sp);
+    setState("powerups", syncedList);
+  } else {
+    createLocalPowerup(sp);
+  }
+}
+
 // Haritada power-up üretme fonksiyonu
 export function spawnPowerup() {
   if (k.gameOver || k.isGamePaused) return;
 
-  // Arenada aynı anda en fazla 2 aktif kit bulunabilir
-  const existing = k.get("powerup");
-  if (existing.length >= 2) return;
+  if (k.isMultiplayer) {
+    if (!isHost()) return;
+    const existing = getState("powerups") || [];
+    if (existing.length >= 2) return;
 
-  // %30 ihtimalle çift kit (eğer arena tamamen boşsa), aksi halde 1 adet üretilir
-  const count = (k.chance(0.3) && existing.length === 0) ? 2 : 1;
+    const count = (k.chance(0.3) && existing.length === 0) ? 2 : 1;
+    for (let i = 0; i < count; i++) {
+      createSinglePowerup();
+    }
+  } else {
+    const existing = k.get("powerup");
+    if (existing.length >= 2) return;
 
-  for (let i = 0; i < count; i++) {
-    createSinglePowerup();
+    const count = (k.chance(0.3) && existing.length === 0) ? 2 : 1;
+    for (let i = 0; i < count; i++) {
+      createSinglePowerup();
+    }
   }
 }
 
 // Oyuncu ve Kit etkileşimi
 export function setupPowerupCollisions() {
   k.onCollide("player", "powerup", (player, pUp) => {
-    const config = POWERUPS[pUp.type];
-    if (config) {
-      config.activate(player);
-      // Kitin renginde özel patlama kıvılcımı oluştur (Dopaminerjik game feel)
-      spawnExplosion(pUp.pos, 15, config.color);
-      pUp.destroy();
+    if (k.isMultiplayer) {
+      if (!isHost()) return;
+
+      const config = POWERUPS[pUp.type];
+      if (config) {
+        config.activate(player);
+        spawnExplosion(pUp.pos, 15, config.color);
+        
+        const syncedList = getState("powerups") || [];
+        const nextList = syncedList.filter(sp => sp.id !== pUp.playroomPowerupId);
+        setState("powerups", nextList);
+      }
+    } else {
+      const config = POWERUPS[pUp.type];
+      if (config) {
+        config.activate(player);
+        spawnExplosion(pUp.pos, 15, config.color);
+        pUp.destroy();
+      }
     }
   });
 }
