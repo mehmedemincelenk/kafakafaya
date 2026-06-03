@@ -36,12 +36,62 @@ export function initMenuScene() {
       k.wait(0.2, () => inputCooldown = false);
     }
 
-    // Başlık
+    // --- MODERN ARKA PLAN EFEKTLERİ ---
+    // Ambient Neon Işıma Halkası (Orta kısımda yumuşak mavi/mor parıltı)
+    k.add([
+      k.circle(420),
+      k.pos(k.width() / 2, k.height() / 2),
+      k.color(0, 120, 255),
+      k.opacity(0.04),
+      k.anchor("center"),
+      k.z(-6),
+    ]);
+
+    // Hareketli Yıldızlar/Parçacıklar (Derinlik hissi)
+    const starsGroup = [];
+    for (let i = 0; i < 45; i++) {
+      starsGroup.push(k.add([
+        k.pos(k.rand(0, k.width()), k.rand(0, k.height())),
+        k.circle(k.rand(1.2, 3)),
+        k.color(255, 255, 255),
+        k.opacity(k.rand(0.1, 0.45)),
+        k.z(-5),
+        {
+          speed: k.rand(8, 25),
+        }
+      ]));
+    }
+    k.onUpdate(() => {
+      starsGroup.forEach(s => {
+        s.pos.y += s.speed * k.dt();
+        if (s.pos.y > k.height()) {
+          s.pos.y = 0;
+          s.pos.x = k.rand(0, k.width());
+        }
+      });
+    });
+
+    // --- MODERNIZE EDILMIS BAŞLIK ---
+    // Gölgeli/Glow Efektli Başlık Katmanı
+    k.add([
+      k.text("KAFA KAFAYA", { size: 66, letterSpacing: 6 }),
+      k.pos(k.width() / 2, 110),
+      k.anchor("center"),
+      k.color(0, 150, 255),
+      k.opacity(0.2),
+    ]);
     k.add([
       k.text("KAFA KAFAYA", { size: 64, letterSpacing: 6 }),
       k.pos(k.width() / 2, 110),
       k.anchor("center"),
       k.color(255, 255, 255),
+    ]);
+    k.add([
+      k.text("VEHICULAR COMBAT", { size: 11, letterSpacing: 8 }),
+      k.pos(k.width() / 2, 160),
+      k.anchor("center"),
+      k.color(140, 142, 145),
+      k.opacity(0.8),
     ]);
 
     // ----------------------------------
@@ -50,8 +100,8 @@ export function initMenuScene() {
     const playTypeUIGroup = [];
 
     const typeTitle = k.add([
-      k.text("OYUN BAĞLANTISINI SEÇİN", { size: 20, letterSpacing: 2 }),
-      k.pos(k.width() / 2, k.height() / 2 - 100),
+      k.text("OYUN BAGLANTISINI SECIN", { size: 20, letterSpacing: 2 }),
+      k.pos(k.width() / 2, k.height() / 2 - 110),
       k.anchor("center"),
       k.color(255, 215, 0),
     ]);
@@ -59,11 +109,12 @@ export function initMenuScene() {
 
     function createSelectionCard(parentGroup, titleText, descText, xOffset) {
       const card = k.add([
-        k.rect(340, 120, { radius: 6 }),
+        k.rect(340, 120, { radius: 10 }),
         k.pos(k.width() / 2 + xOffset, k.height() / 2 + 10),
         k.anchor("center"),
-        k.color(18, 19, 23),
+        k.color(12, 13, 16),
         k.outline(1.5, k.rgb(40, 40, 45)),
+        k.scale(1.0),
         k.area(),
       ]);
       const title = card.add([
@@ -82,11 +133,11 @@ export function initMenuScene() {
       return { card, title };
     }
 
-    const localCard = createSelectionCard(playTypeUIGroup, "YEREL OYNA", "Aynı bilgisayardan\n2 Oyuncu (Klavye paylaşımı)", -180);
-    const onlineCard = createSelectionCard(playTypeUIGroup, "BERABER OYNA", "Çevrimiçi çok oyunculu\n(Playroom Kit ile)", 180);
+    const localCard = createSelectionCard(playTypeUIGroup, "YEREL OYNA", "Ayni bilgisayardan\n2 Oyuncu (Klavye paylasimi)", -180);
+    const onlineCard = createSelectionCard(playTypeUIGroup, "BERABER OYNA", "Cevrimici cok oyunculu\n(Playroom Kit ile)", 180);
 
     const typeHelpText = k.add([
-      k.text("Seçmek için Tıklayın • Onaylamak için Tekrar Tıklayın veya SPACE/ENTER'a Basın", { size: 11 }),
+      k.text("Secmek icin Tiklayin • Onaylamak icin Tekrar Tiklayin veya SPACE/ENTER'a Basin", { size: 11 }),
       k.pos(k.width() / 2, k.height() / 2 + 120),
       k.anchor("center"),
       k.color(150, 150, 155),
@@ -105,12 +156,14 @@ export function initMenuScene() {
     function updatePlayTypeUI() {
       const activeColor = k.rgb(0, 140, 255);
       localCard.card.outline.color = selectedPlayTypeIdx === 0 ? activeColor : k.rgb(40, 40, 45);
-      localCard.card.outline.width = selectedPlayTypeIdx === 0 ? 2 : 1.5;
+      localCard.card.outline.width = selectedPlayTypeIdx === 0 ? 2.5 : 1.5;
       localCard.title.color = selectedPlayTypeIdx === 0 ? activeColor : k.rgb(255, 255, 255);
+      localCard.card.scaleTo(selectedPlayTypeIdx === 0 ? 1.05 : 1.0);
 
       onlineCard.card.outline.color = selectedPlayTypeIdx === 1 ? activeColor : k.rgb(40, 40, 45);
-      onlineCard.card.outline.width = selectedPlayTypeIdx === 1 ? 2 : 1.5;
+      onlineCard.card.outline.width = selectedPlayTypeIdx === 1 ? 2.5 : 1.5;
       onlineCard.title.color = selectedPlayTypeIdx === 1 ? activeColor : k.rgb(255, 255, 255);
+      onlineCard.card.scaleTo(selectedPlayTypeIdx === 1 ? 1.05 : 1.0);
     }
 
     updatePlayTypeUI();
@@ -174,18 +227,18 @@ export function initMenuScene() {
       ]);
 
       const modeTitle = k.add([
-        k.text(k.isMultiplayer ? "OYUN MODUNU SEÇİN (Sadece Kurucu)" : "OYUN MODUNU SEÇİN", { size: 20, letterSpacing: 2 }),
+        k.text(k.isMultiplayer ? "OYUN MODUNU SECIN (Sadece Kurucu)" : "OYUN MODUNU SECIN", { size: 20, letterSpacing: 2 }),
         k.pos(k.width() / 2, k.height() / 2 - 100),
         k.anchor("center"),
         k.color(255, 215, 0),
       ]);
       modeUIGroup.push(modeTitle);
 
-      norm = createSelectionCard(modeUIGroup, "NORMAL MOD", "Farklı araçlar seçilebilir\nMomentum ve asimetrik fizik odaklıdır", -180);
-      clash = createSelectionCard(modeUIGroup, "KAFA KAFAYA MODU", "Oyuncular aynı aracı kullanır\nKafa kafaya çarpışmalar düello tetikler", 180);
+      norm = createSelectionCard(modeUIGroup, "NORMAL MOD", "Farkli araclar secilebilir\nMomentum ve asimetrik fizik odaklidir", -180);
+      clash = createSelectionCard(modeUIGroup, "KAFA KAFAYA MODU", "Oyuncular ayni araci kullanir\nKafa kafaya carpismalar duello tetikler", 180);
 
       const modeHelpText = k.add([
-        k.text((k.isMultiplayer && !isHost()) ? "Kurucunun mod seçmesi bekleniyor..." : "Seçmek için Tıklayın • Onaylamak için Tekrar Tıklayın veya SPACE/ENTER'a Basın", { size: 11 }),
+        k.text((k.isMultiplayer && !isHost()) ? "Kurucunun mod secmesi bekleniyor..." : "Secmek icin Tiklayin • Onaylamak icin Tekrar Tiklayin veya SPACE/ENTER'a Basin", { size: 11 }),
         k.pos(k.width() / 2, k.height() / 2 + 120),
         k.anchor("center"),
         k.color(150, 150, 155),
@@ -231,12 +284,14 @@ export function initMenuScene() {
       if (!norm || !clash) return;
       const activeColor = selectedModeIdx === 0 ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60);
       norm.card.outline.color = selectedModeIdx === 0 ? activeColor : k.rgb(40, 40, 45);
-      norm.card.outline.width = selectedModeIdx === 0 ? 2 : 1.5;
+      norm.card.outline.width = selectedModeIdx === 0 ? 2.5 : 1.5;
       norm.title.color = selectedModeIdx === 0 ? activeColor : k.rgb(255, 255, 255);
+      norm.card.scaleTo(selectedModeIdx === 0 ? 1.05 : 1.0);
 
       clash.card.outline.color = selectedModeIdx === 1 ? activeColor : k.rgb(40, 40, 45);
-      clash.card.outline.width = selectedModeIdx === 1 ? 2 : 1.5;
+      clash.card.outline.width = selectedModeIdx === 1 ? 2.5 : 1.5;
       clash.title.color = selectedModeIdx === 1 ? activeColor : k.rgb(255, 255, 255);
+      clash.card.scaleTo(selectedModeIdx === 1 ? 1.05 : 1.0);
     }
 
     // ----------------------------------
@@ -244,30 +299,63 @@ export function initMenuScene() {
     // ----------------------------------
     function createPlayerSelectorPanel(pObj) {
       pObj.panel = k.add([
-        k.rect(300, 460, { radius: 4 }),
+        k.rect(300, 460, { radius: 12 }),
         k.pos(pObj.posX, k.height() / 2 + 50),
         k.anchor("center"),
-        k.color(14, 15, 18),
-        k.outline(1.5, pObj.color),
+        k.color(10, 11, 14),
+        k.outline(2.5, pObj.color),
       ]);
 
       pObj.panel.add([k.text(pObj.name, { size: 20 }), k.pos(0, -180), k.anchor("center"), k.color(pObj.color)]);
 
       pObj.card = pObj.panel.add([
-        k.rect(260, 260, { radius: 6 }),
+        k.rect(260, 260, { radius: 10 }),
         k.pos(0, -10),
         k.anchor("center"),
         k.color(18, 19, 23),
         k.outline(1.5, k.rgb(40, 40, 45)),
       ]);
 
-      pObj.leftArrow = pObj.card.add([k.text("<", { size: 18 }), k.pos(-105, -10), k.anchor("center"), k.color(100, 100, 105), k.area()]);
-      pObj.leftArrow.onClick(() => handleSelectCycle(pObj, -1));
+      // Modern Buton Görünümlü Oklar
+      pObj.leftArrowBg = pObj.card.add([
+        k.rect(32, 32, { radius: 8 }),
+        k.pos(-105, -10),
+        k.anchor("center"),
+        k.color(24, 25, 30),
+        k.outline(1.5, k.rgb(55, 55, 60)),
+        k.area(),
+      ]);
+      pObj.leftArrow = pObj.leftArrowBg.add([
+        k.text("<", { size: 14 }),
+        k.anchor("center"),
+        k.color(150, 150, 155),
+      ]);
+      pObj.leftArrowBg.onClick(() => handleSelectCycle(pObj, -1));
 
-      pObj.rightArrow = pObj.card.add([k.text(">", { size: 18 }), k.pos(105, -10), k.anchor("center"), k.color(100, 100, 105), k.area()]);
-      pObj.rightArrow.onClick(() => handleSelectCycle(pObj, 1));
+      pObj.rightArrowBg = pObj.card.add([
+        k.rect(32, 32, { radius: 8 }),
+        k.pos(105, -10),
+        k.anchor("center"),
+        k.color(24, 25, 30),
+        k.outline(1.5, k.rgb(55, 55, 60)),
+        k.area(),
+      ]);
+      pObj.rightArrow = pObj.rightArrowBg.add([
+        k.text(">", { size: 14 }),
+        k.anchor("center"),
+        k.color(150, 150, 155),
+      ]);
+      pObj.rightArrowBg.onClick(() => handleSelectCycle(pObj, 1));
 
-      pObj.btn = pObj.panel.add([k.rect(220, 40, { radius: 4 }), k.pos(0, 195), k.anchor("center"), k.color(24, 25, 28), k.outline(1, k.rgb(60, 60, 65)), k.area()]);
+      pObj.btn = pObj.panel.add([
+        k.rect(220, 45, { radius: 10 }),
+        k.pos(0, 195),
+        k.anchor("center"),
+        k.color(24, 25, 28),
+        k.outline(1.5, k.rgb(60, 60, 65)),
+        k.scale(1.0),
+        k.area()
+      ]);
       pObj.status = pObj.btn.add([k.text("", { size: 14 }), k.anchor("center"), k.color(150, 150, 155)]);
 
       let helperText = "";
@@ -325,12 +413,13 @@ export function initMenuScene() {
       pObj.statsUiObjects.forEach(obj => obj.destroy());
       pObj.statsUiObjects = [];
 
-      pObj.leftArrow.hidden = pObj.ready;
-      pObj.rightArrow.hidden = pObj.ready;
+      pObj.leftArrowBg.hidden = pObj.ready;
+      pObj.rightArrowBg.hidden = pObj.ready;
       pObj.card.outline.color = pObj.ready ? k.rgb(0, 255, 100) : pObj.color;
-      pObj.btn.color = pObj.ready ? k.rgb(0, 50, 20) : k.rgb(24, 25, 28);
+      pObj.btn.color = pObj.ready ? k.rgb(0, 80, 40) : k.rgb(24, 25, 28);
       pObj.btn.outline.color = pObj.ready ? k.rgb(0, 255, 100) : k.rgb(60, 60, 65);
       pObj.status.color = pObj.ready ? k.rgb(0, 255, 100) : k.rgb(150, 150, 155);
+      pObj.btn.scaleTo(pObj.ready ? 1.05 : 1.0);
 
       if (menuState === "MAP_SELECT") {
         const mapData = MAPS[pObj.idx];
