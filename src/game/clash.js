@@ -1,12 +1,12 @@
-import { k } from "./kaplay.js";
-import { changeState } from "./states.js";
-import { spawnExplosion } from "./utils.js";
+import { k } from "../kaplay.js";
+import { changeState } from "../states.js";
+import { spawnExplosion } from "../utils.js";
 import { isHost } from "playroomkit";
 
 /**
  * Handle head-on duel clash state, inputs, physics push, and finish triggers.
  */
-export function startDuel(car1, car2, collisionNormal, midPoint) {
+export function startDuel(car1, car2, collisionNormal, midPoint, checkGameOver) {
   let m1 = 0, m2 = 0;
   let duelEnded = false;
 
@@ -17,10 +17,10 @@ export function startDuel(car1, car2, collisionNormal, midPoint) {
   car2.isInvulnerable = true;
 
   const clashLabel = k.add([
-    k.text("KAFA KAFAYA!", { size: 28 }),
+    k.text("KAFA KAFAYA!", { size: 24, font: "sans-serif", weight: "bold", letterSpacing: 3 }),
     k.pos(k.center().add(0, -120)),
     k.anchor("center"),
-    k.color(255, 215, 0),
+    k.color(255, 70, 85),
   ]);
 
   k.shake(8);
@@ -41,16 +41,39 @@ export function startDuel(car1, car2, collisionNormal, midPoint) {
     k.shake(15);
 
     const diff = Math.abs(m1 - m2);
+    const damage = 35; // Düelloyu kaybedenin alacağı hasar
 
     if (diff <= 2) {
       car1.speed = -350 * (car2.mass / car1.mass);
       car2.speed = -350 * (car1.mass / car2.mass);
     } else if (m1 > m2) {
+      // car2 kaybetti
+      car2.hp = Math.max(0, car2.hp - damage);
+      const origColor = car2.color;
+      car2.color = k.rgb(255, 255, 255);
+      k.wait(0.2, () => {
+        car2.color = origColor;
+      });
+
       car2.speed = -550 * (car1.mass / car2.mass);
       car1.speed = car1.maxSpeed + 100;
+      if (car1.onClashWin) car1.onClashWin();
     } else {
+      // car1 kaybetti
+      car1.hp = Math.max(0, car1.hp - damage);
+      const origColor = car1.color;
+      car1.color = k.rgb(255, 255, 255);
+      k.wait(0.2, () => {
+        car1.color = origColor;
+      });
+
       car1.speed = -550 * (car2.mass / car1.mass);
       car2.speed = car2.maxSpeed + 100;
+      if (car2.onClashWin) car2.onClashWin();
+    }
+
+    if (checkGameOver) {
+      checkGameOver();
     }
 
     k.wait(0.6, () => {

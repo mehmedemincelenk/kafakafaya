@@ -1,7 +1,15 @@
 - bomba
-- portal
-- kurye mod
-- bayrak kapmaca
 - güneş tutulması
-- son 30 sn duvarlar daralsın
 - ucak ateş edecegi alan ocneden gözükür
+
+MOD
+- kurye mod -uzay-
+- bayrak kapmaca
+- havada, yerde
+
+- Alt metin: insansız sermayeler ligi
+
+- menzilli kategorisi: skiller duvardan seker 1 kez
+
+
+

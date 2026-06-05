@@ -1,0 +1,312 @@
+{
+  "HAVELSAN": [
+    {
+      "name": "BARKAN",
+      "type": "Otonom Orta Sınıf İKA",
+      "tip": "kara",
+      "resim_prompt": "Minimalist matte grey UGV rover drone with tracks, low profile chassis, camera sensor head on top",
+      "real_specs": {
+        "weight_kg": 380,
+        "dimensions_cm": "145 x 90 x 100",
+        "under_carriage_height_cm": 15,
+        "max_speed_kmh": 12,
+        "payload_capacity_kg": 200,
+        "trench_pass_mm": 600,
+        "runtime_hours": 3,
+        "propulsion": "Elektrikli",
+        "temperature_range": "-20C - +49C",
+        "weapons": [
+          "5.56 mm Silah Sistemi",
+          "7.62 mm Silah Sistemi",
+          "40 mm Bomba Atar",
+          "Lazer Güdümlü Füze"
+        ],
+        "autonomous_features": [
+          "Otonom Devriye",
+          "GPS Bağımsız Görev",
+          "Link Kaybında Eve Dönüş",
+          "Lider Takibi",
+          "Engelden Kaçınma",
+          "Sürülebilir Alan Tespiti",
+          "Güzergah Planlama"
+        ],
+        "patents": [
+          "İnsansız Kara Araçları İçin Geri Bildirimli Takip Mekanizması",
+          "İnsansız Kara Araçları İçin Palet Gergi Mekanizması"
+        ]
+      },
+      "game_mapping": {
+        "target_car_type": "BARKAN",
+        "class": "DENGELI",
+        "mass": 0.8,
+        "max_speed": 320,
+        "max_hp": 90,
+        "skill_id": "leader_follow",
+        "skill_name": "LİDER TAKİBİ",
+        "skill_description": "Kendisini takip eden ve rakipleri engelleyen otonom bir gölge kopya oluşturur."
+      }
+    },
+    {
+      "name": "BARKAN 2",
+      "type": "Otonom Orta Sınıf İKA",
+      "tip": "kara",
+      "resim_prompt": "Matte grey robust UGV with thick tracks, armed with a mini turret and sensor pod, clean angular body",
+      "real_specs": {
+        "weight_kg": 750,
+        "dimensions_cm": "190 x 125 x 100",
+        "under_carriage_height_cm": 20,
+        "max_speed_kmh": 12,
+        "payload_capacity_kg": 400,
+        "trench_pass_mm": 700,
+        "runtime_hours": 5,
+        "propulsion": "Elektrikli",
+        "temperature_range": "-20C - +49C",
+        "weapons": [
+          "7.62 mm Silah Sistemi",
+          "40 mm Bomba Atar",
+          "Dolanan Mühimmat",
+          "Lazer Güdümlü Füze"
+        ],
+        "autonomous_features": [
+          "Otonom Devriye",
+          "GPS Bağımsız Görev",
+          "Link Kaybında Eve Dönüş",
+          "Lider Takibi",
+          "Engelden Kaçınma",
+          "Sürülebilir Alan Tespiti",
+          "Güzergah Planlama"
+        ],
+        "patents": [
+          "Karma Sürülerle Yapay Zeka Tabanlı Saldırı ve Savunma Sistemi",
+          "Lider Takipçi Sürü Kontrol Sistemi"
+        ]
+      },
+      "game_mapping": {
+        "target_car_type": "BARKAN_2",
+        "class": "DENGELI",
+        "mass": 1.2,
+        "max_speed": 300,
+        "max_hp": 120,
+        "skill_id": "swarm_drones",
+        "skill_name": "SÜRÜ OTONOMİSİ",
+        "skill_description": "Hedefe kitlenen ve hasar veren otonom mini İHA sürüsü çağırır."
+      }
+    },
+    {
+      "name": "KAPGAN",
+      "type": "Otonom Ağır Sınıf İKA",
+      "tip": "kara",
+      "resim_prompt": "Heavy modular 8x8 armored combat UGV, dark graphite steel body, integrated 30mm automatic cannon turret on top",
+      "real_specs": {
+        "weight_kg": 2500,
+        "dimensions_cm": "380 x 220 x 138",
+        "under_carriage_height_cm": 40,
+        "max_speed_kmh": 30,
+        "payload_capacity_kg": 500,
+        "trench_pass_mm": 1200,
+        "runtime_hours": 12,
+        "propulsion": "Hibrit",
+        "temperature_range": "-20C - +49C",
+        "weapons": [
+          "7.62 / 12.7 mm Silah Kulesi",
+          "30 mm Silah (2000 Metre Menzil)",
+          "40 mm Bomba Atar",
+          "Sis Bombası Atar"
+        ],
+        "autonomous_features": [
+          "Otonom Devriye / Gözetleme",
+          "GPS Bağımsız Görev",
+          "Link Kaybında Eve Dönüş",
+          "Lider Takibi",
+          "Engelden Kaçınma",
+          "Sürülebilir Alan Tespiti",
+          "Otonom Görev Planlama",
+          "3B Haritalama",
+          "Drone Entegrasyonu",
+          "Güzergah Planlama"
+        ],
+        "patents": [
+          "Çift Yönlü Çalışabilen Ayarlanabilir Süspansiyon Sistemi",
+          "Lider Takipçi Sürü Kontrol Sistemi"
+        ]
+      },
+      "game_mapping": {
+        "target_car_type": "KAPGAN",
+        "class": "TANK",
+        "mass": 2.2,
+        "max_speed": 220,
+        "max_hp": 170,
+        "skill_id": "auto_cannon_30mm",
+        "skill_name": "30MM AĞIR TOP",
+        "skill_description": "Yüksek geri tepmeli ve 2000 metre menzilli otonom top mermisi ateşler."
+      }
+    }
+  ],
+  "ASELSAN": [
+    {
+      "name": "ASLAN",
+      "type": "Orta Sınıf 1. Seviye İKA",
+      "tip": "kara",
+      "resim_prompt": "Matte grey 4x4 tactical wheeled UGV with a high-clearance chassis and an integrated SARP-L remote weapon station on top",
+      "real_specs": {
+        "weight_kg": 750,
+        "dimensions_cm": "185 x 135 x 145",
+        "under_carriage_height_cm": 25,
+        "max_speed_kmh": 10,
+        "payload_capacity_kg": 250,
+        "trench_pass_mm": 600,
+        "runtime_hours": 7,
+        "propulsion": "Elektrikli",
+        "temperature_range": "-20C - +49C",
+        "weapons": [
+          "SARP-L Silah Sistemi (7.62 mm Makineli Tüfek)",
+          "METE Lazer Güdümlü Füze"
+        ],
+        "autonomous_features": [
+          "Engelden Otomatik Kaçınma (Lidar & Radar)",
+          "Otonom Devriye",
+          "Dinamik Yol Planlama",
+          "GNSS Kesintisinde Otonom Seyrüsefer"
+        ],
+        "patents": [
+          "Uzaktan Komutalı Modüler Faydalı Yük Entegrasyon Sistemi"
+        ]
+      },
+      "game_mapping": {
+        "target_car_type": "ASLAN",
+        "class": "DENGELI",
+        "mass": 0.95,
+        "max_speed": 310,
+        "max_hp": 100,
+        "skill_id": "sarp_l_turret",
+        "skill_name": "SARP-L KULESİ",
+        "skill_description": "7.62 mm SARP-L kulesini aktif eder. En yakındaki düşmana otonom olarak ateş açar."
+      }
+    },
+    {
+      "name": "TUNGA",
+      "type": "Orta Sınıf 2. Seviye İKA",
+      "tip": "kara",
+      "resim_prompt": "Rugged matte dark grey tracked armored UGV with a dual weapon station, heavy treads, and advanced sensor mast",
+      "real_specs": {
+        "weight_kg": 3000,
+        "dimensions_cm": "240 x 210 x 200",
+        "under_carriage_height_cm": 40,
+        "max_speed_kmh": 20,
+        "payload_capacity_kg": 1000,
+        "trench_pass_mm": 800,
+        "runtime_hours": 6,
+        "propulsion": "Hibrit",
+        "temperature_range": "-20C - +49C",
+        "weapons": [
+          "SARP Dual Silah Sistemi (Çift Silahlı Kule)",
+          "Lazer Güdümlü Taktik Füze",
+          "76 mm Sis Havanı"
+        ],
+        "autonomous_features": [
+          "Sensör Füzyonu Destekli Otonom Rota Takibi",
+          "Gece ve Gündüz Otonom Hareket",
+          "Yapay Zeka Destekli Engellerden Kaçınma"
+        ],
+        "patents": [
+          "Paletli Araçlar İçin Hibrit Tahrik Kontrol Ünitesi"
+        ]
+      },
+      "game_mapping": {
+        "target_car_type": "TUNGA",
+        "class": "GUCLU",
+        "mass": 1.6,
+        "max_speed": 260,
+        "max_hp": 145,
+        "skill_id": "sarp_dual_barrage",
+        "skill_name": "SARP DUAL BOMBARDIMANI",
+        "skill_description": "SARP Dual kulesiyle düşmana 3 saniye boyunca roket ve makineli tüfekle sürekli bombardıman yapar."
+      }
+    }
+  ],
+  "FNSS": [
+    {
+      "name": "GÖLGE SÜVARİ",
+      "type": "Ağır Sınıf Zırhlı İKA",
+      "tip": "kara",
+      "resim_prompt": "Massive tracked armored personnel carrier chassis modified into a stealthy unmanned ground vehicle with a 25mm autocannon turret",
+      "real_specs": {
+        "weight_kg": 13500,
+        "dimensions_cm": "550 x 300 x 200",
+        "under_carriage_height_cm": 45,
+        "max_speed_kmh": 50,
+        "payload_capacity_kg": 4500,
+        "trench_pass_mm": 1600,
+        "runtime_hours": 9,
+        "propulsion": "Dizel",
+        "temperature_range": "-32C - +55C",
+        "weapons": [
+          "SABER-25 Uzaktan Komutalı Kule Sistemi (25 mm Otomatik Top)",
+          "7.62 mm Eş Eksenli Makineli Tüfek"
+        ],
+        "autonomous_features": [
+          "360 Derece Yapay Zeka Destekli Durumsal Farkındalık",
+          "Lider-Takipçi Konsepti",
+          "Anti-Jamming GNSS Altyapısı",
+          "Otonom Askeri Tahliye Modu"
+        ],
+        "patents": [
+          "Uzaktan Komutalı Ağır Sınıf Zırhlı Araç Dönüşüm Kiti"
+        ]
+      },
+      "game_mapping": {
+        "target_car_type": "GOLGE_SUVARI",
+        "class": "TANK",
+        "mass": 2.4,
+        "max_speed": 200,
+        "max_hp": 190,
+        "skill_id": "saber_25_cannon",
+        "skill_name": "SABER-25 OTOMATİK TOPU",
+        "skill_description": "Ağır 25 mm topu ateşler. Yüksek zırh delici hasara sahip mermiler fırlatır."
+      }
+    }
+  ],
+  "OTOKAR": [
+    {
+      "name": "ALPAR",
+      "type": "Ağır Sınıf Muharebe İKA",
+      "tip": "kara",
+      "resim_prompt": "Futuristic low-profile tracked UGV, matte green radar-absorbent paint, equipped with a 30mm automatic cannon and OMTAS anti-tank missile launchers",
+      "real_specs": {
+        "weight_kg": 15000,
+        "dimensions_cm": "625 x 275 x 150",
+        "under_carriage_height_cm": 45,
+        "max_speed_kmh": 70,
+        "payload_capacity_kg": 3000,
+        "trench_pass_mm": 1800,
+        "runtime_hours": 10,
+        "propulsion": "Seri Hibrit (Dizel-Elektrik)",
+        "temperature_range": "-32C - +55C",
+        "weapons": [
+          "30 mm Otomatik Top Kulesi",
+          "2x OMTAS Tanksavar Füzesi",
+          "Mini İKA & Gözetleme Dronu"
+        ],
+        "autonomous_features": [
+          "Yapay Zeka Destekli Engel Algılama ve 3B Haritalama",
+          "Tamamen Sessiz Hibrid Seyir Modu",
+          "Sürü Operasyonu Kabiliyeti"
+        ],
+        "patents": [
+          "Düşük Silüetli Hibrit Ağır Sınıf Zırhlı İnsansız Kara Aracı Platformu",
+          "Entegre Mini İKA ve Drone Bırakma Haznesi"
+        ]
+      },
+      "game_mapping": {
+        "target_car_type": "ALPAR",
+        "class": "TANK",
+        "mass": 2.5,
+        "max_speed": 220,
+        "max_hp": 200,
+        "skill_id": "omtas_missile",
+        "skill_name": "OMTAS TANKSAVAR FÜZESİ",
+        "skill_description": "2 adet OMTAS tanksavar füzesi ateşler. Füzeler kilitlendiği hedefin zırhını kırarak ağır hasar verir."
+      }
+    }
+  ]
+}

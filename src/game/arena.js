@@ -1,4 +1,4 @@
-import { k } from "./kaplay.js";
+import { k } from "../kaplay.js";
 import { isHost } from "playroomkit";
 
 export function setupArena(mapData) {
@@ -10,10 +10,10 @@ export function setupArena(mapData) {
     k.z(-10),
   ]);
 
-  // Arena Dış Sınır Çizgisi (Ekranı tam kaplayacak şekilde)
+  // Arena Dış Sınır Çizgisi
   k.add([
-    k.rect(k.width() - 6, k.height() - 6, { radius: 6 }),
-    k.pos(3, 3),
+    k.rect(k.width() - 120, k.height() - 120, { radius: 10 }),
+    k.pos(60, 60),
     k.color(mapData.bgColor[0], mapData.bgColor[1], mapData.bgColor[2]),
     k.outline(3, k.rgb(mapData.borderColor[0], mapData.borderColor[1], mapData.borderColor[2])),
     k.z(-9),
@@ -21,8 +21,8 @@ export function setupArena(mapData) {
 
   // Grid Noktaları
   const gridSize = 60;
-  for (let x = gridSize; x < k.width(); x += gridSize) {
-    for (let y = gridSize; y < k.height(); y += gridSize) {
+  for (let x = 60; x < k.width() - 30; x += gridSize) {
+    for (let y = 60; y < k.height() - 30; y += gridSize) {
       k.add([
         k.pos(x, y),
         k.circle(1.5),
@@ -48,6 +48,7 @@ export function setupArena(mapData) {
 
   // Engellerle Çarpışma Mekaniği (Sadece Host veya Yerel modda hız yansıması yapar)
   k.onCollide("player", "obstacle", (player, obstacle) => {
+    if (player.isGhost) return;
     if (k.isMultiplayer && !isHost()) return;
     player.speed = -player.speed * 0.45;
     const diff = player.pos.sub(obstacle.pos).unit();

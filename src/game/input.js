@@ -1,7 +1,15 @@
-import { k } from "./kaplay.js";
+import { k } from "../kaplay.js";
 import { isHost, myPlayer } from "playroomkit";
 
 export function getCarInputs(car, playerInfo, controls) {
+  if (car.isBot) {
+    return {
+      driveInput: car.botDriveInput || { forward: false, backward: false, left: false, right: false },
+      triggerDashPress: car.botTriggerDashPress || false,
+      triggerSkillPress: car.botTriggerSkillPress || false,
+    };
+  }
+
   let driveInput = { forward: false, backward: false, left: false, right: false };
   let triggerDashPress = false;
   let triggerSkillPress = false;

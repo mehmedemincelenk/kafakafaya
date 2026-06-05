@@ -1,0 +1,411 @@
+{
+  "projectiles": [
+    {
+      "name": "Mızrak",
+      "type": "Akıllı Dolanan Mühimmat",
+      "manufacturer": "BAYKAR",
+      "resim_prompt": "Sleek tactical loitering munition drone with swept wings, cylindrical body, twin rear fins, and a camera sensor in the nose",
+      "real_specs": {
+        "weight_kg": 200,
+        "dimensions_cm": "360 x 400 x 120",
+        "max_speed_kmh": 185,
+        "warhead_capacity_kg": 40,
+        "runtime_hours": 7,
+        "propulsion": "İçten Yanmalı Motor",
+        "guidance": "Yapay Zeka Destekli Optik Güdüm & RF Arayıcı Başlık",
+        "autonomous_features": [
+          "Sensör Füzyonu Destekli Otonom Operasyon",
+          "Anti-Jamming (Sinyal Karıştırma Koruması)",
+          "Görsel Konumlandırma"
+        ],
+        "patents": [
+          "Yapay Zeka Destekli Optik Güdüm Sistemi",
+          "Yapay Zeka Destekli Otopilot Sistemi"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "mizrak",
+        "category": "POWERUP",
+        "damage": 120,
+        "speed": 350,
+        "explosion_radius": 150,
+        "homing": true,
+        "turn_speed": 120,
+        "health": 1,
+        "behavior_description": "Yerden toplandığında roket desteğiyle (RATO) fırlatılır. Havada süzülerek en yüksek cana sahip düşman kara aracına kilitlenir, ona doğru süzülür ve çarptığında büyük bir patlama alanı yaratır."
+      }
+    },
+    {
+      "name": "Sivrisinek",
+      "type": "Akıllı Dolanan Mühimmat",
+      "manufacturer": "BAYKAR",
+      "resim_prompt": "Light tactical catapult-launched loitering munition with high-aspect wings, compact cylindrical body, and nose-mounted optical sensor",
+      "real_specs": {
+        "weight_kg": 76,
+        "dimensions_cm": "380 x 320 x 80",
+        "max_speed_kmh": 130,
+        "warhead_capacity_kg": 20,
+        "runtime_hours": 9,
+        "propulsion": "İçten Yanmalı Motor",
+        "guidance": "Yapay Zeka Destekli Optik Güdüm & GNSS (Ateşle-Unut)",
+        "autonomous_features": [
+          "Katapult Tabanlı Pist Gerektirmeyen Kalkış",
+          "Yapay Zeka Tabanlı Hedef Tanıma Algoritmaları",
+          "Görsel Konumlandırma & Otonom Otopilot"
+        ],
+        "patents": [
+          "Yapay Zeka Destekli Hedef Tanıma ve Optik Güdüm Yazılımı",
+          "Kompakt Katapult Entegrasyon Sistemi"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "sivrisinek",
+        "category": "POWERUP",
+        "damage": 70,
+        "speed": 420,
+        "explosion_radius": 90,
+        "homing": true,
+        "turn_speed": 180,
+        "health": 1,
+        "behavior_description": "Yerden toplandığında katapulttan hızla fırlatılır. Mızrak'a kıyasla çok daha hafif ve kıvraktır. En yakındaki düşman kara aracına kilitlenerek yüksek manevra kabiliyetiyle dalar ve çarptığında orta büyüklükte bir hasar alanı oluşturur."
+      }
+    },
+    {
+      "name": "KEMANKEŞ 2",
+      "type": "Mini Akıllı Seyir Füzesi",
+      "manufacturer": "BAYKAR",
+      "resim_prompt": "Matte grey advanced mini cruise missile with small swept wings, single rear jet intake, and optical camera dome on the nose",
+      "real_specs": {
+        "weight_kg": 75,
+        "dimensions_cm": "247 x 135 x 49",
+        "max_speed_kmh": 300,
+        "warhead_capacity_kg": 20,
+        "runtime_hours": 0.5,
+        "propulsion": "Jet Motoru",
+        "guidance": "Yapay Zeka Destekli Optik Güdüm & RATO",
+        "autonomous_features": [
+          "Yapay Zekâ Destekli Otopilot Sistemi",
+          "Gece ve Gündüz Şartlarında Hedef Tanımlama",
+          "Anti-Jamming (Sinyal Karıştırma Koruması)"
+        ],
+        "patents": [
+          "Jet Motorlu Mini Seyir Füzesi Otopilotu"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "kemankes_2",
+        "category": "POWERUP",
+        "damage": 180,
+        "speed": 500,
+        "explosion_radius": 100,
+        "homing": true,
+        "turn_speed": 90,
+        "health": 1,
+        "behavior_description": "Jet motorlu mini seyir füzesidir. Roket destekli kalkışla (RATO) fırlatılır. Devasa hızıyla hedefe saniyeler içinde ulaşır ve kritik hasar (180) verir."
+      }
+    },
+    {
+      "name": "KEMANKEŞ 1",
+      "type": "Mini Akıllı Seyir Füzesi",
+      "manufacturer": "BAYKAR",
+      "resim_prompt": "Matte grey mini cruise missile with rear jet exhaust, straight wings, and high-definition optical camera nose",
+      "real_specs": {
+        "weight_kg": 45,
+        "dimensions_cm": "173 x 114 x 40",
+        "max_speed_kmh": 325,
+        "warhead_capacity_kg": 10,
+        "runtime_hours": 0.33,
+        "propulsion": "Jet Motoru",
+        "guidance": "Yapay Zeka Destekli Optik Güdüm & Havadan Fırlatma",
+        "autonomous_features": [
+          "Yapay Zekâ Destekli Otopilot",
+          "Havadan Fırlatılabilme Entegrasyonu"
+        ],
+        "patents": [
+          "Yapay Zeka Destekli Optik Güdüm Yazılımı"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "kemankes_1",
+        "category": "POWERUP",
+        "damage": 130,
+        "speed": 520,
+        "explosion_radius": 80,
+        "homing": true,
+        "turn_speed": 100,
+        "health": 1,
+        "behavior_description": "Daha hafif ve havadan fırlatılan jet motorlu mini seyir füzesidir. Aşırı hızlıdır, dar ama derin hasar verir."
+      }
+    },
+    {
+      "name": "KALKAN DİHA",
+      "type": "Dikey İniş Kalkışlı İnsansız Hava Aracı",
+      "manufacturer": "BAYKAR",
+      "resim_prompt": "White and grey VTOL drone with long wings, four vertical lift electric rotors, and a single pusher propeller on the tail",
+      "real_specs": {
+        "weight_kg": 78,
+        "dimensions_cm": "190 x 500 x 70",
+        "max_speed_kmh": 100,
+        "warhead_capacity_kg": 3,
+        "runtime_hours": 6,
+        "propulsion": "4x Elektrik Motoru & 1x İçten Yanmalı Motor",
+        "guidance": "Sensör Füzyonu Destekli Tam Otonom Seyir & BG160 Kamera",
+        "autonomous_features": [
+          "Piste İhtiyaç Duymadan Otonom Dikey Kalkış ve İniş",
+          "Nesne Takibi ve Otonom Rota Takibi"
+        ],
+        "patents": [
+          "Hibrit İtki Sistemli Dikey Kalkış İnsansız Hava Aracı Kontrolü"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "kalkan_diha",
+        "category": "POWERUP",
+        "damage": 0,
+        "speed": 180,
+        "explosion_radius": 0,
+        "homing": false,
+        "turn_speed": 0,
+        "health": 5,
+        "behavior_description": "Dikey kalkış yapan gözetleme DİHA'sıdır. Kullanıcının üzerinde sabit kalarak 15 saniye boyunca çevredeki tüm düşmanların konumlarını açığa çıkarır (duvar arkası dahil) ve oyuncunun zırhını yeniler."
+      }
+    },
+    {
+      "name": "Bayraktar Mini İHA",
+      "type": "Mini Robot İnsansız Hava Aracı",
+      "manufacturer": "BAYKAR",
+      "resim_prompt": "Small hand-launched lightweight grey drone with high wings, a single top propeller, and miniature optical camera pod",
+      "real_specs": {
+        "weight_kg": 5.8,
+        "dimensions_cm": "125 x 245 x 30",
+        "max_speed_kmh": 65,
+        "warhead_capacity_kg": 0.58,
+        "runtime_hours": 1.6,
+        "propulsion": "Elektrik Motoru",
+        "guidance": "Otonom Rota Takibi & El ile Fırlatma",
+        "autonomous_features": [
+          "Haberleşme Kaybında Otomatik Eve Dönüş",
+          "Joystick Destekli Yarı Otomatik Uçuş",
+          "Otomatik Hedef Takibi"
+        ],
+        "patents": [
+          "El ile Fırlatılan Taşınabilir İnsansız Hava Aracı Otopilotu"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "mini_iha",
+        "category": "POWERUP",
+        "damage": 0,
+        "speed": 120,
+        "explosion_radius": 0,
+        "homing": false,
+        "turn_speed": 0,
+        "health": 2,
+        "behavior_description": "El ile fırlatılan hafif gözetleme dronudur. Fırlatıldığında en yakın düşmanın üzerinde dönmeye başlar ve 10 saniye boyunca o düşmanın kontrol tuşlarını tersine çevirerek onu yavaşlatır."
+      }
+    },
+    {
+      "name": "MAM-T",
+      "type": "Akıllı Mühimmat",
+      "manufacturer": "ROKETSAN",
+      "resim_prompt": "Clean matte white precision-guided bomb with three small mid-body wings and four tail control fins",
+      "real_specs": {
+        "weight_kg": 95,
+        "dimensions_cm": "140 x 23 x 23",
+        "max_speed_kmh": 250,
+        "warhead_capacity_kg": 20,
+        "runtime_hours": 0.1,
+        "propulsion": "Planör (Süzülen - Kanat Eklentili)",
+        "guidance": "Lazer Arayıcı Başlık",
+        "autonomous_features": [
+          "Sabit ve Hareketli Hedeflerin Yüksek Hassasiyetle Vurulması",
+          "Kanat Eklentisi ile Arttırılmış Menzil"
+        ],
+        "patents": [
+          "Yüksek Parçacık Etkili Harp Başlığı Tasarımı"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "mam_t",
+        "category": "POWERUP",
+        "damage": 100,
+        "speed": 280,
+        "explosion_radius": 120,
+        "homing": true,
+        "turn_speed": 70,
+        "health": 1,
+        "behavior_description": "Lazer arayıcı başlıklı akıllı süzülen mühimmattır. Hızı nispeten düşüktür ancak parçacık etkili devasa harp başlığı sayesinde geniş bir alandaki tüm düşmanlara ağır hasar verir."
+      }
+    },
+    {
+      "name": "MAM-L",
+      "type": "Mini Akıllı Mühimmat",
+      "manufacturer": "ROKETSAN",
+      "resim_prompt": "Compact matte white laser-guided bomb with small fixed wings and four tail fins",
+      "real_specs": {
+        "weight_kg": 22,
+        "dimensions_cm": "100 x 16 x 16",
+        "max_speed_kmh": 280,
+        "warhead_capacity_kg": 8,
+        "runtime_hours": 0.05,
+        "propulsion": "Süzülen Güdümlü Bomba",
+        "guidance": "Lazer Arayıcı Başlık",
+        "autonomous_features": [
+          "Düşük Ağırlıkla Yüksek Vuruş Hassasiyeti",
+          "Alternatif Harp Başlığı Seçenekleri"
+        ],
+        "patents": [
+          "Zırh Delici ve Termobarik Mini Harp Başlığı"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "mam_l",
+        "category": "POWERUP",
+        "damage": 85,
+        "speed": 300,
+        "explosion_radius": 60,
+        "homing": true,
+        "turn_speed": 100,
+        "health": 1,
+        "behavior_description": "Mini akıllı mühimmattır. Süzülerek en yakındaki rakibe kilitlenir. Patlama yarıçapı küçüktür ancak zırh delici başlığı sayesinde rakibin zırh değerini yok sayarak doğrudan canına (HP) hasar vurur."
+      }
+    },
+    {
+      "name": "ÇAKIR",
+      "type": "Seyir Füzesi",
+      "manufacturer": "ROKETSAN",
+      "resim_prompt": "Grey stealthy cruise missile with pop-out wings, under-belly air intake for turbojet, and high-tech optical nose",
+      "real_specs": {
+        "weight_kg": 330,
+        "dimensions_cm": "410 x 27.5 x 27.5",
+        "max_speed_kmh": 1000,
+        "warhead_capacity_kg": 70,
+        "runtime_hours": 0.2,
+        "propulsion": "KTJ-1750 Turbo Jet Motor",
+        "guidance": "IIR + RF Hibrit Arayıcı Başlık & Ataletsel Seyrüsefer",
+        "autonomous_features": [
+          "Deniz Üzerinde Su Sathına Çok Yakın Uçuş (Sea-skimming)",
+          "Sürü Konseptinde Görev İcra Kabiliyeti",
+          "Yoğun Elektronik Karıştırmaya Karşı Beka Kabiliyeti"
+        ],
+        "patents": [
+          "Radar Soğurucu Özgün Gövde Tasarımı (Stealth Structure)",
+          "KTJ-1750 Turbo-jet Motor Entegrasyonu"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "cakir",
+        "category": "POWERUP",
+        "damage": 220,
+        "speed": 480,
+        "explosion_radius": 180,
+        "homing": true,
+        "turn_speed": 60,
+        "health": 3,
+        "behavior_description": "Turbojet motorlu stratejik seyir füzesidir. Radar soğurucu gövdesi sayesinde düşman savunmaları tarafından vurulması çok zordur (3 Can). Su sathına yakın (sea-skimming) uçar ve çarpışmada 220 hasar vererek devasa bir alanı yok eder."
+      }
+    },
+    {
+      "name": "FETTAH",
+      "type": "Hipersonik Füze",
+      "manufacturer": "ROKETSAN",
+      "resim_prompt": "Futuristic solid-propellant hypersonic glide vehicle missile, cylindrical body, highly swept-back delta fins, glowing yellow-hot tip",
+      "real_specs": {
+        "weight_kg": 950,
+        "dimensions_cm": "550 x 50 x 50",
+        "max_speed_kmh": 6120,
+        "warhead_capacity_kg": 150,
+        "runtime_hours": 0.05,
+        "propulsion": "Katı Yakıtlı Roket Motoru",
+        "guidance": "İki Aşamalı Ataletsel & Aktif Radar Arayıcı Başlık",
+        "autonomous_features": [
+          "Hipersonik Hızda Atmosfer İçi Manevra Kabiliyeti",
+          "Isı Kalkanlı Burun Tasarımı"
+        ],
+        "patents": [
+          "Katı Yakıtlı Roket Motoru Tasarımı",
+          "Hipersonik Isı Kalkanı Kaplama Teknolojisi"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "fettah",
+        "category": "POWERUP",
+        "damage": 250,
+        "speed": 600,
+        "explosion_radius": 160,
+        "homing": true,
+        "turn_speed": 80,
+        "health": 1,
+        "behavior_description": "Katı yakıtlı hipersonik füzedir. İnanılmaz hızı ve yıkıcı patlama etkisiyle hedefleri anında kül eder."
+      }
+    },
+    {
+      "name": "FETTAH 2",
+      "type": "Gelişmiş Hipersonik Füze",
+      "manufacturer": "ROKETSAN",
+      "resim_prompt": "Next-generation aero-ballistic hypersonic cruise missile, advanced composite body, swept fins, glowing red-hot nose cone sensor",
+      "real_specs": {
+        "weight_kg": 1100,
+        "dimensions_cm": "600 x 55 x 55",
+        "max_speed_kmh": 7350,
+        "warhead_capacity_kg": 200,
+        "runtime_hours": 0.06,
+        "propulsion": "Gelişmiş Katı Yakıtlı Roket & Ramjet Hibrit Motoru",
+        "guidance": "Görüntüleyici Kızılötesi (IIR) & RF Hibrit Güdüm",
+        "autonomous_features": [
+          "Aero-balistik Rastgele Manevra Profili",
+          "Hava Savunma Sistemlerini Aldatıcı Sahte Hedef Bırakma"
+        ],
+        "patents": [
+          "Aero-balistik Manevra Kontrol Algoritması",
+          "Geniş Bantlı Elektronik Harp Karşı Tedbir Modülü"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "fettah_2",
+        "category": "POWERUP",
+        "damage": 300,
+        "speed": 650,
+        "explosion_radius": 200,
+        "homing": true,
+        "turn_speed": 70,
+        "health": 2,
+        "behavior_description": "Aero-balistik manevra kabiliyetine sahip ikinci nesil hipersonik füzedir. Durdurulamaz hızda devasa hasar verir."
+      }
+    },
+    {
+      "name": "Ebabil",
+      "type": "MIRV Balistik Füze",
+      "manufacturer": "GIDS",
+      "resim_prompt": "Heavy Pakistani MIRV ballistic missile named Ababeel, military green launch canister, cylindrical body, multiple warheads payload fairing, heavy stabilizers",
+      "real_specs": {
+        "weight_kg": 2200,
+        "dimensions_cm": "800 x 90 x 90",
+        "max_speed_kmh": 8500,
+        "warhead_capacity_kg": 400,
+        "runtime_hours": 0.08,
+        "propulsion": "Katı Yakıtlı Çok Aşamalı Roket Motoru",
+        "guidance": "Ataletsel Seyrüsefer & GPS Destekli Terminal Arayıcı",
+        "autonomous_features": [
+          "Çoklu Bağımsız Yönlendirilebilir Harp Başlığı (MIRV) Entegrasyonu",
+          "Yüksek Beka Kabiliyeti Sağlayan Elektronik Karşı Tedbirler"
+        ],
+        "patents": [
+          "MIRV Ayrımlaşma ve Yönlendirme Mekanizması",
+          "Isı Kalkanlı Burun Konisi Alaşımı"
+        ]
+      },
+      "game_mapping": {
+        "projectile_id": "ebabil",
+        "category": "POWERUP",
+        "damage": 350,
+        "speed": 700,
+        "explosion_radius": 250,
+        "homing": true,
+        "turn_speed": 50,
+        "health": 3,
+        "behavior_description": "MIRV harp başlığı taşıyan orta menzilli balistik füzedir. Düşmana yönelen en yıkıcı ve en ağır silahtır."
+      }
+    }
+  ]
+}

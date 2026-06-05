@@ -1,15 +1,11 @@
-import { k } from "./kaplay.js";
-import { SKILLS } from "./skill.js";
+import { k } from "../kaplay.js";
+import { SKILLS } from "../skill.js";
 
-function getSkillIcon(carType) {
-  switch (carType) {
-    case "DENGELI": return "🛡️";
-    case "HIPHIZLI": return "👻";
-    case "GUCLU": return "💥";
-    case "TANK": return "🧱";
-    case "DRIFT": return "🌀";
-    default: return "⭐";
-  }
+function getSkillIcon(car) {
+  if (!car) return "⭐";
+  const skillGroup = SKILLS[car.carClass];
+  const skill = (skillGroup && skillGroup[car.skillId]) || (skillGroup && skillGroup.default);
+  return skill?.icon || "⭐";
 }
 
 /**
@@ -21,7 +17,7 @@ export function setupHUD(cars) {
   // --- Sol Alt HUD (Blue / Player 1) ---
   const blueDashBg = k.add([
     k.rect(60, 60, { radius: 10 }),
-    k.pos(70, k.height() - 110),
+    k.pos(70, k.height() - 135),
     k.color(20, 20, 25),
     k.opacity(0.85),
     k.outline(2, k.rgb(255, 170, 0)),
@@ -29,14 +25,14 @@ export function setupHUD(cars) {
   ]);
   const blueDashIcon = k.add([
     k.text("⚡", { size: 26 }),
-    k.pos(100, k.height() - 80),
+    k.pos(100, k.height() - 105),
     k.anchor("center"),
     k.opacity(1),
     k.z(11),
   ]);
   const blueDashCdCircle = k.add([
     k.circle(18),
-    k.pos(100, k.height() - 80),
+    k.pos(100, k.height() - 105),
     k.color(15, 15, 20),
     k.opacity(0),
     k.outline(1.5, k.rgb(100, 100, 105)),
@@ -45,23 +41,24 @@ export function setupHUD(cars) {
   ]);
   const blueDashCdProgress = k.add([
     k.circle(18),
-    k.pos(100, k.height() - 80),
+    k.pos(100, k.height() - 105),
     k.color(255, 170, 0),
     k.opacity(0),
     k.outline(1.5, k.rgb(255, 255, 255)),
     k.anchor("center"),
+    k.scale(1),
     k.z(13),
   ]);
   const blueDashCdText = k.add([
     k.text("", { size: 12, font: "monospace", weight: "bold" }),
-    k.pos(100, k.height() - 80),
+    k.pos(100, k.height() - 105),
     k.anchor("center"),
     k.color(255, 255, 255),
     k.z(14),
   ]);
   const blueDashKey = k.add([
     k.text("Shift", { size: 11, font: "monospace" }),
-    k.pos(100, k.height() - 40),
+    k.pos(100, k.height() - 65),
     k.anchor("center"),
     k.opacity(1),
     k.color(150, 150, 155),
@@ -70,7 +67,7 @@ export function setupHUD(cars) {
 
   const blueSkillBg = k.add([
     k.rect(60, 60, { radius: 10 }),
-    k.pos(150, k.height() - 110),
+    k.pos(150, k.height() - 135),
     k.color(20, 20, 25),
     k.opacity(0.85),
     k.outline(2, k.rgb(0, 255, 100)),
@@ -78,14 +75,14 @@ export function setupHUD(cars) {
   ]);
   const blueSkillIcon = k.add([
     k.text("🛡️", { size: 26 }),
-    k.pos(180, k.height() - 80),
+    k.pos(180, k.height() - 105),
     k.anchor("center"),
     k.opacity(1),
     k.z(11),
   ]);
   const blueSkillCdCircle = k.add([
     k.circle(18),
-    k.pos(180, k.height() - 80),
+    k.pos(180, k.height() - 105),
     k.color(15, 15, 20),
     k.opacity(0),
     k.outline(1.5, k.rgb(100, 100, 105)),
@@ -94,23 +91,24 @@ export function setupHUD(cars) {
   ]);
   const blueSkillCdProgress = k.add([
     k.circle(18),
-    k.pos(180, k.height() - 80),
+    k.pos(180, k.height() - 105),
     k.color(0, 255, 100),
     k.opacity(0),
     k.outline(1.5, k.rgb(255, 255, 255)),
     k.anchor("center"),
+    k.scale(1),
     k.z(13),
   ]);
   const blueSkillCdText = k.add([
     k.text("", { size: 12, font: "monospace", weight: "bold" }),
-    k.pos(180, k.height() - 80),
+    k.pos(180, k.height() - 105),
     k.anchor("center"),
     k.color(255, 255, 255),
     k.z(14),
   ]);
   const blueSkillKey = k.add([
     k.text("Q", { size: 11, font: "monospace" }),
-    k.pos(180, k.height() - 40),
+    k.pos(180, k.height() - 65),
     k.anchor("center"),
     k.opacity(1),
     k.color(150, 150, 155),
@@ -120,7 +118,7 @@ export function setupHUD(cars) {
   // --- Sağ Alt HUD (Red / Player 2) ---
   const redDashBg = k.add([
     k.rect(60, 60, { radius: 10 }),
-    k.pos(k.width() - 220, k.height() - 110),
+    k.pos(k.width() - 220, k.height() - 135),
     k.color(20, 20, 25),
     k.opacity(0.85),
     k.outline(2, k.rgb(255, 170, 0)),
@@ -128,14 +126,14 @@ export function setupHUD(cars) {
   ]);
   const redDashIcon = k.add([
     k.text("⚡", { size: 26 }),
-    k.pos(k.width() - 190, k.height() - 80),
+    k.pos(k.width() - 190, k.height() - 105),
     k.anchor("center"),
     k.opacity(1),
     k.z(11),
   ]);
   const redDashCdCircle = k.add([
     k.circle(18),
-    k.pos(k.width() - 190, k.height() - 80),
+    k.pos(k.width() - 190, k.height() - 105),
     k.color(15, 15, 20),
     k.opacity(0),
     k.outline(1.5, k.rgb(100, 100, 105)),
@@ -144,23 +142,24 @@ export function setupHUD(cars) {
   ]);
   const redDashCdProgress = k.add([
     k.circle(18),
-    k.pos(k.width() - 190, k.height() - 80),
+    k.pos(k.width() - 190, k.height() - 105),
     k.color(255, 170, 0),
     k.opacity(0),
     k.outline(1.5, k.rgb(255, 255, 255)),
     k.anchor("center"),
+    k.scale(1),
     k.z(13),
   ]);
   const redDashCdText = k.add([
     k.text("", { size: 12, font: "monospace", weight: "bold" }),
-    k.pos(k.width() - 190, k.height() - 80),
+    k.pos(k.width() - 190, k.height() - 105),
     k.anchor("center"),
     k.color(255, 255, 255),
     k.z(14),
   ]);
   const redDashKey = k.add([
     k.text("Enter", { size: 11, font: "monospace" }),
-    k.pos(k.width() - 190, k.height() - 40),
+    k.pos(k.width() - 190, k.height() - 65),
     k.anchor("center"),
     k.opacity(1),
     k.color(150, 150, 155),
@@ -169,7 +168,7 @@ export function setupHUD(cars) {
 
   const redSkillBg = k.add([
     k.rect(60, 60, { radius: 10 }),
-    k.pos(k.width() - 140, k.height() - 110),
+    k.pos(k.width() - 140, k.height() - 135),
     k.color(20, 20, 25),
     k.opacity(0.85),
     k.outline(2, k.rgb(0, 255, 100)),
@@ -177,14 +176,14 @@ export function setupHUD(cars) {
   ]);
   const redSkillIcon = k.add([
     k.text("🛡️", { size: 26 }),
-    k.pos(k.width() - 110, k.height() - 80),
+    k.pos(k.width() - 110, k.height() - 105),
     k.anchor("center"),
     k.opacity(1),
     k.z(11),
   ]);
   const redSkillCdCircle = k.add([
     k.circle(18),
-    k.pos(k.width() - 110, k.height() - 80),
+    k.pos(k.width() - 110, k.height() - 105),
     k.color(15, 15, 20),
     k.opacity(0),
     k.outline(1.5, k.rgb(100, 100, 105)),
@@ -193,23 +192,24 @@ export function setupHUD(cars) {
   ]);
   const redSkillCdProgress = k.add([
     k.circle(18),
-    k.pos(k.width() - 110, k.height() - 80),
+    k.pos(k.width() - 110, k.height() - 105),
     k.color(0, 255, 100),
     k.opacity(0),
     k.outline(1.5, k.rgb(255, 255, 255)),
     k.anchor("center"),
+    k.scale(1),
     k.z(13),
   ]);
   const redSkillCdText = k.add([
     k.text("", { size: 12, font: "monospace", weight: "bold" }),
-    k.pos(k.width() - 110, k.height() - 80),
+    k.pos(k.width() - 110, k.height() - 105),
     k.anchor("center"),
     k.color(255, 255, 255),
     k.z(14),
   ]);
   const redSkillKey = k.add([
     k.text("Numpad 0", { size: 11, font: "monospace" }),
-    k.pos(k.width() - 110, k.height() - 40),
+    k.pos(k.width() - 110, k.height() - 65),
     k.anchor("center"),
     k.opacity(1),
     k.color(150, 150, 155),
@@ -258,7 +258,7 @@ export function setupHUD(cars) {
         blueDashIcon.opacity = 0.3;
         blueDashCdCircle.opacity = 0.6;
         blueDashCdProgress.opacity = 0.45;
-        blueDashCdProgress.scale = k.vec2(Math.max(0, blueCar.dashCooldownTimer / (blueCar.dashCooldown || 3.5)));
+        blueDashCdProgress.scaleTo(Math.max(0, blueCar.dashCooldownTimer / (blueCar.dashCooldown || 3.5)));
         blueDashCdText.text = Math.ceil(blueCar.dashCooldownTimer).toString();
       } else {
         blueDashBg.outline = k.rgb(255, 170, 0);
@@ -270,8 +270,10 @@ export function setupHUD(cars) {
       }
 
       // Skill Cooldown
-      blueSkillIcon.text = getSkillIcon(blueCar.carType);
-      const bSkillMaxCd = SKILLS[blueCar.carType]?.cooldown || 7;
+      blueSkillIcon.text = getSkillIcon(blueCar);
+      const bSkillGroup = SKILLS[blueCar.carClass];
+      const bSkill = (bSkillGroup && bSkillGroup[blueCar.skillId]) || (bSkillGroup && bSkillGroup.default);
+      const bSkillMaxCd = bSkill?.cooldown || 7;
       if (blueCar.skillActive) {
         blueSkillBg.outline = k.rgb(0, 255, 255);
         blueSkillBg.opacity = 0.85;
@@ -285,7 +287,7 @@ export function setupHUD(cars) {
         blueSkillIcon.opacity = 0.3;
         blueSkillCdCircle.opacity = 0.6;
         blueSkillCdProgress.opacity = 0.45;
-        blueSkillCdProgress.scale = k.vec2(Math.max(0, blueCar.skillCooldownTimer / bSkillMaxCd));
+        blueSkillCdProgress.scaleTo(Math.max(0, blueCar.skillCooldownTimer / bSkillMaxCd));
         blueSkillCdText.text = Math.ceil(blueCar.skillCooldownTimer).toString();
       } else {
         blueSkillBg.outline = k.rgb(0, 255, 100);
@@ -313,7 +315,7 @@ export function setupHUD(cars) {
         redDashIcon.opacity = 0.3;
         redDashCdCircle.opacity = 0.6;
         redDashCdProgress.opacity = 0.45;
-        redDashCdProgress.scale = k.vec2(Math.max(0, redCar.dashCooldownTimer / (redCar.dashCooldown || 3.5)));
+        redDashCdProgress.scaleTo(Math.max(0, redCar.dashCooldownTimer / (redCar.dashCooldown || 3.5)));
         redDashCdText.text = Math.ceil(redCar.dashCooldownTimer).toString();
       } else {
         redDashBg.outline = k.rgb(255, 170, 0);
@@ -325,8 +327,10 @@ export function setupHUD(cars) {
       }
 
       // Skill Cooldown
-      redSkillIcon.text = getSkillIcon(redCar.carType);
-      const rSkillMaxCd = SKILLS[redCar.carType]?.cooldown || 7;
+      redSkillIcon.text = getSkillIcon(redCar);
+      const rSkillGroup = SKILLS[redCar.carClass];
+      const rSkill = (rSkillGroup && rSkillGroup[redCar.skillId]) || (rSkillGroup && rSkillGroup.default);
+      const rSkillMaxCd = rSkill?.cooldown || 7;
       if (redCar.skillActive) {
         redSkillBg.outline = k.rgb(0, 255, 255);
         redSkillBg.opacity = 0.85;
@@ -340,7 +344,7 @@ export function setupHUD(cars) {
         redSkillIcon.opacity = 0.3;
         redSkillCdCircle.opacity = 0.6;
         redSkillCdProgress.opacity = 0.45;
-        redSkillCdProgress.scale = k.vec2(Math.max(0, redCar.skillCooldownTimer / rSkillMaxCd));
+        redSkillCdProgress.scaleTo(Math.max(0, redCar.skillCooldownTimer / rSkillMaxCd));
         redSkillCdText.text = Math.ceil(redCar.skillCooldownTimer).toString();
       } else {
         redSkillBg.outline = k.rgb(0, 255, 100);

@@ -14,8 +14,12 @@ export const CAR_STATES = {
       let currentMax = car.maxSpeed;
       if (car.dashActive) {
         currentMax = car.maxSpeed * 3.0;
-      } else if (car.skillActive && car.carType === "DENGELI") {
+      } else if (car.skillActive && car.carClass === "DENGELI") {
         currentMax = car.maxSpeed * 2.2;
+      }
+
+      if (car.slowTimer && car.slowTimer > 0) {
+        currentMax = currentMax * 0.5;
       }
 
       if (isMoving) car.speed = Math.min(currentMax, car.speed + car.acceleration * k.dt());
@@ -23,8 +27,14 @@ export const CAR_STATES = {
 
       // Direksiyon (Hızla orantılı dönme hızı, geri giderken yön değişimi)
       const turnFactor = Math.min(1, Math.abs(car.speed) / 10) * (car.speed >= 0 ? 1 : -1);
-      const turnLeft = car.driveInputs?.left || false;
-      const turnRight = car.driveInputs?.right || false;
+      let turnLeft = car.driveInputs?.left || false;
+      let turnRight = car.driveInputs?.right || false;
+
+      if (car.reversedControlsTimer && car.reversedControlsTimer > 0) {
+        const temp = turnLeft;
+        turnLeft = turnRight;
+        turnRight = temp;
+      }
 
       if (turnLeft) car.angle -= car.turnSpeed * turnFactor * k.dt();
       if (turnRight) car.angle += car.turnSpeed * turnFactor * k.dt();

@@ -1,9 +1,10 @@
-import { k } from "./kaplay.js";
-import { spawnExplosion } from "./utils.js";
+import { k } from "../kaplay.js";
+import { spawnExplosion } from "../utils.js";
 import { getState, setState, isHost } from "playroomkit";
-import { MAPS } from "./maps.js";
+import { MAPS } from "../maps.js";
+import { spawnSelectedProjectile } from "./projectiles.js";
 
-// Rekabetçi, sade ve anlık itiş/can/yetenek desteği sunan 3 temel güçlendirici
+// Rekabetçi, sade ve anlık itiş/can/yetenek desteği sunan temel güçlendiriciler ve mühimmatlar
 export const POWERUPS = {
   TAMIR: {
     name: "TAMIR",
@@ -27,6 +28,20 @@ export const POWERUPS = {
     activate: (car) => {
       car.skillCooldownTimer = 0;
       k.shake(2);
+    }
+  },
+  AKILLI_MUHIMMAT: {
+    name: "AKILLI MUHIMMAT",
+    color: k.rgb(255, 0, 0), // Kırmızı: Akıllı mühimmat kiti
+    activate: (car) => {
+      spawnSelectedProjectile(car, car.selectedWeapon || "mizrak");
+    }
+  },
+  TAKTIK_DESTEK: {
+    name: "TAKTIK DESTEK",
+    color: k.rgb(255, 0, 128), // Neon Pembe: Taktik destek kiti
+    activate: (car) => {
+      spawnSelectedProjectile(car, car.selectedSupport || "mini_iha");
     }
   }
 };
@@ -57,6 +72,7 @@ function createLocalPowerup(sp) {
     k.color(config.color),
     k.opacity(0.25),
     k.anchor("center"),
+    k.scale(1),
   ]);
 
   pUp.onUpdate(() => {
@@ -65,7 +81,7 @@ function createLocalPowerup(sp) {
 
   glowRing.onUpdate(() => {
     glowRing.angle = pUp.angle;
-    glowRing.scale = k.vec2(1 + Math.sin(k.time() * 6) * 0.25);
+    glowRing.scaleTo(1 + Math.sin(k.time() * 6) * 0.25);
   });
 
   pUp.onDestroy(() => {
@@ -107,15 +123,21 @@ function isInsideObstacle(px, py, mapData) {
 // Host veya yerel mod tarafında power-up oluşturma
 function createSinglePowerup() {
   const r = k.rand(0, 1);
-  let chosenType = "TAMIR"; // %65 ihtimal
-  if (r < 0.10) {
-    chosenType = "NITRO"; // %10 ihtimal
+  let chosenType = "TAMIR";
+  if (r < 0.20) {
+    chosenType = "TAMIR"; // %20 ihtimal
   } else if (r < 0.35) {
-    chosenType = "SARJ";  // %25 ihtimal
+    chosenType = "NITRO"; // %15 ihtimal
+  } else if (r < 0.50) {
+    chosenType = "SARJ";  // %15 ihtimal
+  } else if (r < 0.80) {
+    chosenType = "AKILLI_MUHIMMAT"; // %30 ihtimal (Roket/Mühimmat)
+  } else {
+    chosenType = "TAKTIK_DESTEK";  // %20 ihtimal (İHA/Destek)
   }
 
   // Aktif haritayı alarak engellerin içine doğmasını engelle
-  const mapName = k.isMultiplayer ? (getState("gameMap") || "SADE") : (k.selectedMapName || "SADE");
+  const mapName = k.isMultiplayer ? (getState("gameMap") || "NEON") : "NEON";
   const mapData = MAPS.find(m => m.name === mapName) || MAPS[0];
 
   const margin = 140;
@@ -146,17 +168,17 @@ export function spawnPowerup() {
   if (k.isMultiplayer) {
     if (!isHost()) return;
     const existing = getState("powerups") || [];
-    if (existing.length >= 2) return;
+    if (existing.length >= 4) return;
 
-    const count = (k.chance(0.3) && existing.length === 0) ? 2 : 1;
+    const count = (k.chance(0.4) && existing.length === 0) ? 2 : 1;
     for (let i = 0; i < count; i++) {
       createSinglePowerup();
     }
   } else {
     const existing = k.get("powerup");
-    if (existing.length >= 2) return;
+    if (existing.length >= 4) return;
 
-    const count = (k.chance(0.3) && existing.length === 0) ? 2 : 1;
+    const count = (k.chance(0.4) && existing.length === 0) ? 2 : 1;
     for (let i = 0; i < count; i++) {
       createSinglePowerup();
     }

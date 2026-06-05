@@ -1,6 +1,6 @@
-import { k } from "./kaplay.js";
+import { k } from "../kaplay.js";
 import { isHost, getState, setState } from "playroomkit";
-import { playroomPlayers } from "./multiplayer.js";
+import { playroomPlayers } from "../multiplayer.js";
 
 export function setupPauseMenu(opts) {
   const { p1Type, p2Type, gameMode } = opts;
@@ -23,30 +23,31 @@ export function setupPauseMenu(opts) {
 
     // Menü Başlığı
     k.add([
-      k.text("OYUN DURDURULDU", { size: 24, letterSpacing: 2 }),
+      k.text("OYUN DURDURULDU", { size: 20, font: "sans-serif", weight: "bold", letterSpacing: 3 }),
       k.pos(k.width() / 2, k.height() / 2 - 120),
       k.anchor("center"),
-      k.color(255, 215, 0),
+      k.color(255, 70, 85),
       "pauseUI",
     ]);
 
     pauseTexts = [];
     pauseOptions.forEach((opt, idx) => {
       const label = k.add([
-        k.text(opt, { size: 18, letterSpacing: 1 }),
+        k.text(opt, { size: 14, font: "sans-serif", weight: "bold", letterSpacing: 2 }),
         k.pos(k.width() / 2, k.height() / 2 - 20 + idx * 45),
         k.anchor("center"),
-        k.color(255, 255, 255),
+        k.color(220, 225, 235),
+        k.scale(1),
         "pauseUI",
       ]);
       pauseTexts.push(label);
     });
 
     k.add([
-      k.text("Seçim: W-S / Yön Tuşları • Onay: ENTER / SPACE", { size: 10 }),
+      k.text("SECIM: W-S / YON TUSLARI • ONAY: ENTER / SPACE", { size: 8, font: "sans-serif", letterSpacing: 1 }),
       k.pos(k.width() / 2, k.height() / 2 + 130),
       k.anchor("center"),
-      k.color(150, 150, 155),
+      k.color(140, 145, 155),
       "pauseUI",
     ]);
 
@@ -61,11 +62,11 @@ export function setupPauseMenu(opts) {
   function updatePauseMenuVisuals() {
     pauseTexts.forEach((text, idx) => {
       if (idx === pauseSelectionIdx) {
-        text.color = k.rgb(0, 255, 100);
-        text.scale = k.vec2(1.15);
+        text.color = k.rgb(0, 240, 255);
+        text.scaleTo(1.05);
       } else {
-        text.color = k.rgb(255, 255, 255);
-        text.scale = k.vec2(1.0);
+        text.color = k.rgb(220, 225, 235);
+        text.scaleTo(1.0);
       }
     });
   }
