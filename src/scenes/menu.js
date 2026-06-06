@@ -75,48 +75,56 @@ export function initMenuScene() {
       ]));
     }
 
-    // Dynamic shooting stars (meteors) generator
+    // Dynamic shooting stars (meteors) - küçük hızlı daireler
     const spawnShootingStar = () => {
-      const startX = k.rand(k.width() * 0.2, k.width() * 1.1);
-      const startY = k.rand(-50, k.height() * 0.3);
-      const angle = 135; // Moving down-left
-      const speed = k.rand(500, 900);
-      const length = k.rand(80, 150);
+      const startX = k.rand(k.width() * 0.3, k.width());
+      const startY = k.rand(0, k.height() * 0.4);
+      const speed = k.rand(400, 700);
 
-      // Create a visual line trail for the meteor
-      k.add([
+      // Head
+      const head = k.add([
         k.pos(startX, startY),
+        k.circle(2),
+        k.color(220, 245, 255),
+        k.opacity(1.0),
         k.z(-5),
         {
-          dir: k.Vec2.fromAngle(angle),
-          speed: speed,
-          opacityVal: 1.0,
+          vel: k.vec2(-speed * 0.7, speed * 0.7),
+          life: 1.0,
           update() {
-            // Move diagonal down-left
-            this.pos = this.pos.add(this.dir.scale(this.speed * k.dt()));
-            // Fade out
-            this.opacityVal -= k.dt() * 1.8;
-            if (this.opacityVal <= 0 || this.pos.y > k.height() || this.pos.x < 0) {
-              this.destroy();
-            }
-          },
-          draw() {
-            // Draw a trailing line
-            k.drawLine({
-              p1: k.vec2(0, 0),
-              p2: this.dir.scale(-length),
-              width: 1.5,
-              color: k.rgb(220, 245, 255),
-              opacity: this.opacityVal,
-            });
+            this.pos = this.pos.add(this.vel.scale(k.dt()));
+            this.life -= k.dt() * 2.0;
+            this.opacity = Math.max(0, this.life);
+            if (this.life <= 0) this.destroy();
           }
         }
       ]);
+
+      // Trail segments
+      for (let t = 1; t <= 4; t++) {
+        k.add([
+          k.pos(startX + speed * 0.7 * t * 0.025, startY - speed * 0.7 * t * 0.025),
+          k.circle(1.5 - t * 0.25),
+          k.color(200, 230, 255),
+          k.opacity(0.6 - t * 0.12),
+          k.z(-5),
+          {
+            vel: k.vec2(-speed * 0.7, speed * 0.7),
+            life: 0.9 - t * 0.15,
+            update() {
+              this.pos = this.pos.add(this.vel.scale(k.dt()));
+              this.life -= k.dt() * 2.2;
+              this.opacity = Math.max(0, this.life * 0.5);
+              if (this.life <= 0) this.destroy();
+            }
+          }
+        ]);
+      }
     };
 
     // Spawn shooting stars periodically
-    const meteorLoop = k.loop(k.rand(4, 9), () => {
-      spawnShootingStar();
+    k.loop(6, () => {
+      if (k.rand(0, 1) > 0.3) spawnShootingStar();
     });
 
     k.onUpdate(() => {
