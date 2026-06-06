@@ -94,28 +94,26 @@ export function setupHUD(cars) {
   const elRedSkillKey = document.getElementById("red-skill-key");
 
   k.onUpdate(() => {
-    const controlsLocked = cars.some(c => c.controlsLocked);
-    const showSkills = !controlsLocked && !k.gameOver && !k.isGamePaused;
-
-    // Tüm HUD kökünü gizlemek yerine sadece oyuncuların yetenek panellerini gizliyoruz.
-    // Böylece skorbord ve geri sayım (3-2-1) duyuruları her zaman görünür kalıyor.
-    if (bluePanel) bluePanel.style.display = showSkills ? "flex" : "none";
-    if (redPanel) redPanel.style.display = showSkills ? "flex" : "none";
-
-    // Eğer yetenek barları görünür değilse güncellemeleri atla
-    if (!showSkills) return;
-
-    // Correctly find using Kaplay tag checks
+    // Find active cars using Kaplay tag checks
     const blueCar = k.isMultiplayer
-      ? cars.find(c => c.is("teamBlue"))
-      : cars.find(c => c.is("player1"));
+      ? cars.find(c => c.exists() && c.is("teamBlue"))
+      : cars.find(c => c.exists() && c.is("player1"));
     
     const redCar = k.isMultiplayer
-      ? cars.find(c => c.is("teamRed"))
-      : cars.find(c => c.is("player2"));
+      ? cars.find(c => c.exists() && c.is("teamRed"))
+      : cars.find(c => c.exists() && c.is("player2"));
 
-    // Update Blue Player HUD
-    if (blueCar) {
+    const blueLocked = blueCar ? !!blueCar.controlsLocked : false;
+    const redLocked = redCar ? !!redCar.controlsLocked : false;
+
+    const showBlue = blueCar && !blueLocked && !k.gameOver && !k.isGamePaused;
+    const showRed = redCar && !redLocked && !k.gameOver && !k.isGamePaused;
+
+    if (bluePanel) bluePanel.style.display = showBlue ? "flex" : "none";
+    if (redPanel) redPanel.style.display = showRed ? "flex" : "none";
+
+    // Update Blue Player HUD if visible
+    if (showBlue && blueCar) {
       // Dash
       if (blueCar.dashActive) {
         elBlueDashSlot.className = "hud-slot active";
@@ -154,8 +152,8 @@ export function setupHUD(cars) {
       }
     }
 
-    // Update Red Player HUD
-    if (redCar) {
+    // Update Red Player HUD if visible
+    if (showRed && redCar) {
       // Check for bot to change labels
       if (redCar.isBot) {
         if (elRedDashKey) elRedDashKey.innerText = "AI";
