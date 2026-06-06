@@ -232,7 +232,7 @@
 /* Center Screen Announcements (3-2-1, BAŞLA!, RAUND TAMAMLANDI) */
 .hud-announcement-container {
   position: absolute;
-  top: 40%;
+  top: 50%;
   left: 0;
   width: 100%;
   transform: translateY(-50%);
