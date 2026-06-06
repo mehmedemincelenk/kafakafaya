@@ -72,6 +72,20 @@
   opacity: 0.7;
 }
 
+.nav-back:hover:not(:disabled) {
+  color: #fff !important;
+  border-left-color: rgba(255, 255, 255, 0.6) !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.3) !important;
+  padding-left: 28px;
+}
+
+.nav-back.active:not(:disabled) {
+  color: #fff !important;
+  border-left-color: rgba(255, 255, 255, 0.8) !important;
+  text-shadow: 0 0 10px rgba(255, 255, 255, 0.4) !important;
+  padding-left: 28px;
+}
+
 /* Nav Status Label (Çevrimiçi / Yerel lobi indicator) */
 .nav-status-label {
   font-size: 10px;

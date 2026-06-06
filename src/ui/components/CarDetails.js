@@ -505,4 +505,59 @@ export function drawHTMLCarDetails(parentEl, type, color, skinId = "default", sc
     beaconBottom.style.top = `${hHalf + 2 * scale}px`;
     parentEl.appendChild(beaconBottom);
   }
+  else if (type === "HIFZATULLAH") {
+    // Shield emitter dome in center
+    const emitter = document.createElement("div");
+    emitter.style.position = "absolute";
+    emitter.style.left = "50%";
+    emitter.style.top = "50%";
+    emitter.style.transform = "translate(-50%, -50%)";
+    emitter.style.width = `${16 * scale}px`;
+    emitter.style.height = `${16 * scale}px`;
+    emitter.style.borderRadius = "50%";
+    emitter.style.backgroundColor = "rgb(24, 28, 36)";
+    emitter.style.border = `2px solid rgb(0, 240, 255)`; // Cyan forcefield emitter
+    emitter.style.zIndex = "5";
+    parentEl.appendChild(emitter);
+
+    // Glowing core
+    const core = document.createElement("div");
+    core.style.position = "absolute";
+    core.style.left = "50%";
+    core.style.top = "50%";
+    core.style.transform = "translate(-50%, -50%)";
+    core.style.width = `${6 * scale}px`;
+    core.style.height = `${6 * scale}px`;
+    core.style.borderRadius = "50%";
+    core.style.backgroundColor = "rgb(0, 240, 255)";
+    emitter.appendChild(core);
+  }
+  else if (type === "DENGO") {
+    // Heavy dash thruster engine at the back
+    const thruster = document.createElement("div");
+    thruster.style.position = "absolute";
+    thruster.style.left = `-${3 * scale}px`;
+    thruster.style.top = "50%";
+    thruster.style.transform = "translateY(-50%)";
+    thruster.style.width = `${6 * scale}px`;
+    thruster.style.height = `${12 * scale}px`;
+    thruster.style.backgroundColor = "rgb(30, 30, 35)";
+    thruster.style.borderRadius = `${1 * scale}px`;
+    thruster.style.zIndex = "3";
+    parentEl.appendChild(thruster);
+
+    // Dynamic front shield wedge (pointed front bumper)
+    const wedge = document.createElement("div");
+    wedge.style.position = "absolute";
+    wedge.style.right = `-${2 * scale}px`;
+    wedge.style.top = "50%";
+    wedge.style.transform = "translateY(-50%)";
+    wedge.style.width = "0";
+    wedge.style.height = "0";
+    wedge.style.borderLeft = `${7 * scale}px solid rgb(255, 60, 60)`;
+    wedge.style.borderTop = `${6 * scale}px solid transparent`;
+    wedge.style.borderBottom = `${6 * scale}px solid transparent`;
+    wedge.style.zIndex = "3";
+    parentEl.appendChild(wedge);
+  }
 }

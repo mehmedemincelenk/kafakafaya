@@ -39,6 +39,16 @@ export function drawCarDetails(parent, type, color, skinId) {
     parent.color = bodyColor;
   }
 
+  // 0. Smooth Drop Shadow
+  parent.add([
+    k.rect(cfg.width, cfg.height, { radius: cfg.radius }),
+    k.pos(3, 4),
+    k.color(0, 0, 0),
+    k.opacity(0.35),
+    k.anchor("center"),
+    k.z(-9.5)
+  ]);
+
   // 2. Wheels / Treads (Tekerlekler ve Paletler)
   const wOffset = wHalf - 8;
   const hOffset = hHalf - 1;
@@ -46,130 +56,159 @@ export function drawCarDetails(parent, type, color, skinId) {
   if (carClass === "TANK") {
     // Tanklar için devasa palet tasarımı
     // Sol Palet
-    parent.add([k.rect(cfg.width - 4, 8, { radius: 2 }), k.pos(0, -hHalf - 1), k.color(30, 30, 32), k.anchor("center")]);
+    parent.add([k.rect(cfg.width - 4, 9, { radius: 3 }), k.pos(0, -hHalf - 1.5), k.color(24, 25, 28), k.anchor("center")]);
     // Sağ Palet
-    parent.add([k.rect(cfg.width - 4, 8, { radius: 2 }), k.pos(0, hHalf + 1), k.color(30, 30, 32), k.anchor("center")]);
+    parent.add([k.rect(cfg.width - 4, 9, { radius: 3 }), k.pos(0, hHalf + 1.5), k.color(24, 25, 28), k.anchor("center")]);
     
     // Palet içi dişli çarklar (3 adet sol, 3 adet sağ)
     [-wOffset, 0, wOffset].forEach(x => {
-      parent.add([k.circle(2.5), k.pos(x, -hHalf - 1), k.color(55, 55, 60), k.anchor("center")]);
-      parent.add([k.circle(2.5), k.pos(x, hHalf + 1), k.color(55, 55, 60), k.anchor("center")]);
+      parent.add([k.circle(3), k.pos(x, -hHalf - 1.5), k.color(60, 64, 70), k.anchor("center")]);
+      parent.add([k.circle(3), k.pos(x, hHalf + 1.5), k.color(60, 64, 70), k.anchor("center")]);
     });
   } else {
     // Hızlı ve Güçlü sınıflar için tekerlekler ve jantlar
     [[-wOffset, -hOffset], [wOffset, -hOffset], [-wOffset, hOffset], [wOffset, hOffset]].forEach(([x, y]) => {
       // Tekerlek lastiği
-      parent.add([k.rect(13, 6, { radius: 1.5 }), k.pos(x, y), k.color(30, 30, 32), k.anchor("center")]);
+      parent.add([k.rect(14, 7, { radius: 3 }), k.pos(x, y), k.color(24, 25, 28), k.anchor("center")]);
       // Jant detayı (Takım rengiyle uyumlu şerit)
-      parent.add([k.rect(7, 2, { radius: 0.5 }), k.pos(x, y), k.color(color.r * 0.8, color.g * 0.8, color.b * 0.8), k.anchor("center")]);
+      parent.add([k.circle(2.5), k.pos(x, y), k.color(color.r * 0.8, color.g * 0.8, color.b * 0.8), k.anchor("center")]);
     });
   }
 
   // 3. Cyber Cockpit Glass & Reflection (Stealth Kapgan haricindekilere çizer)
   if (type !== "KAPGAN") {
-    const cabinWidth = cfg.width * 0.42;
-    const cabinHeight = cfg.height * 0.42;
+    const cabinWidth = cfg.width * 0.45;
+    const cabinHeight = cfg.height * 0.45;
     parent.add([
-      k.rect(cabinWidth, cabinHeight, { radius: 1.5 }),
+      k.rect(cabinWidth, cabinHeight, { radius: cabinHeight / 2 }),
       k.pos(-cfg.width * 0.05, 0),
-      k.color(20, 24, 30),
+      k.color(18, 20, 24),
       k.anchor("center")
     ]);
     // Kokpit içi cam yansıması (Parlak neon çizgi)
     parent.add([
-      k.rect(cabinWidth * 0.4, 1.5),
-      k.pos(-cfg.width * 0.05, -cabinHeight * 0.2),
-      k.color(100, 220, 255),
-      k.rotate(-15),
+      k.rect(cabinWidth * 0.5, 2, { radius: 1 }),
+      k.pos(-cfg.width * 0.05, -cabinHeight * 0.15),
+      k.color(0, 240, 255),
+      k.rotate(-10),
       k.anchor("center")
     ]);
   }
 
   // 4. LED Headlights & Brake Lights (Farlar ve Stop Lambaları)
-  // Ön Farlar (Beyaz LED)
-  parent.add([k.rect(5, 2.5, { radius: 0.5 }), k.pos(wHalf - 1.5, -hHalf + 5), k.color(255, 255, 255), k.anchor("center")]);
-  parent.add([k.rect(5, 2.5, { radius: 0.5 }), k.pos(wHalf - 1.5, hHalf - 5), k.color(255, 255, 255), k.anchor("center")]);
-  // Arka Stoplar (Kırmızı LED)
-  parent.add([k.rect(1.5, 4), k.pos(-wHalf + 0.5, -hHalf + 6), k.color(255, 40, 40), k.anchor("center")]);
-  parent.add([k.rect(1.5, 4), k.pos(-wHalf + 0.5, hHalf - 6), k.color(255, 40, 40), k.anchor("center")]);
+  // Ön Farlar (Beyaz/Cyan fütüristik LED)
+  parent.add([k.circle(2.5), k.pos(wHalf - 2, -hHalf + 5), k.color(200, 250, 255), k.anchor("center")]);
+  parent.add([k.circle(2.5), k.pos(wHalf - 2, hHalf - 5), k.color(200, 250, 255), k.anchor("center")]);
+  
+  // Ön Farlar Vektörel Işık Huzmeleri (Light Cones)
+  parent.add([
+    k.polygon([k.vec2(0, 0), k.vec2(140, -35), k.vec2(140, 35)]),
+    k.pos(wHalf - 2, -hHalf + 5),
+    k.color(255, 255, 220),
+    k.opacity(0.045),
+    k.z(-9),
+  ]);
+  parent.add([
+    k.polygon([k.vec2(0, 0), k.vec2(140, -35), k.vec2(140, 35)]),
+    k.pos(wHalf - 2, hHalf - 5),
+    k.color(255, 255, 220),
+    k.opacity(0.045),
+    k.z(-9),
+  ]);
+
+  // Arka Stoplar (Kırmızı neon LED)
+  parent.add([k.rect(2, 5, { radius: 1 }), k.pos(-wHalf + 1, -hHalf + 6), k.color(255, 60, 60), k.anchor("center")]);
+  parent.add([k.rect(2, 5, { radius: 1 }), k.pos(-wHalf + 1, hHalf - 6), k.color(255, 60, 60), k.anchor("center")]);
 
   // 5. Unique Vehicle Details based on exact identity / ability
   if (type === "BARKAN") {
     // BARKAN: Kinetik Tampon / Swift Attacker
-    // Front kinetics buffers
-    parent.add([k.rect(3, 4), k.pos(wHalf + 1, -hHalf + 7), k.color(color), k.anchor("center")]);
-    parent.add([k.rect(3, 4), k.pos(wHalf + 1, hHalf - 7), k.color(color), k.anchor("center")]);
+    // Front kinetics buffers (sleek angled sweeps)
+    parent.add([k.polygon([k.vec2(0, -3), k.vec2(6, 0), k.vec2(0, 3)]), k.pos(wHalf + 1, -hHalf + 7), k.color(color), k.anchor("center")]);
+    parent.add([k.polygon([k.vec2(0, -3), k.vec2(6, 0), k.vec2(0, 3)]), k.pos(wHalf + 1, hHalf - 7), k.color(color), k.anchor("center")]);
     // Lightning neon stripes on sides
-    parent.add([k.rect(cfg.width * 0.4, 1.5), k.pos(-2, -hHalf + 4), k.color(color), k.anchor("center")]);
-    parent.add([k.rect(cfg.width * 0.4, 1.5), k.pos(-2, hHalf - 4), k.color(color), k.anchor("center")]);
+    parent.add([k.rect(cfg.width * 0.45, 2, { radius: 1 }), k.pos(-2, -hHalf + 4), k.color(color), k.anchor("center")]);
+    parent.add([k.rect(cfg.width * 0.45, 2, { radius: 1 }), k.pos(-2, hHalf - 4), k.color(color), k.anchor("center")]);
     // Small rear fins
-    parent.add([k.rect(2, 6, { radius: 0.5 }), k.pos(-wHalf + 3, 0), k.color(20, 22, 25), k.anchor("center")]);
+    parent.add([k.rect(3, 8, { radius: 1.5 }), k.pos(-wHalf + 4, 0), k.color(18, 20, 24), k.anchor("center")]);
   } 
   else if (type === "ASLAN") {
     // ASLAN: GNSS Jammer / Electronic Warfare Antenna
     // Center Radar Dish
-    parent.add([k.circle(6), k.pos(-wHalf * 0.2, 0), k.color(30, 35, 45), k.anchor("center")]);
+    parent.add([k.circle(7), k.pos(-wHalf * 0.2, 0), k.color(24, 28, 36), k.anchor("center")]);
+    parent.add([k.circle(4), k.pos(-wHalf * 0.2, 0), k.color(color), k.opacity(0.3), k.anchor("center")]);
     // Radar grid line
-    parent.add([k.rect(12, 1.5), k.pos(-wHalf * 0.2, 0), k.color(color), k.rotate(45), k.anchor("center")]);
+    parent.add([k.rect(14, 1.5), k.pos(-wHalf * 0.2, 0), k.color(color), k.rotate(45), k.anchor("center")]);
     // Side emission pods
-    parent.add([k.rect(4, 3), k.pos(-wHalf * 0.5, -hHalf + 4), k.color(color), k.anchor("center")]);
-    parent.add([k.rect(4, 3), k.pos(-wHalf * 0.5, hHalf - 4), k.color(color), k.anchor("center")]);
+    parent.add([k.rect(5, 4, { radius: 1 }), k.pos(-wHalf * 0.5, -hHalf + 4), k.color(color), k.anchor("center")]);
+    parent.add([k.rect(5, 4, { radius: 1 }), k.pos(-wHalf * 0.5, hHalf - 4), k.color(color), k.anchor("center")]);
   } 
   else if (type === "KAPGAN") {
     // KAPGAN: Hayalet Taarruz / Stealth Interceptor
     // Triangle cockpit visor (stealth cabin)
-    parent.add([k.polygon([k.vec2(-8, -5), k.vec2(8, 0), k.vec2(-8, 5)]), k.pos(0, 0), k.color(15, 15, 20), k.anchor("center")]);
+    parent.add([k.polygon([k.vec2(-10, -6), k.vec2(10, 0), k.vec2(-10, 6)]), k.pos(0, 0), k.color(12, 12, 16), k.anchor("center")]);
     // Swept-back stealth fins
-    parent.add([k.rect(3, 10), k.pos(-wHalf + 6, -hHalf + 5), k.color(15, 15, 20), k.rotate(-35), k.anchor("center")]);
-    parent.add([k.rect(3, 10), k.pos(-wHalf + 6, hHalf - 5), k.color(15, 15, 20), k.rotate(35), k.anchor("center")]);
+    parent.add([k.rect(4, 12, { radius: 1.5 }), k.pos(-wHalf + 6, -hHalf + 5), k.color(12, 12, 16), k.rotate(-35), k.anchor("center")]);
+    parent.add([k.rect(4, 12, { radius: 1.5 }), k.pos(-wHalf + 6, hHalf - 5), k.color(12, 12, 16), k.rotate(35), k.anchor("center")]);
     // Dark violet neon highlights
-    const glowColor = k.rgb(160, 32, 240); // Violet neon
-    parent.add([k.rect(10, 1.5), k.pos(wHalf - 12, -hHalf + 6), k.color(glowColor), k.anchor("center")]);
-    parent.add([k.rect(10, 1.5), k.pos(wHalf - 12, hHalf - 6), k.color(glowColor), k.anchor("center")]);
+    const glowColor = k.rgb(180, 50, 255); // Violet neon
+    parent.add([k.rect(12, 2, { radius: 1 }), k.pos(wHalf - 12, -hHalf + 6), k.color(glowColor), k.anchor("center")]);
+    parent.add([k.rect(12, 2, { radius: 1 }), k.pos(wHalf - 12, hHalf - 6), k.color(glowColor), k.anchor("center")]);
   } 
   else if (type === "BARKAN_2") {
     // BARKAN_2: Swarm Mark / Advanced Strike Platform
     // Laser targeting scope on top (Red dot optics)
-    parent.add([k.rect(10, 5, { radius: 1 }), k.pos(-wHalf * 0.3, -4), k.color(30, 30, 35), k.anchor("center")]);
-    parent.add([k.circle(1.5), k.pos(-wHalf * 0.3 + 5, -4), k.color(255, 0, 0), k.anchor("center")]); // Red laser lens
+    parent.add([k.rect(12, 6, { radius: 2 }), k.pos(-wHalf * 0.3, -4), k.color(24, 24, 28), k.anchor("center")]);
+    parent.add([k.circle(2), k.pos(-wHalf * 0.3 + 4, -4), k.color(255, 50, 50), k.anchor("center")]); // Red laser lens
     // Double booster nozzles on back
-    parent.add([k.rect(4, 5), k.pos(-wHalf - 2, -5), k.color(25, 25, 30), k.anchor("center")]);
-    parent.add([k.rect(4, 5), k.pos(-wHalf - 2, 5), k.color(25, 25, 30), k.anchor("center")]);
-    parent.add([k.circle(1.2), k.pos(-wHalf - 4, -5), k.color(255, 120, 0), k.anchor("center")]);
-    parent.add([k.circle(1.2), k.pos(-wHalf - 4, 5), k.color(255, 120, 0), k.anchor("center")]);
+    parent.add([k.rect(5, 6, { radius: 1 }), k.pos(-wHalf - 2, -6), k.color(20, 20, 24), k.anchor("center")]);
+    parent.add([k.rect(5, 6, { radius: 1 }), k.pos(-wHalf - 2, 6), k.color(20, 20, 24), k.anchor("center")]);
+    parent.add([k.circle(1.8), k.pos(-wHalf - 4, -6), k.color(255, 140, 0), k.anchor("center")]);
+    parent.add([k.circle(1.8), k.pos(-wHalf - 4, 6), k.color(255, 140, 0), k.anchor("center")]);
   } 
   else if (type === "TUNGA") {
     // TUNGA: Sarp Dual Ram / Heavy Impact Rammer
     // Heavy ramming horns (pointed teeth)
-    parent.add([k.polygon([k.vec2(0, -4), k.vec2(10, 0), k.vec2(0, 4)]), k.pos(wHalf, -7), k.color(50, 52, 58), k.anchor("center")]);
-    parent.add([k.polygon([k.vec2(0, -4), k.vec2(10, 0), k.vec2(0, 4)]), k.pos(wHalf, 7), k.color(50, 52, 58), k.anchor("center")]);
+    parent.add([k.polygon([k.vec2(0, -5), k.vec2(12, 0), k.vec2(0, 5)]), k.pos(wHalf, -8), k.color(60, 64, 72), k.anchor("center")]);
+    parent.add([k.polygon([k.vec2(0, -5), k.vec2(12, 0), k.vec2(0, 5)]), k.pos(wHalf, 8), k.color(60, 64, 72), k.anchor("center")]);
     // Reinforced steel nose bar
-    parent.add([k.rect(4, cfg.height - 8), k.pos(wHalf - 2, 0), k.color(30, 30, 35), k.anchor("center")]);
+    parent.add([k.rect(5, cfg.height - 8, { radius: 2.5 }), k.pos(wHalf - 2, 0), k.color(24, 24, 28), k.anchor("center")]);
     // Heavy mudguards
-    parent.add([k.rect(15, 3), k.pos(-wOffset, -hHalf - 1.5), k.color(50, 52, 58), k.anchor("center")]);
-    parent.add([k.rect(15, 3), k.pos(-wOffset, hHalf + 1.5), k.color(50, 52, 58), k.anchor("center")]);
+    parent.add([k.rect(16, 4, { radius: 1 }), k.pos(-wOffset, -hHalf - 1.5), k.color(60, 64, 72), k.anchor("center")]);
+    parent.add([k.rect(16, 4, { radius: 1 }), k.pos(-wOffset, hHalf + 1.5), k.color(60, 64, 72), k.anchor("center")]);
   } 
   else if (type === "GOLGE_SUVARI") {
     // GOLGE_SUVARI: Active Suspension / Advanced Siege Tank
     // Large heavy turret dome
-    parent.add([k.circle(9), k.pos(-wHalf * 0.2, 0), k.color(30, 32, 36), k.anchor("center")]);
+    parent.add([k.circle(10.5), k.pos(-wHalf * 0.2, 0), k.color(24, 26, 30), k.anchor("center")]);
     // Turret hatch/control point
-    parent.add([k.circle(5), k.pos(-wHalf * 0.2, 0), k.color(color), k.anchor("center")]);
+    parent.add([k.circle(6), k.pos(-wHalf * 0.2, 0), k.color(color), k.anchor("center")]);
     // Long front-mounted projectile launcher barrel (Namlu)
-    parent.add([k.rect(14, 4), k.pos(-wHalf * 0.2 + 10, 0), k.color(30, 32, 36), k.anchor("center")]);
+    parent.add([k.rect(16, 5, { radius: 1 }), k.pos(-wHalf * 0.2 + 12, 0), k.color(24, 26, 30), k.anchor("center")]);
     // Front mine sweeper shield
-    parent.add([k.rect(4, cfg.height - 12, { radius: 1 }), k.pos(wHalf + 2, 0), k.color(45, 45, 50), k.anchor("center")]);
+    parent.add([k.rect(5, cfg.height - 10, { radius: 2.5 }), k.pos(wHalf + 2, 0), k.color(40, 40, 45), k.anchor("center")]);
   } 
   else if (type === "ALPAR") {
     // ALPAR: Tactical Repair / Reactive Armor Fortress
     // Reactive armor plates (grid layout)
     for (let x = -wHalf + 14; x < wHalf - 10; x += 14) {
-      parent.add([k.rect(10, 3, { radius: 0.5 }), k.pos(x, -hHalf + 5), k.color(bodyColor.r * 0.8, bodyColor.g * 0.8, bodyColor.b * 0.8), k.anchor("center")]);
-      parent.add([k.rect(10, 3, { radius: 0.5 }), k.pos(x, hHalf - 5), k.color(bodyColor.r * 0.8, bodyColor.g * 0.8, bodyColor.b * 0.8), k.anchor("center")]);
+      parent.add([k.rect(11, 4, { radius: 1.5 }), k.pos(x, -hHalf + 5), k.color(bodyColor.r * 0.85, bodyColor.g * 0.85, bodyColor.b * 0.85), k.anchor("center")]);
+      parent.add([k.rect(11, 4, { radius: 1.5 }), k.pos(x, hHalf - 5), k.color(bodyColor.r * 0.85, bodyColor.g * 0.85, bodyColor.b * 0.85), k.anchor("center")]);
     }
     // Green emergency/repair flashing LED beacons
-    parent.add([k.circle(2), k.pos(-wHalf * 0.4, -4), k.color(100, 255, 100), k.anchor("center")]);
-    parent.add([k.circle(2), k.pos(-wHalf * 0.4, 4), k.color(100, 255, 100), k.anchor("center")]);
+    parent.add([k.circle(2.5), k.pos(-wHalf * 0.4, -5), k.color(50, 255, 50), k.anchor("center")]);
+  } 
+  else if (type === "HIFZATULLAH") {
+    // HIFZATULLAH: Shield emitter dome
+    parent.add([k.circle(8), k.pos(0, 0), k.color(24, 28, 36), k.anchor("center")]);
+    parent.add([k.circle(4), k.pos(0, 0), k.color(0, 240, 255), k.anchor("center")]);
+    // Outer emission ring
+    parent.add([k.rect(14, 14, { radius: 7, fill: false }), k.pos(0, 0), k.outline(2, k.rgb(0, 240, 255)), k.anchor("center")]);
+  }
+  else if (type === "DENGO") {
+    // DENGO: Heavy thruster engine at the back & wedge bumper
+    parent.add([k.rect(6, 12, { radius: 1 }), k.pos(-wHalf - 2, 0), k.color(30, 30, 35), k.anchor("center")]);
+    parent.add([k.polygon([k.vec2(0, -6), k.vec2(7, 0), k.vec2(0, 6)]), k.pos(wHalf, 0), k.color(255, 60, 60), k.anchor("center")]);
   }
 }
 

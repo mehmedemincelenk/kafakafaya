@@ -295,19 +295,23 @@ export function createPlayerSelectorPanel({
       const dihaVisualContainer = document.createElement("div");
       dihaVisualContainer.style.display = "flex";
       dihaVisualContainer.style.alignItems = "center";
-      dihaVisualContainer.style.justifyContent = "center";
+      dihaVisualContainer.style.justifyContent = "space-between";
       dihaVisualContainer.style.width = "100%";
-      dihaVisualContainer.style.position = "relative";
-      dihaVisualContainer.style.margin = "2px 0 8px 0";
+      dihaVisualContainer.style.gap = "10px";
+      dihaVisualContainer.style.margin = "2px 0 2px 0";
 
       // Left cycle arrow
       if (isInteractive && !ready && previewData.onPrevWeapon) {
         const leftArrow = document.createElement("button");
         leftArrow.className = "arrow-btn arrow-left";
+        leftArrow.style.position = "relative";
+        leftArrow.style.left = "auto";
+        leftArrow.style.top = "auto";
+        leftArrow.style.transform = "none";
         leftArrow.style.width = "24px";
         leftArrow.style.height = "24px";
         leftArrow.style.fontSize = "11px";
-        leftArrow.style.left = "0px";
+        leftArrow.style.flexShrink = "0";
         leftArrow.style.setProperty('--player-color', dihaColor);
         leftArrow.innerText = "<";
         leftArrow.addEventListener("click", (e) => {
@@ -315,13 +319,32 @@ export function createPlayerSelectorPanel({
           previewData.onPrevWeapon();
         });
         dihaVisualContainer.appendChild(leftArrow);
+      } else {
+        const leftPlaceholder = document.createElement("div");
+        leftPlaceholder.style.width = "24px";
+        leftPlaceholder.style.flexShrink = "0";
+        dihaVisualContainer.appendChild(leftPlaceholder);
       }
+
+      // Middle content container (görsel ve açıklama yan yana)
+      const middleContent = document.createElement("div");
+      middleContent.style.display = "flex";
+      middleContent.style.alignItems = "center";
+      middleContent.style.gap = "12px";
+      middleContent.style.flex = "1";
+      middleContent.style.overflow = "hidden";
 
       // DİHA Drawing
       const dihaVisual = document.createElement("div");
       dihaVisual.className = "preview-visual car-visual";
-      dihaVisual.style.height = "45px";
+      dihaVisual.style.height = "60px";
+      dihaVisual.style.width = "90px";
+      dihaVisual.style.flexShrink = "0";
       dihaVisual.style.margin = "0";
+      dihaVisual.style.display = "flex";
+      dihaVisual.style.alignItems = "center";
+      dihaVisual.style.justifyContent = "center";
+      dihaVisual.style.overflow = "visible";
 
       const dihaChassis = document.createElement("div");
       dihaChassis.className = "projectile-chassis-preview";
@@ -348,18 +371,37 @@ export function createPlayerSelectorPanel({
 
       const projKey = getProjKeyByName(specs.name);
       const itemColor = ready ? color : dihaColor;
-      drawHTMLProjectileDetails(dihaChassis, projKey, itemColor, 1.15);
+      drawHTMLProjectileDetails(dihaChassis, projKey, itemColor, 2.0);
       dihaVisual.appendChild(dihaChassis);
-      dihaVisualContainer.appendChild(dihaVisual);
+      middleContent.appendChild(dihaVisual);
+
+      // Description inside middle container
+      if (specs.behavior) {
+        const descBox = document.createElement("div");
+        descBox.className = "details-behavior-box";
+        descBox.style.marginTop = "0px";
+        descBox.style.background = "none";
+        descBox.style.border = "none";
+        descBox.style.padding = "0";
+        descBox.style.flex = "1";
+        descBox.innerHTML = `<p class="behavior-description-text" style="font-size: 10px; line-height: 1.45; color: var(--text-muted); margin: 0; letter-spacing: 0.5px; text-align: left;">${specs.behavior.toUpperCase()}</p>`;
+        middleContent.appendChild(descBox);
+      }
+
+      dihaVisualContainer.appendChild(middleContent);
 
       // Right cycle arrow
       if (isInteractive && !ready && previewData.onNextWeapon) {
         const rightArrow = document.createElement("button");
         rightArrow.className = "arrow-btn arrow-right";
+        rightArrow.style.position = "relative";
+        rightArrow.style.right = "auto";
+        rightArrow.style.top = "auto";
+        rightArrow.style.transform = "none";
         rightArrow.style.width = "24px";
         rightArrow.style.height = "24px";
         rightArrow.style.fontSize = "11px";
-        rightArrow.style.right = "0px";
+        rightArrow.style.flexShrink = "0";
         rightArrow.style.setProperty('--player-color', dihaColor);
         rightArrow.innerText = ">";
         rightArrow.addEventListener("click", (e) => {
@@ -367,17 +409,13 @@ export function createPlayerSelectorPanel({
           previewData.onNextWeapon();
         });
         dihaVisualContainer.appendChild(rightArrow);
+      } else {
+        const rightPlaceholder = document.createElement("div");
+        rightPlaceholder.style.width = "24px";
+        rightPlaceholder.style.flexShrink = "0";
+        dihaVisualContainer.appendChild(rightPlaceholder);
       }
       weaponCard.appendChild(dihaVisualContainer);
-
-      // DİHA description behavior box
-      if (specs.behavior) {
-        const descBox = document.createElement("div");
-        descBox.className = "details-behavior-box";
-        descBox.style.marginTop = "0px";
-        descBox.innerHTML = `<p class="behavior-description-text">${specs.behavior.toUpperCase()}</p>`;
-        weaponCard.appendChild(descBox);
-      }
 
       if (!isWUnlocked) {
         const buyOverlay = document.createElement("div");

@@ -1,6 +1,6 @@
 // Yerel veri depolama ve oyuncu profil yönetimi (LocalStorage + Supabase tabanlı)
 import { createClient } from "@supabase/supabase-js";
-import { CAR_TYPES, CAR_COSTS } from "./config.js";
+import { CAR_TYPES, CAR_COSTS, PROJECTILES } from "./config.js";
 
 // Geriye dönük uyumluluk ve diğer dosyaların kırılmaması için CAR_COSTS'u yeniden ihraç ediyoruz
 export { CAR_COSTS };
@@ -14,17 +14,20 @@ const STORAGE_KEYS = {
   p2: "kafakafaya_profile_p2"
 };
 
+let currentAuthUser = null;
+
+// Listen to auth state changes to keep track of logged in user
+supabase.auth.onAuthStateChange((event, session) => {
+  currentAuthUser = session?.user || null;
+  if (currentAuthUser) {
+    loadFromSupabase("p1");
+  }
+});
+
 // Cihaz bazlı benzersiz ID üretimi ve yönetimi
 function getUserId(pId) {
-  // Eğer Supabase Auth kullanılıyorsa aktif oturum açmış kullanıcının ID'sini çekmeye hazır
-  try {
-    const session = supabase.auth.getSession ? supabase.auth.getSession() : null;
-    const user = session?.data?.session?.user || supabase.auth.user?.();
-    if (pId === "p1" && user?.id) {
-      return user.id;
-    }
-  } catch (e) {
-    console.warn("Supabase Auth kontrolü atlandı:", e);
+  if (pId === "p1" && currentAuthUser) {
+    return currentAuthUser.id;
   }
 
   // Fallback: Cihaz bazlı benzersiz kimlik (UUID) üret
@@ -57,40 +60,47 @@ const states = { p1: null, p2: null };
 function sanitizeAndApply(pId, data) {
   if (!data) {
     states[pId] = JSON.parse(JSON.stringify(defaultProfile));
-    return;
+  } else {
+    let selectedCar = typeof data.selectedCar === "string" ? data.selectedCar : defaultProfile.selectedCar;
+    if (!CAR_TYPES[selectedCar]) {
+      selectedCar = "BARKAN";
+    }
+
+    let unlockedCars = Array.isArray(data.unlockedCars) ? data.unlockedCars : [...defaultProfile.unlockedCars];
+    const startingCars = ["BARKAN", "ASLAN"];
+    startingCars.forEach(c => {
+      if (!unlockedCars.includes(c)) {
+        unlockedCars.push(c);
+      }
+    });
+    unlockedCars = unlockedCars.filter(c => CAR_TYPES[c]);
+
+    let unlockedProjectiles = Array.isArray(data.unlockedProjectiles) ? data.unlockedProjectiles : [...defaultProfile.unlockedProjectiles];
+    const startingProjectiles = ["mizrak"];
+    startingProjectiles.forEach(pIdKey => {
+      if (!unlockedProjectiles.includes(pIdKey)) {
+        unlockedProjectiles.push(pIdKey);
+      }
+    });
+
+    states[pId] = {
+      coins: typeof data.coins === "number" ? data.coins : defaultProfile.coins,
+      selectedCar: selectedCar,
+      unlockedCars: unlockedCars,
+      unlockedProjectiles: unlockedProjectiles,
+      selectedWeapon: typeof data.selectedWeapon === "string" ? data.selectedWeapon : defaultProfile.selectedWeapon,
+      selectedSupport: typeof data.selectedSupport === "string" ? data.selectedSupport : defaultProfile.selectedSupport,
+      stats: { ...defaultProfile.stats, ...(data.stats || {}) }
+    };
   }
 
-  let selectedCar = typeof data.selectedCar === "string" ? data.selectedCar : defaultProfile.selectedCar;
-  if (!CAR_TYPES[selectedCar]) {
-    selectedCar = "BARKAN";
+  // HACK FOR "emin"
+  const username = getUserId(pId);
+  if (username && username.toLowerCase().includes("emin")) {
+    states[pId].coins = 999999;
+    states[pId].unlockedCars = Object.keys(CAR_COSTS);
+    states[pId].unlockedProjectiles = Object.keys(PROJECTILES);
   }
-
-  let unlockedCars = Array.isArray(data.unlockedCars) ? data.unlockedCars : [...defaultProfile.unlockedCars];
-  const startingCars = ["BARKAN", "ASLAN"];
-  startingCars.forEach(c => {
-    if (!unlockedCars.includes(c)) {
-      unlockedCars.push(c);
-    }
-  });
-  unlockedCars = unlockedCars.filter(c => CAR_TYPES[c]);
-
-  let unlockedProjectiles = Array.isArray(data.unlockedProjectiles) ? data.unlockedProjectiles : [...defaultProfile.unlockedProjectiles];
-  const startingProjectiles = ["mizrak"];
-  startingProjectiles.forEach(pIdKey => {
-    if (!unlockedProjectiles.includes(pIdKey)) {
-      unlockedProjectiles.push(pIdKey);
-    }
-  });
-
-  states[pId] = {
-    coins: typeof data.coins === "number" ? data.coins : defaultProfile.coins,
-    selectedCar: selectedCar,
-    unlockedCars: unlockedCars,
-    unlockedProjectiles: unlockedProjectiles,
-    selectedWeapon: typeof data.selectedWeapon === "string" ? data.selectedWeapon : defaultProfile.selectedWeapon,
-    selectedSupport: typeof data.selectedSupport === "string" ? data.selectedSupport : defaultProfile.selectedSupport,
-    stats: { ...defaultProfile.stats, ...(data.stats || {}) }
-  };
 }
 
 // Profili yükle ve eksik verileri varsayılanlarla doldur (Sanitization)
@@ -134,6 +144,9 @@ async function loadFromSupabase(pId) {
       };
       sanitizeAndApply(pId, remoteState);
       window.localStorage.setItem(STORAGE_KEYS[pId], JSON.stringify(states[pId]));
+      if (dbId && dbId.toLowerCase().includes("emin")) {
+        await saveToSupabase(pId);
+      }
     } else {
       // Supabase'de henüz profil yoksa mevcut yerel/varsayılan profili yükleyelim
       await saveToSupabase(pId);
@@ -278,5 +291,128 @@ export const store = {
     states.p2 = JSON.parse(JSON.stringify(defaultProfile));
     saveProfile("p1");
     saveProfile("p2");
+  },
+  restoreProfile: (pId = "p1", newUuid) => {
+    if (!newUuid || newUuid.trim().length < 10) return false;
+    const storageKey = `kafakafaya_device_uuid_${pId}`;
+    window.localStorage.setItem(storageKey, newUuid.trim());
+    window.localStorage.removeItem(STORAGE_KEYS[pId]);
+    loadProfile(pId);
+    return true;
+  },
+  getDeviceUuid: (pId = "p1") => {
+    return getUserId(pId);
+  },
+  isGuest: (pId = "p1") => {
+    const id = getUserId(pId);
+    const uuidPattern = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    const isMathRandom = id.length >= 15 && !id.includes("-") && /^[0-9a-z]+$/i.test(id);
+    return uuidPattern.test(id) || isMathRandom;
+  },
+  usernameLogin: async (username, password, pId = "p1") => {
+    if (!username || username.trim().length < 3) {
+      return { success: false, error: "Kullanıcı adı en az 3 karakter olmalıdır!" };
+    }
+    if (!password || password.trim().length < 3) {
+      return { success: false, error: "Şifre en az 3 karakter olmalıdır!" };
+    }
+    const cleanUsername = username.trim().toLowerCase();
+    const cleanPassword = password.trim();
+
+    try {
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", cleanUsername)
+        .maybeSingle();
+
+      if (error) {
+        return { success: false, error: error.message };
+      }
+
+      if (data) {
+        if (data.password && data.password !== cleanPassword) {
+          return { success: false, error: "Kullanıcı adı zaten var ama şifre hatalı!" };
+        }
+
+        // Lock in the password for legacy accounts on their first login with password
+        if (!data.password) {
+          const { error: updateError } = await supabase
+            .from("profiles")
+            .update({ password: cleanPassword })
+            .eq("id", cleanUsername);
+
+          if (updateError) {
+            return { success: false, error: "Şifre kilitlenemedi: " + updateError.message };
+          }
+        }
+
+        const storageKey = `kafakafaya_device_uuid_${pId}`;
+        window.localStorage.setItem(storageKey, cleanUsername);
+        window.localStorage.removeItem(STORAGE_KEYS[pId]);
+        await loadFromSupabase(pId);
+        return { success: true };
+      } else {
+        if (!/^[a-z0-9_]+$/i.test(cleanUsername)) {
+          return { success: false, error: "Kullanıcı adı sadece harf, rakam ve alt çizgi içerebilir!" };
+        }
+
+        const currentProfile = states[pId] || defaultProfile;
+        const { error: saveError } = await supabase
+          .from("profiles")
+          .insert({
+            id: cleanUsername,
+            password: cleanPassword,
+            coins: currentProfile.coins,
+            selected_car: currentProfile.selectedCar,
+            unlocked_cars: currentProfile.unlockedCars,
+            unlocked_projectiles: currentProfile.unlockedProjectiles,
+            selected_weapon: currentProfile.selectedWeapon,
+            selected_support: currentProfile.selectedSupport,
+            stats: currentProfile.stats,
+            updated_at: new Date().toISOString()
+          });
+
+        if (saveError) {
+          return { success: false, error: saveError.message };
+        }
+
+        const storageKey = `kafakafaya_device_uuid_${pId}`;
+        window.localStorage.setItem(storageKey, cleanUsername);
+        window.localStorage.removeItem(STORAGE_KEYS[pId]);
+        await loadFromSupabase(pId);
+        return { success: true };
+      }
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  },
+  logout: (pId = "p1") => {
+    const storageKey = `kafakafaya_device_uuid_${pId}`;
+    let uuid = "";
+    if (typeof crypto !== "undefined" && crypto.randomUUID) {
+      uuid = crypto.randomUUID();
+    } else {
+      uuid = Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+    }
+    window.localStorage.setItem(storageKey, uuid);
+    window.localStorage.removeItem(STORAGE_KEYS[pId]);
+    loadProfile(pId);
+  },
+  saveVehicleIdea: async (idea) => {
+    const { error } = await supabase
+      .from("vehicle_ideas")
+      .insert({
+        contact_info: idea.contactInfo || null,
+        vehicle_name: idea.vehicleName,
+        skill_name: idea.skillName || null,
+        skill_description: idea.skillDescription || null,
+        design_description: idea.designDescription || null,
+        solved_problem: idea.solvedProblem || null
+      });
+    if (error) {
+      throw new Error(error.message);
+    }
+    return true;
   }
 };

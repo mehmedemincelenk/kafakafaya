@@ -29,6 +29,7 @@ export class MatchManager {
 
     this.roundTimeLeft = 90;
     this.lastReloadTrigger = k.isMultiplayer ? (getState("gameReloadTrigger") || 0) : 0;
+    this.roundOverProcessed = false;
 
     // UI Elements
     this.blueScoreValEl = null;
@@ -162,11 +163,12 @@ export class MatchManager {
     const preRoundBox = document.createElement("div");
     preRoundBox.className = `hud-pre-round ${isGo ? 'go-phase' : ''}`;
 
+    // Big Countdown Number / BAŞLA
     const countNum = document.createElement("div");
     countNum.className = `hud-countdown ${isGo ? 'start-go' : ''}`;
     countNum.innerText = text;
-
     preRoundBox.appendChild(countNum);
+
     container.appendChild(preRoundBox);
     hudRoot.appendChild(container);
   }
@@ -183,7 +185,7 @@ export class MatchManager {
         setTimeout(() => {
           this.showCountdown("1", false);
           setTimeout(() => {
-            this.showCountdown("BAŞLA!", true);
+            this.showCountdown("BAŞLA", true);
             this.cars.forEach(c => c.controlsLocked = false);
             setTimeout(() => {
               this.clearAnnouncement();
@@ -195,6 +197,10 @@ export class MatchManager {
   }
 
   update() {
+    if (k.isMultiplayer) {
+      this.updateMultiplayerSync();
+    }
+
     if (k.gameOver) return;
     // Raundun bittiğini (biri 0 HP olduğunda) milisaniyesinde algılamak için her frame kontrol ediyoruz
     this.checkGameOver();
@@ -234,10 +240,6 @@ export class MatchManager {
         this.timerValEl.style.color = "";
         this.timerValEl.style.textShadow = "";
       }
-    }
-
-    if (k.isMultiplayer) {
-      this.updateMultiplayerSync();
     }
   }
 
@@ -416,7 +418,8 @@ export class MatchManager {
     }
 
     // 4. Manage Round Over overlay
-    if (getState("roundOver") && !k.gameOver) {
+    if (getState("roundOver") && !this.roundOverProcessed) {
+      this.roundOverProcessed = true;
       k.gameOver = true;
       this.cars.forEach(c => { c.speed = 0; c.controlsLocked = true; });
 

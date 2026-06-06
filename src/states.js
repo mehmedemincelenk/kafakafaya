@@ -40,6 +40,8 @@ class DrivingState extends ActivePhysicsState {
     let currentMax = car.maxSpeed;
     if (car.dashActive) {
       currentMax = car.maxSpeed * 3.0;
+    } else if (car.isDengoDashing) {
+      currentMax = 900;
     }
 
     // Hayalet modunda hız artışı
@@ -79,6 +81,8 @@ class DrivingState extends ActivePhysicsState {
         currentTurnSpeed = currentTurnSpeed * 0.65; // %35 direksiyon cezası
       } else if (car.skillId === "swarm_mark") {
         currentTurnSpeed = currentTurnSpeed * 0.85; // %15 direksiyon cezası
+      } else if (car.skillId === "dengo_charge") {
+        currentTurnSpeed = currentTurnSpeed * 0.40; // Dengo hücumunda %60 direksiyon cezası
       } else if (car.skillId === "default" && car.carClass === "GUCLU") {
         currentTurnSpeed = currentTurnSpeed * 0.85; // Öfke yeteneğinde %15 direksiyon cezası
       }

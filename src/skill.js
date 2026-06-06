@@ -290,6 +290,80 @@ export const SKILLS = {
       }
     },
 
+    // --- DENGO YETENEĞİ ---
+    dengo_charge: {
+      name: "DENGO HÜCUMU",
+      icon: "🛡️",
+      cooldown: 8,
+      duration: 1.0,
+      desc: "Gövde etrafında koruyucu bir kalkan açar (Hasar almaz) ve ileri doğru yüksek hızda uzun mesafeli bir hücum gerçekleştirir.",
+      activate: (car) => {
+        car.isInvulnerable = true;
+        car.isDengoDashing = true;
+        car.speed = 900;
+        
+        const w = (CAR_TYPES[car.carType]?.width || 54);
+        const h = (CAR_TYPES[car.carType]?.height || 32);
+        
+        car.dengoShield = car.add([
+          k.circle(w * 0.75),
+          k.color(255, 60, 60),
+          k.opacity(0.15),
+          k.anchor("center"),
+          k.z(2)
+        ]);
+        
+        car.dengoShieldOutline = car.add([
+          k.circle(w * 0.75),
+          k.color(255, 60, 60),
+          k.opacity(0.65),
+          k.outline(2.5, k.rgb(255, 60, 60)),
+          k.anchor("center"),
+          k.z(2),
+          { fill: false }
+        ]);
+
+        car.dengoLoop = car.onUpdate(() => {
+          car.speed = 900;
+          if (car.dengoShieldOutline) {
+            car.dengoShieldOutline.opacity = 0.45 + Math.sin(k.time() * 18) * 0.2;
+          }
+          if (k.chance(0.55)) {
+            const trail = k.add([
+              k.pos(car.pos),
+              k.rotate(car.angle),
+              k.color(255, 60, 60),
+              k.opacity(0.35),
+              k.anchor("center"),
+              k.rect(w, h, { radius: 8 }),
+              k.z(-1)
+            ]);
+            trail.onUpdate(() => {
+              trail.opacity -= k.dt() * 2.5;
+              if (trail.opacity <= 0) trail.destroy();
+            });
+          }
+        });
+      },
+      deactivate: (car) => {
+        car.isInvulnerable = false;
+        car.isDengoDashing = false;
+        if (car.dengoShield) {
+          try { car.dengoShield.destroy(); } catch (e) {}
+          car.dengoShield = null;
+        }
+        if (car.dengoShieldOutline) {
+          try { car.dengoShieldOutline.destroy(); } catch (e) {}
+          car.dengoShieldOutline = null;
+        }
+        if (car.dengoLoop) {
+          try { car.dengoLoop.cancel(); } catch (e) {}
+          car.dengoLoop = null;
+        }
+        car.speed = car.maxSpeed;
+      }
+    },
+
     // --- MAĞAZA ALT BARI/YEDEKLER ---
     default: {
       name: "OFKE",
@@ -398,6 +472,82 @@ export const SKILLS = {
         if (car.reactiveArmorGlow) {
           try { car.reactiveArmorGlow.destroy(); } catch (e) {}
           car.reactiveArmorGlow = null;
+        }
+      }
+    },
+
+    // --- HIFZATULLAH YETENEĞİ ---
+    hifzatullah_shield: {
+      name: "HAFIZ KALKANI",
+      icon: "🛡️",
+      cooldown: 10,
+      duration: 3.5,
+      desc: "Kalkan açarak geçici olarak hasar almaz hale gelir. Yerdeki rastgele bir kiti (can/mühimmat) o kit toplanana kadar rakiplerin almasını kalıcı olarak engeller.",
+      activate: (car) => {
+        car.isInvulnerable = true;
+        const w = (CAR_TYPES[car.carType]?.width || 74);
+        
+        // Circular shield visual
+        car.shieldVisual = car.add([
+          k.circle(w * 0.75),
+          k.color(0, 240, 255),
+          k.opacity(0.15),
+          k.anchor("center"),
+          k.z(2)
+        ]);
+        car.shieldVisualOutline = car.add([
+          k.circle(w * 0.75),
+          k.color(0, 240, 255),
+          k.opacity(0.6),
+          k.outline(2.5, k.rgb(0, 240, 255)),
+          k.anchor("center"),
+          k.z(2),
+          { fill: false }
+        ]);
+
+        car.shieldVisualOutline.onUpdate(() => {
+          if (car.shieldVisualOutline) {
+            car.shieldVisualOutline.opacity = 0.4 + Math.sin(k.time() * 12) * 0.2;
+          }
+        });
+
+        // Pick EXACTLY ONE random ground powerup and lock it indefinitely
+        const powerups = k.get("powerup");
+        if (powerups.length > 0) {
+          const randomIdx = Math.floor(Math.random() * powerups.length);
+          const pUp = powerups[randomIdx];
+          
+          pUp.lockedBy = car;
+          // Add visuals directly as children to the powerup so Kaplay cleans them up automatically
+          pUp.add([
+            k.circle(22),
+            k.pos(0, 0),
+            k.color(0, 240, 255),
+            k.opacity(0.18),
+            k.anchor("center"),
+            k.z(1)
+          ]);
+          pUp.add([
+            k.circle(22),
+            k.pos(0, 0),
+            k.color(0, 240, 255),
+            k.opacity(0.6),
+            k.outline(1.5, k.rgb(0, 240, 255)),
+            k.anchor("center"),
+            k.z(1),
+            { fill: false }
+          ]);
+        }
+      },
+      deactivate: (car) => {
+        car.isInvulnerable = false;
+        if (car.shieldVisual) {
+          try { car.shieldVisual.destroy(); } catch (e) {}
+          car.shieldVisual = null;
+        }
+        if (car.shieldVisualOutline) {
+          try { car.shieldVisualOutline.destroy(); } catch (e) {}
+          car.shieldVisualOutline = null;
         }
       }
     },

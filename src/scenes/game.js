@@ -38,13 +38,6 @@ export function initGameScene() {
     const p1Support = localParams?.p1Support || store.getSelectedSupport("p1") || "mini_iha";
     const p2Support = localParams?.p2Support || (p2Joined ? store.getSelectedSupport("p2") : "mini_iha");
 
-    const modeNotice = k.add([
-      k.text("KOMBAT ARENASI", { size: 10, font: "sans-serif", weight: "bold", letterSpacing: 2 }),
-      k.pos(k.width() / 2, 60),
-      k.anchor("center"),
-      k.color(150, 155, 165),
-    ]);
-    k.wait(1.5, () => modeNotice.destroy());
 
     const pauseMenu = setupPauseMenu({
       p1Type,
@@ -273,7 +266,8 @@ export function initGameScene() {
     });
 
     // Sahneden çıkarken HTML arayüz elemanlarını temizle (Memory Leak ve UI Hayaletleşme Engelleme)
-    k.onDestroy(() => {
+    const sceneCleanup = k.add([]);
+    sceneCleanup.onDestroy(() => {
       const hudRoot = document.getElementById("gameplay-hud-root");
       if (hudRoot) hudRoot.remove();
       const pauseMenu = document.getElementById("pause-menu-root");

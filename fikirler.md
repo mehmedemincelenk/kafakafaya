@@ -1,12 +1,13 @@
-KKSAN
-- El Hafid
-- Dengo
-- Uzaylı Hayvanları Dostlarımıza Atıf Yaparak Ufuk Açmak.
+
+- Uzaylı Hayvanları Dostlarımıza Atıf Yaparak Ufuk Açmak
+
+Muhimmat
+- yıldırımhan: oyun alanının dısına cıkar sonraki round baslangıcında tekrar gelerek rakibi kovalar.
 
 MOD
 - kurye mod -uzay-
-- bayrak kapmaca
 - havada, yerde
 - mini battleroyale
+- futbol kalesi gibi kale olur karsıyı oraya atabilirsen direkt kazanırsın ki zaten herkes oradan gelir geldigi yere yollarsın (ama bu pis bi rekabet ortamı sanki)
 
 

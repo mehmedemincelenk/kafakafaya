@@ -193,6 +193,11 @@ export function spawnPowerup() {
 // Oyuncu ve Kit etkileşimi
 export function setupPowerupCollisions() {
   k.onCollide("player", "powerup", (player, pUp) => {
+    // El Hafid kalkan kilit kontrolü (Başkası kalkan içine aldıysa toplayamaz)
+    if (pUp.lockedBy && pUp.lockedBy !== player) {
+      return;
+    }
+
     if (k.isMultiplayer) {
       if (!isHost()) return;
 

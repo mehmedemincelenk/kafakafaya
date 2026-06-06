@@ -32,7 +32,7 @@
         "homing": true,
         "turn_speed": 120,
         "health": 1,
-        "behavior_description": "Yerden toplandığında roket desteğiyle (RATO) fırlatılır. Havada süzülerek en yüksek cana sahip düşman kara aracına kilitlenir, ona doğru süzülür ve çarptığında büyük bir patlama alanı yaratır."
+        "behavior_description": "Roket desteğiyle fırlatılır. En yüksek cana sahip düşmana kilitlenir ve geniş alanda hasar verir."
       }
     },
     {
@@ -67,7 +67,7 @@
         "homing": true,
         "turn_speed": 180,
         "health": 1,
-        "behavior_description": "Yerden toplandığında katapulttan hızla fırlatılır. Mızrak'a kıyasla çok daha hafif ve kıvraktır. En yakındaki düşman kara aracına kilitlenerek yüksek manevra kabiliyetiyle dalar ve çarptığında orta büyüklükte bir hasar alanı oluşturur."
+        "behavior_description": "Hafif ve kıvraktır. En yakındaki araca kilitlenerek yüksek manevra kabiliyetiyle dalar."
       }
     },
     {
@@ -101,7 +101,7 @@
         "homing": true,
         "turn_speed": 90,
         "health": 1,
-        "behavior_description": "Jet motorlu mini seyir füzesidir. Roket destekli kalkışla (RATO) fırlatılır. Devasa hızıyla hedefe saniyeler içinde ulaşır ve kritik hasar (180) verir."
+        "behavior_description": "Jet motorlu mini füzedir. Roket destekli fırlatılır, hedefe çok hızlı ulaşıp kritik hasar verir."
       }
     },
     {
@@ -134,7 +134,7 @@
         "homing": true,
         "turn_speed": 100,
         "health": 1,
-        "behavior_description": "Daha hafif ve havadan fırlatılan jet motorlu mini seyir füzesidir. Aşırı hızlıdır, dar ama derin hasar verir."
+        "behavior_description": "Havadan fırlatılan hafif jet füzesidir. Aşırı hızlıdır, dar ama derin hasar verir."
       }
     },
     {
@@ -167,7 +167,7 @@
         "homing": false,
         "turn_speed": 0,
         "health": 5,
-        "behavior_description": "Dikey kalkış yapan gözetleme DİHA'sıdır. Kullanıcının üzerinde sabit kalarak 15 saniye boyunca çevredeki tüm düşmanların konumlarını açığa çıkarır (duvar arkası dahil) ve oyuncunun zırhını yeniler."
+        "behavior_description": "Gözetleme İHA'sıdır. Havada sabit kalıp düşman yerlerini açığa çıkarır ve zırh yeniler."
       }
     },
     {
@@ -201,7 +201,7 @@
         "homing": false,
         "turn_speed": 0,
         "health": 2,
-        "behavior_description": "El ile fırlatılan hafif gözetleme dronudur. Fırlatıldığında en yakın düşmanın üzerinde dönmeye başlar ve 10 saniye boyunca o düşmanın kontrol tuşlarını tersine çevirerek onu yavaşlatır."
+        "behavior_description": "Hafif gözetleme dronudur. Düşmanın üzerinde dönerek yön tuşlarını tersine çevirip yavaşlatır."
       }
     },
     {
@@ -234,7 +234,7 @@
         "homing": true,
         "turn_speed": 70,
         "health": 1,
-        "behavior_description": "Lazer arayıcı başlıklı akıllı süzülen mühimmattır. Hızı nispeten düşüktür ancak parçacık etkili devasa harp başlığı sayesinde geniş bir alandaki tüm düşmanlara ağır hasar verir."
+        "behavior_description": "Lazer güdümlü planördür. Geniş patlama yarıçapıyla alandaki tüm düşmanlara ağır hasar verir."
       }
     },
     {
@@ -267,7 +267,7 @@
         "homing": true,
         "turn_speed": 100,
         "health": 1,
-        "behavior_description": "Mini akıllı mühimmattır. Süzülerek en yakındaki rakibe kilitlenir. Patlama yarıçapı küçüktür ancak zırh delici başlığı sayesinde rakibin zırh değerini yok sayarak doğrudan canına (HP) hasar vurur."
+        "behavior_description": "Lazer güdümlü mühimmattır. Zırhı yok sayarak doğrudan rakibin canına (HP) hasar vurur."
       }
     },
     {
@@ -302,7 +302,7 @@
         "homing": true,
         "turn_speed": 60,
         "health": 3,
-        "behavior_description": "Turbojet motorlu stratejik seyir füzesidir. Radar soğurucu gövdesi sayesinde düşman savunmaları tarafından vurulması çok zordur (3 Can). Su sathına yakın (sea-skimming) uçar ve çarpışmada 220 hasar vererek devasa bir alanı yok eder."
+        "behavior_description": "Turbojet seyir füzesidir. Yüksek beka kabiliyetine (3 Can) ve devasa patlama alanına sahiptir."
       }
     },
     {
@@ -336,7 +336,7 @@
         "homing": true,
         "turn_speed": 80,
         "health": 1,
-        "behavior_description": "Katı yakıtlı hipersonik füzedir. İnanılmaz hızı ve yıkıcı patlama etkisiyle hedefleri anında kül eder."
+        "behavior_description": "Hipersonik roket motorlu füzedir. Durdurulamaz hızı ve yıkıcı gücüyle hedefi anında yok eder."
       }
     },
     {
@@ -370,7 +370,7 @@
         "homing": true,
         "turn_speed": 70,
         "health": 2,
-        "behavior_description": "Aero-balistik manevra kabiliyetine sahip second nesil hipersonik füzedir. Durdurulamaz hızda devasa hasar verir."
+        "behavior_description": "Aero-balistik manevralı 2. nesil hipersonik füzedir. Aşırı yüksek hızda muazzam hasar verir."
       }
     },
     {
@@ -388,7 +388,7 @@
         "guidance": "Ataletsel Seyrüsefer & GPS Destekli Terminal Arayıcı",
         "autonomous_features": [
           "Çoklu Bağımsız Yönlendirilebilir Harp Başlığı (MIRV) Entegrasyonu",
-          "Yüksek Beka Kabiliyeti Sağlayan Elektronik Karşı Tedbirler"
+          "Yüksek Beka Kabiliyeti Sağlayan Elektronik Karıştırmaya Karşı Beka Kabiliyeti"
         ],
         "patents": [
           "MIRV Ayrımlaşma ve Yönlendirme Mekanizması",
@@ -404,7 +404,7 @@
         "homing": true,
         "turn_speed": 50,
         "health": 3,
-        "behavior_description": "MIRV harp başlığı taşıyan orta menzilli balistik füzedir. Düşmana yönelen en yıkıcı ve en ağır silahtır."
+        "behavior_description": "Çoklu harp başlıklı balistik füzedir. Oyundaki en yavaş dönen ama en yüksek hasarlı silahtır."
       }
     }
   ]

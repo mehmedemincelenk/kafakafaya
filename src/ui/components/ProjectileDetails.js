@@ -12,15 +12,14 @@ export function drawHTMLProjectileDetails(parentEl, type, color, scale = 1) {
   parentEl.style.justifyContent = "center";
 
   const spec = PROJECTILES[type];
-  let w = spec ? spec.width : 32;
-  let h = spec ? spec.height : 8;
+  let origW = spec ? spec.width : 32;
+  let origH = spec ? spec.height : 8;
 
-  // Cap max preview width for visual harmony, maintaining aspect ratio
-  if (w > 45) {
-    const ratio = 45 / w;
-    w = 45;
-    h = h * ratio;
-  }
+  // Normalize base width to exactly 32px for visual harmony in UI menus
+  const normW = 32;
+  const ratio = normW / origW;
+  let w = normW;
+  let h = origH * ratio;
 
   parentEl.style.width = `${w * scale}px`;
   parentEl.style.height = `${h * scale}px`;

@@ -151,6 +151,30 @@
   box-shadow: 0 0 10px rgba(255, 215, 0, 0.05);
 }
 
+.top-settings-btn {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  padding: 8px 14px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.2s ease;
+}
+
+.top-settings-btn:hover {
+  background: rgba(255, 255, 255, 0.1);
+  border-color: rgba(0, 240, 255, 0.5);
+  box-shadow: 0 0 12px rgba(0, 240, 255, 0.2);
+  color: var(--active-neon, #00f0ff);
+}
+
 /* Global Footer & Layouts */
 .menu-footer {
   margin-bottom: 20px;
@@ -229,3 +253,5 @@
   pointer-events: auto;
   animation: fadeIn 0.25s ease-out;
 }
+
+

@@ -8,8 +8,8 @@ import { spawnExplosion } from "../utils.js";
 export function setupSuddenDeath(cars, checkGameOver) {
   // Safe Zone Boundary Line (Sudden Death)
   const safeZoneBorder = k.add([
-    k.rect(k.width() - 120, k.height() - 120, { radius: 10, fill: false }),
-    k.pos(60, 60),
+    k.rect(k.width() - 48, k.height() - 48, { radius: 10, fill: false }),
+    k.pos(24, 24),
     k.outline(2, k.rgb(0, 240, 255)), // Starts safe/blue
     k.z(-8),
   ]);
@@ -28,8 +28,8 @@ export function setupSuddenDeath(cars, checkGameOver) {
       zoneWarningText.text = "TEHLİKE: GÜVENLİ ALAN DARALIYOR!";
       
       const timeInSuddenDeath = Math.max(0, 30 - roundTimeLeft);
-      // Boundary goes from 60px margin, shrinking by 8.5px/s up to ~315px
-      const currentMargin = 60 + (timeInSuddenDeath * 8.5);
+      // Boundary goes from 24px margin (screen bounds), shrinking by 9.7px/s up to ~315px
+      const currentMargin = 24 + (timeInSuddenDeath * 9.7);
 
       safeZoneBorder.width = k.width() - 2 * currentMargin;
       safeZoneBorder.height = k.height() - 2 * currentMargin;
@@ -81,9 +81,9 @@ export function setupSuddenDeath(cars, checkGameOver) {
     } else {
       safeZoneBorder.hidden = true; // Pasif durumdayken gizli tutuyoruz
       zoneWarningText.text = "";
-      safeZoneBorder.width = k.width() - 120;
-      safeZoneBorder.height = k.height() - 120;
-      safeZoneBorder.pos = k.vec2(60, 60);
+      safeZoneBorder.width = k.width() - 48;
+      safeZoneBorder.height = k.height() - 48;
+      safeZoneBorder.pos = k.vec2(24, 24);
       safeZoneBorder.outline.color = k.rgb(0, 240, 255);
       safeZoneBorder.outline.width = 2;
 

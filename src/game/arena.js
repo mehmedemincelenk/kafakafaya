@@ -10,14 +10,6 @@ export function setupArena(mapData) {
     k.z(-10),
   ]);
 
-  // Arena Dış Sınır Çizgisi
-  k.add([
-    k.rect(k.width() - 120, k.height() - 120, { radius: 10 }),
-    k.pos(60, 60),
-    k.color(mapData.bgColor[0], mapData.bgColor[1], mapData.bgColor[2]),
-    k.outline(3, k.rgb(mapData.borderColor[0], mapData.borderColor[1], mapData.borderColor[2])),
-    k.z(-9),
-  ]);
 
   // Grid Noktaları
   const gridSize = 60;
