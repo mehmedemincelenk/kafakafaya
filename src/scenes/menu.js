@@ -2,7 +2,7 @@ import { k } from "../kaplay.js";
 import { menuOverlay } from "../ui/screens/menu.js";
 
 export function initMenuScene() {
-  k.scene("menu", () => {
+  k.scene("menu", (params) => {
     // --- AMBIENT BACKGROUND EFFECTS ---
     // Ambient Neon Glow
     k.add([
@@ -40,7 +40,7 @@ export function initMenuScene() {
     });
 
     // Mount the HTML overlay menu
-    menuOverlay.mount();
+    menuOverlay.mount(params);
 
     // Cleanup when leaving the scene
     k.onDestroy(() => {

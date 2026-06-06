@@ -33,7 +33,8 @@ export function spawnPortalPair(posA, posB, options = {}) {
       k.rotate(angle),
       k.color(color),
       k.opacity(0.35), // Yumuşak beyaz ışıma efekti
-      k.area(), // Çarpışma alanı algılayıcı
+      // Görsel genişlik 8 iken çarpışma alanını kalınlaştırıp (36) yüksek hızlarda tünelleme/atlama sorununu engelliyoruz
+      k.area({ shape: new k.Rect(k.vec2(-18, -height / 2), 36, height) }),
       k.anchor("center"),
       k.z(-5), // Arabaların ve can barlarının arkasında kalsın
       "portal",

@@ -16,12 +16,31 @@ export function startDuel(car1, car2, collisionNormal, midPoint, checkGameOver) 
   car1.isInvulnerable = true;
   car2.isInvulnerable = true;
 
-  const clashLabel = k.add([
-    k.text("KAFA KAFAYA!", { size: 24, font: "sans-serif", weight: "bold", letterSpacing: 3 }),
-    k.pos(k.center().add(0, -120)),
-    k.anchor("center"),
-    k.color(255, 70, 85),
-  ]);
+  const root = document.getElementById("ui-root");
+  let hudRoot = document.getElementById("gameplay-hud-root");
+  if (!hudRoot && root) {
+    hudRoot = document.createElement("div");
+    hudRoot.id = "gameplay-hud-root";
+    root.appendChild(hudRoot);
+  }
+
+  let clashEl = null;
+  if (hudRoot) {
+    clashEl = document.createElement("div");
+    clashEl.id = "hud-clash-announcement";
+    clashEl.className = "hud-announcement-container";
+
+    const banner = document.createElement("div");
+    banner.className = "hud-banner-strip clash-warning";
+
+    const titleEl = document.createElement("h1");
+    titleEl.className = "hud-announcement-title";
+    titleEl.innerText = "KAFA KAFAYA!";
+
+    banner.appendChild(titleEl);
+    clashEl.appendChild(banner);
+    hudRoot.appendChild(clashEl);
+  }
 
   k.shake(8);
 
@@ -32,7 +51,7 @@ export function startDuel(car1, car2, collisionNormal, midPoint, checkGameOver) 
     if (cancel1) cancel1.cancel();
     if (cancel2) cancel2.cancel();
     if (tapWatcher) tapWatcher.cancel();
-    clashLabel.destroy();
+    if (clashEl) clashEl.remove();
 
     changeState(car1, "RECOIL");
     changeState(car2, "RECOIL");

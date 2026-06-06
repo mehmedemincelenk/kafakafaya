@@ -6,9 +6,7 @@ import { insertCoin, myPlayer, isHost, setState, getState } from "playroomkit";
 import { spawnExplosion } from "../../utils.js";
 import { SKILLS } from "../../skill.js";
 import {
-  createButton,
   createNavButton,
-  createSelectionCard,
   createPlayerSelectorPanel,
   drawHTMLCarDetails,
   createCarGridCard,
@@ -16,7 +14,7 @@ import {
 } from "../components.js";
 
 // Import styles
-import "../menu.css";
+import "../styles/base.css";
 import mthLogo from "../../../mth_logo.png";
 
 class HTMLMenuManager {
@@ -26,7 +24,7 @@ class HTMLMenuManager {
     this.state = {
       menuState: "PLAY_TYPE_SELECT", // "PLAY_TYPE_SELECT" | "CAR_SELECT"
       gameMode: "NORMAL",
-      selectedPlayTypeIdx: 0, // 0: YEREL, 1: BERABER
+      selectedPlayTypeIdx: 0, // 0: ANTRENMAN, 1: OMUZ OMUZA, 2: ARKADAŞLARLA
       p2Joined: false,
       players: [], // List of rendered player state objects
       inputCooldown: false,
@@ -37,14 +35,24 @@ class HTMLMenuManager {
     this.updateInterval = null;
   }
 
-  mount() {
+  mount(params) {
+    // Reset selection and navigation states to starting screen values or passed values
+    this.state.menuState = (params && params.startState) ? params.startState : "PLAY_TYPE_SELECT";
+    this.state.selectedPlayTypeIdx = 0;
+    this.state.selectedSettingIdx = 0;
+    this.state.p2Joined = (params && params.p2Joined !== undefined) ? params.p2Joined : false;
+    this.state.gameMode = (params && params.gameMode) ? params.gameMode : "NORMAL";
+    this.state.hostCarTransitioning = false;
+
+    if (this.state.menuState === "CAR_SELECT") {
+      this.setupPlayersState();
+    }
+
     this.root.innerHTML = "";
 
     this.container = document.createElement("div");
     this.container.className = "menu-overlay-container";
     this.root.appendChild(this.container);
-
-    this.renderIndicators();
 
     // Main content area
     this.contentArea = document.createElement("div");
@@ -58,10 +66,20 @@ class HTMLMenuManager {
     this.renderHeader();
     this.renderFooter();
 
+    const logoWrapper = document.createElement("div");
+    logoWrapper.className = "mth-logo-wrapper";
+
+    const logoCredits = document.createElement("span");
+    logoCredits.className = "mth-logo-credits";
+    logoCredits.innerHTML = "JGD | FATİH, M.CAN VE DİĞER HAFIZ'LARIN KATKILARIYLA,<br>LÜLEBURGAZ KIRKLARELİ DİYANET İLÇE MÜFTÜLÜĞÜ KATKILARIYLA";
+
     const logoImg = document.createElement("img");
     logoImg.src = mthLogo;
     logoImg.className = "mth-logo";
-    this.container.appendChild(logoImg);
+
+    logoWrapper.appendChild(logoImg);
+    logoWrapper.appendChild(logoCredits);
+    this.container.appendChild(logoWrapper);
 
     // Setup initial view
     this.updateView();
@@ -92,68 +110,7 @@ class HTMLMenuManager {
     }, 200);
   }
 
-  // --- RENDER HELPERS ---
 
-  renderIndicators() {
-    const wrapper = document.createElement("div");
-    wrapper.className = "top-indicators";
-
-    // P1 Stats (Left)
-    this.statsIndicator = document.createElement("div");
-    this.statsIndicator.className = "stats-indicator";
-    wrapper.appendChild(this.statsIndicator);
-
-    // Coins (Right)
-    const rightGroup = document.createElement("div");
-    rightGroup.className = "top-right-group";
-
-    // P2 Join Guide Button (HTML version of joinButton)
-    this.joinGuideBtn = createButton({
-      text: "OYUNCU 2 EKLE",
-      variant: "primary",
-      onClick: () => this.triggerP2Join()
-    });
-    rightGroup.appendChild(this.joinGuideBtn);
-
-    this.coinIndicator = document.createElement("div");
-    this.coinIndicator.className = "coins-indicator";
-    rightGroup.appendChild(this.coinIndicator);
-
-    // Store button next to coins
-    this.topStoreBtn = createButton({
-      text: "🛒 MAĞAZA",
-      variant: "gold",
-      onClick: () => {
-        this.dismount();
-        k.go("store");
-      }
-    });
-    rightGroup.appendChild(this.topStoreBtn);
-
-    wrapper.appendChild(rightGroup);
-    this.container.appendChild(wrapper);
-
-    this.updateTopIndicators();
-  }
-
-  updateTopIndicators() {
-    const stats = store.getStats();
-    this.statsIndicator.innerHTML = `🏆 ${stats.wins} &nbsp; 💀 ${stats.losses} &nbsp; 🎮 ${stats.gamesPlayed}`;
-    this.coinIndicator.innerHTML = `🪙 ${store.getCoins()}`;
-
-    // Show/Hide indicators depending on state
-    if (this.state.menuState === "CAR_SELECT") {
-      this.statsIndicator.style.display = "none";
-      this.coinIndicator.style.display = "none";
-      this.joinGuideBtn.style.display = "none";
-      this.topStoreBtn.style.display = "none";
-    } else {
-      this.statsIndicator.style.display = "block";
-      this.coinIndicator.style.display = "block";
-      this.joinGuideBtn.style.display = (this.state.p2Joined || k.isMultiplayer) ? "none" : "block";
-      this.topStoreBtn.style.display = "block";
-    }
-  }
 
   renderHeader() {
     const header = document.createElement("div");
@@ -187,14 +144,32 @@ class HTMLMenuManager {
 
   updateView() {
     this.contentArea.innerHTML = "";
-    this.updateTopIndicators();
 
     const headerEl = this.container ? this.container.querySelector(".menu-header") : null;
     if (headerEl) {
+      const titleEl = headerEl.querySelector(".menu-title");
+      const subtitleEl = headerEl.querySelector(".menu-subtitle");
+
       if (this.state.menuState === "CAR_SELECT") {
         headerEl.style.display = "none";
       } else {
         headerEl.style.display = "block";
+        if (this.state.menuState === "SETTINGS") {
+          if (titleEl) titleEl.innerText = "Ayarlar";
+          if (subtitleEl) subtitleEl.innerText = "OYUN ÖZELLİKLERİ VE KONTROLLER";
+        } else {
+          if (titleEl) titleEl.innerText = "Kafa Kafaya";
+          if (subtitleEl) subtitleEl.innerText = "İNSANSIZ SERMAYELER LİGİ";
+        }
+      }
+    }
+
+    const logoWrapper = this.container ? this.container.querySelector(".mth-logo-wrapper") : null;
+    if (logoWrapper) {
+      if (this.state.menuState === "CAR_SELECT") {
+        logoWrapper.style.display = "none";
+      } else {
+        logoWrapper.style.display = "flex";
       }
     }
 
@@ -202,11 +177,11 @@ class HTMLMenuManager {
       case "PLAY_TYPE_SELECT":
         this.renderPlayTypeSelect();
         break;
-      case "MODE_SELECT":
-        this.renderModeSelect();
-        break;
       case "CAR_SELECT":
         this.renderCarSelect();
+        break;
+      case "SETTINGS":
+        this.renderSettings();
         break;
     }
   }
@@ -216,44 +191,162 @@ class HTMLMenuManager {
     const navContainer = document.createElement("div");
     navContainer.className = "menu-nav-list";
 
-    const localBtn = createNavButton({
-      text: "YAN YANA OYNA",
+    const trainingBtn = createNavButton({
+      text: "ANTRENMAN",
       active: this.state.selectedPlayTypeIdx === 0,
       onClick: () => {
         if (this.state.inputCooldown) return;
-        this.state.selectedPlayTypeIdx === 0 ? this.confirmPlayType(0) : (this.state.selectedPlayTypeIdx = 0, this.updateView());
+        this.state.selectedPlayTypeIdx = 0;
+        this.confirmPlayType(0);
+      }
+    });
+
+    const localBtn = createNavButton({
+      text: "OMUZ OMUZA",
+      active: this.state.selectedPlayTypeIdx === 1,
+      onClick: () => {
+        if (this.state.inputCooldown) return;
+        this.state.selectedPlayTypeIdx = 1;
+        this.confirmPlayType(1);
       }
     });
 
     const onlineBtn = createNavButton({
-      text: "İNTERNETTEN OYNA",
-      active: this.state.selectedPlayTypeIdx === 1,
+      text: "ARKADAŞLARLA",
+      active: this.state.selectedPlayTypeIdx === 2,
       onClick: () => {
         if (this.state.inputCooldown) return;
-        this.state.selectedPlayTypeIdx === 1 ? this.confirmPlayType(1) : (this.state.selectedPlayTypeIdx = 1, this.updateView());
+        this.state.selectedPlayTypeIdx = 2;
+        this.confirmPlayType(2);
       }
     });
 
+    const settingsBtn = createNavButton({
+      text: "AYARLAR",
+      active: this.state.selectedPlayTypeIdx === 3,
+      onClick: () => {
+        if (this.state.inputCooldown) return;
+        this.state.selectedPlayTypeIdx = 3;
+        this.confirmPlayType(3);
+      }
+    });
+
+    navContainer.appendChild(trainingBtn);
     navContainer.appendChild(localBtn);
     navContainer.appendChild(onlineBtn);
+    navContainer.appendChild(settingsBtn);
     this.contentArea.appendChild(navContainer);
 
-    this.helpText.innerText = "YÖN TUŞLARI VEYA WASD İLE SEÇİN • SPACE / ENTER İLE ONAYLAYIN";
+    this.helpText.innerText = "";
   }
 
-  async confirmPlayType(type) {
+  renderSettings() {
+    const navContainer = document.createElement("div");
+    navContainer.className = "menu-nav-list";
+
+    let raw = localStorage.getItem("kafakafaya_settings");
+    let settings = raw ? JSON.parse(raw) : { screenShake: true, sfx: true, showFps: false };
+
+    const shakeBtn = createNavButton({
+      text: `EKRAN SARSINTISI: ${settings.screenShake ? "AÇIK" : "KAPALI"}`,
+      active: this.state.selectedSettingIdx === 0,
+      onClick: () => {
+        if (this.state.inputCooldown) return;
+        this.state.selectedSettingIdx = 0;
+        this.confirmSettingChoice(0);
+      }
+    });
+
+    const sfxBtn = createNavButton({
+      text: `SES & EFEKTLER: ${settings.sfx ? "AÇIK" : "KAPALI"}`,
+      active: this.state.selectedSettingIdx === 1,
+      onClick: () => {
+        if (this.state.inputCooldown) return;
+        this.state.selectedSettingIdx = 1;
+        this.confirmSettingChoice(1);
+      }
+    });
+
+    const fpsBtn = createNavButton({
+      text: `FPS GÖSTERGESİ: ${settings.showFps ? "AÇIK" : "KAPALI"}`,
+      active: this.state.selectedSettingIdx === 2,
+      onClick: () => {
+        if (this.state.inputCooldown) return;
+        this.state.selectedSettingIdx = 2;
+        this.confirmSettingChoice(2);
+      }
+    });
+
+    const backBtn = createNavButton({
+      text: "GERİ DÖN",
+      active: this.state.selectedSettingIdx === 3,
+      onClick: () => {
+        if (this.state.inputCooldown) return;
+        this.state.selectedSettingIdx = 3;
+        this.confirmSettingChoice(3);
+      }
+    });
+
+    navContainer.appendChild(shakeBtn);
+    navContainer.appendChild(sfxBtn);
+    navContainer.appendChild(fpsBtn);
+    navContainer.appendChild(backBtn);
+    this.contentArea.appendChild(navContainer);
+
+    this.helpText.innerText = "SEÇİM: W-S / YÖN TUŞLARI • ONAY: ENTER / SPACE";
+  }
+
+  confirmSettingChoice(choice) {
+    this.triggerCooldown();
+    let raw = localStorage.getItem("kafakafaya_settings");
+    let settings = raw ? JSON.parse(raw) : { screenShake: true, sfx: true, showFps: false };
+
+    if (choice === 0) {
+      settings.screenShake = !settings.screenShake;
+      localStorage.setItem("kafakafaya_settings", JSON.stringify(settings));
+      this.updateView();
+    } else if (choice === 1) {
+      settings.sfx = !settings.sfx;
+      localStorage.setItem("kafakafaya_settings", JSON.stringify(settings));
+      k.volume(settings.sfx ? 1 : 0);
+      this.updateView();
+    } else if (choice === 2) {
+      settings.showFps = !settings.showFps;
+      localStorage.setItem("kafakafaya_settings", JSON.stringify(settings));
+      this.updateView();
+    } else if (choice === 3) {
+      this.state.menuState = "PLAY_TYPE_SELECT";
+      this.state.selectedPlayTypeIdx = 3;
+      this.updateView();
+    }
+  }
+
+  async confirmPlayType(choice) {
     this.triggerCooldown();
     this.state.gameMode = "NORMAL";
-    this.state.selectedModeIdx = 0; // Default to normal mod
 
-    if (type === 0) {
+    if (choice === 0) {
+      // ANTRENMAN (Local, Player 2 is BOT)
       k.isMultiplayer = false;
-      this.state.menuState = "MODE_SELECT";
+      this.state.p2Joined = false;
+      this.state.menuState = "CAR_SELECT";
+      this.setupPlayersState();
       this.updateView();
-    } else {
+    } else if (choice === 1) {
+      // OMUZ OMUZA (Local, Player 2 is Human)
+      k.isMultiplayer = false;
+      this.state.p2Joined = true;
+      this.state.menuState = "CAR_SELECT";
+      this.setupPlayersState();
+      this.updateView();
+    } else if (choice === 2) {
+      // ARKADAŞLARLA (Multiplayer via Playroom)
       if (isConnected) {
         k.isMultiplayer = true;
-        this.state.menuState = "MODE_SELECT";
+        this.state.menuState = "CAR_SELECT";
+        setState("menuState", "CAR_SELECT");
+        setState("gameMode", "NORMAL");
+        this.setupPlayersState();
         this.updateView();
         return;
       }
@@ -273,7 +366,10 @@ class HTMLMenuManager {
         });
         initMultiplayerListeners();
         k.isMultiplayer = true;
-        this.state.menuState = "MODE_SELECT";
+        this.state.menuState = "CAR_SELECT";
+        setState("menuState", "CAR_SELECT");
+        setState("gameMode", "NORMAL");
+        this.setupPlayersState();
         this.updateView();
       } catch (e) {
         this.contentArea.innerHTML = `
@@ -283,105 +379,15 @@ class HTMLMenuManager {
         `;
         setTimeout(() => {
           k.isMultiplayer = false;
-          this.state.menuState = "MODE_SELECT";
+          this.state.menuState = "PLAY_TYPE_SELECT";
           this.updateView();
         }, 1500);
       }
+    } else if (choice === 3) {
+      this.state.menuState = "SETTINGS";
+      this.state.selectedSettingIdx = 0;
+      this.updateView();
     }
-  }
-
-  // --- STAGE 1: MODE SELECT ---
-  renderModeSelect() {
-    const isOnline = k.isMultiplayer;
-    const navContainer = document.createElement("div");
-    navContainer.className = "menu-nav-list";
-
-    const statusLabel = document.createElement("div");
-    statusLabel.className = `nav-status-label ${isOnline ? 'status-online' : 'status-local'}`;
-    statusLabel.innerText = isOnline ? "ÇEVRİMİÇİ LOBİ" : "YEREL LOBİ";
-    navContainer.appendChild(statusLabel);
-
-    const normalBtn = createNavButton({
-      text: "NORMAL MOD",
-      active: this.state.selectedModeIdx === 0,
-      onClick: () => {
-        if (this.state.inputCooldown) return;
-        if (isOnline && !isHost()) return;
-        this.state.selectedModeIdx === 0 ? this.confirmMode() : (this.state.selectedModeIdx = 0, this.updateModeUIHost());
-      }
-    });
-
-    const cargoBtn = createNavButton({
-      text: "GEZEGENLER ARASI KARGOCULUK",
-      active: this.state.selectedModeIdx === 1,
-      disabled: true,
-      onClick: () => { }
-    });
-
-    const timeBtn = createNavButton({
-      text: "ZAMANA KARŞI",
-      active: this.state.selectedModeIdx === 2,
-      disabled: true,
-      onClick: () => { }
-    });
-
-    const survivalBtn = createNavButton({
-      text: "HAYATTA KALMA",
-      active: this.state.selectedModeIdx === 3,
-      disabled: true,
-      onClick: () => { }
-    });
-
-    const backBtn = createNavButton({
-      text: "GERİ DÖN",
-      active: this.state.selectedModeIdx === 4,
-      className: "nav-back",
-      onClick: () => {
-        if (this.state.inputCooldown) return;
-        if (this.state.selectedModeIdx === 4) {
-          this.triggerCooldown();
-          this.state.menuState = "PLAY_TYPE_SELECT";
-          this.state.selectedPlayTypeIdx = 0;
-          this.updateView();
-        } else {
-          this.state.selectedModeIdx = 4;
-          this.updateView();
-        }
-      }
-    });
-
-    navContainer.appendChild(normalBtn);
-    navContainer.appendChild(cargoBtn);
-    navContainer.appendChild(timeBtn);
-    navContainer.appendChild(survivalBtn);
-    navContainer.appendChild(backBtn);
-    this.contentArea.appendChild(navContainer);
-
-    this.helpText.innerText = (isOnline && !isHost())
-      ? "KURUCUNUN OYUN MODUNU SEÇMESİ BEKLENİYOR..."
-      : "YÖN TUŞLARI VEYA WASD İLE SEÇİN • SPACE / ENTER İLE ONAYLAYIN";
-  }
-
-  updateModeUIHost() {
-    if (k.isMultiplayer) setState("selectedModeIdx", this.state.selectedModeIdx);
-    this.updateView();
-  }
-
-  confirmMode() {
-    if (this.state.inputCooldown) return;
-    if (k.isMultiplayer && !isHost()) return;
-
-    this.triggerCooldown();
-    this.state.gameMode = "NORMAL";
-
-    if (k.isMultiplayer) {
-      setState("gameMode", this.state.gameMode);
-      setState("menuState", "CAR_SELECT");
-    }
-
-    this.state.menuState = "CAR_SELECT";
-    this.setupPlayersState();
-    this.updateView();
   }
 
   // --- STAGE 2: CAR SELECT ---
@@ -401,6 +407,7 @@ class HTMLMenuManager {
           color: playerColor,
           idx: p.getState("carTypeIdx") !== undefined ? p.getState("carTypeIdx") : (p.id === myPlayer().id ? (defaultCarIdx !== -1 ? defaultCarIdx : 0) : 0),
           ready: p.getState("ready") || false,
+          focusRow: p.getState("focusRow") || "vehicle"
         };
       });
     } else {
@@ -418,20 +425,24 @@ class HTMLMenuManager {
           color: "#008cff",
           idx: p1CarIdx,
           ready: false,
+          focusRow: "vehicle",
           cycleKeys: ["a", "d"],
+          verticalKeys: ["w", "s"],
           btnKey: "space",
-          helperText: "A-D / SPACE"
+          helperText: "A-D / W-S / SPACE"
         },
         {
           id: 1,
           profileId: "p2",
-          name: "Oyuncu 2",
+          name: this.state.p2Joined ? "Oyuncu 2" : "KKSAN_BOT",
           color: "#ff3c3c",
           idx: p2CarIdx,
           ready: false,
+          focusRow: "vehicle",
           cycleKeys: ["ArrowLeft", "ArrowRight"],
+          verticalKeys: ["ArrowUp", "ArrowDown"],
           btnKey: "Enter",
-          helperText: "YÖN TUSLARI / ENTER"
+          helperText: "YÖN TUŞLARI / ENTER"
         }
       ];
     }
@@ -446,36 +457,39 @@ class HTMLMenuManager {
     const container = document.createElement("div");
     container.className = "car-select-layout";
 
-    // 1. Left Large Panel (Player 1)
+    // Top Row for Player Previews
+    const previewRow = document.createElement("div");
+    previewRow.className = "players-preview-row";
+
+    // Player 1
     const p1Obj = this.state.players[0];
     const p1Panel = this.renderCarPreviewPanel(p1Obj);
-    container.appendChild(p1Panel);
+    previewRow.appendChild(p1Panel);
 
-    // 2. Middle Grid Panel (Car Selection Grid)
-    const gridPanel = this.renderCarGridPanel();
-    container.appendChild(gridPanel);
-
-    // 3. Right Large Panel (Player 2)
-    const p2Obj = this.state.players[1];
-    if (p2Obj) {
-      const p2Panel = this.renderCarPreviewPanel(p2Obj);
-      container.appendChild(p2Panel);
-    } else {
-      const emptyPanel = document.createElement("div");
-      emptyPanel.className = "player-panel passive empty-waiting-panel";
-      emptyPanel.innerHTML = `
-        <h3 class="panel-name">OYUNCU 2</h3>
-        <div class="panel-card" style="justify-content: center; opacity: 0.25;">
-          <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted);">
-            OYUNCU BEKLENİYOR...
+    // Player 2 (If active)
+    if (this.state.p2Joined || k.isMultiplayer) {
+      const p2Obj = this.state.players[1];
+      if (p2Obj) {
+        const p2Panel = this.renderCarPreviewPanel(p2Obj);
+        previewRow.appendChild(p2Panel);
+      } else {
+        const emptyPanel = document.createElement("div");
+        emptyPanel.className = "player-panel passive empty-waiting-panel";
+        emptyPanel.innerHTML = `
+          <h3 class="panel-name">OYUNCU 2</h3>
+          <div class="panel-card" style="justify-content: center; opacity: 0.25;">
+            <div style="font-size: 11px; font-weight: 700; letter-spacing: 1px; color: var(--text-muted);">
+              OYUNCU BEKLENİYOR...
+            </div>
           </div>
-        </div>
-      `;
-      container.appendChild(emptyPanel);
+        `;
+        previewRow.appendChild(emptyPanel);
+      }
     }
+    container.appendChild(previewRow);
 
     this.contentArea.appendChild(container);
-    this.helpText.innerText = "SEÇMEK İÇİN YÖN / WASD TUŞLARINA TIKLAYIN • ONAYLAMAK/SATIN ALMAK İÇİN BUTONA TIKLAYIN";
+    this.helpText.innerText = "";
   }
 
   renderCarPreviewPanel(pObj) {
@@ -510,11 +524,11 @@ class HTMLMenuManager {
 
     const wInfo = PROJECTILES[selectedWKey] || { name: "Bilinmiyor", icon: "🚀" };
 
-    const unlockedProjs = store.getUnlockedProjectiles(activeProf);
-    const projectileKeys = unlockedProjs.filter(key => PROJECTILES[key]);
+    const isWUnlocked = (k.isMultiplayer && pObj.id !== myPlayer().id)
+      ? true
+      : store.getUnlockedProjectiles(activeProf).includes(selectedWKey);
 
-    // Fallbacks
-    if (projectileKeys.length === 0) projectileKeys.push("mizrak");
+    const projectileKeys = Object.keys(PROJECTILES);
 
     const cycleWeapon = (dir) => {
       let idx = projectileKeys.indexOf(selectedWKey);
@@ -560,21 +574,33 @@ class HTMLMenuManager {
         speed: wInfo.speed,
         explosionRadius: wInfo.explosionRadius,
         behavior: wInfo.behavior,
-        category: wInfo.category
+        category: wInfo.category,
+        cost: wInfo.cost || 0
       },
       supportName: undefined,
       onPrevWeapon: () => cycleWeapon(-1),
       onNextWeapon: () => cycleWeapon(1),
       onPrevSupport: null,
-      onNextSupport: null
+      onNextSupport: null,
+      isCarUnlocked: isUnlocked,
+      isWeaponUnlocked: isWUnlocked,
+      carCost: cost
     };
 
     let statusText = "";
-    if (pObj.ready) statusText = "KİLİTLENDİ";
-    else if (isUnlocked) statusText = "KİLİTLE";
-    else statusText = "KİLİTLİ";
+    if (pObj.ready) {
+      statusText = "KİLİTLENDİ";
+    } else if (!isUnlocked) {
+      statusText = `SATIN AL: 🪙${cost}`;
+    } else if (!isWUnlocked) {
+      statusText = `SATIN AL: 🪙${wInfo.cost || 0}`;
+    } else {
+      statusText = "KİLİTLE";
+    }
 
     const isInteractive = k.isMultiplayer ? (pObj.id === myPlayer().id) : (pObj.profileId !== "p2" || this.state.p2Joined);
+
+    const coinsVal = (k.isMultiplayer && pObj.id !== myPlayer().id) ? undefined : store.getCoins(activeProf);
 
     return createPlayerSelectorPanel({
       name: pObj.name,
@@ -582,11 +608,19 @@ class HTMLMenuManager {
       ready: pObj.ready,
       isMapSelect: false,
       previewData,
-      onPrev: null,
-      onNext: null,
+      focusRow: pObj.focusRow || "vehicle",
+      onPrev: () => this.handleCycle(pObj, -1),
+      onNext: () => this.handleCycle(pObj, 1),
       onConfirm: () => this.handleConfirm(pObj),
+      onFocusRow: (row) => {
+        pObj.focusRow = row;
+        if (k.isMultiplayer && pObj.id === myPlayer().id) {
+          myPlayer().setState("focusRow", row);
+        }
+        this.updateView();
+      },
       isInteractive,
-      coins: undefined,
+      coins: coinsVal,
       statusText: (pObj.profileId === "p2" && !this.state.p2Joined) ? "PASİF" : statusText,
       helperText: isInteractive ? pObj.helperText : (k.isMultiplayer ? "DİĞER OYUNCU SEÇİYOR..." : "KATILMAK İÇİN BİR TUŞA BASIN")
     });
@@ -643,10 +677,6 @@ class HTMLMenuManager {
 
       const itemSkin = isSelectedByP1 ? store.getSelectedSkin("p1", carType) : (isSelectedByP2 ? store.getSelectedSkin("p2", carType) : "default");
 
-      let classEmoji = "⚡";
-      if (cfg.class === "GUCLU") classEmoji = "🦾";
-      else if (cfg.class === "TANK") classEmoji = "🛡️";
-
       const card = createCarGridCard({
         carType,
         cfg,
@@ -656,7 +686,6 @@ class HTMLMenuManager {
         p1Color: p1Obj.color,
         p2Color: p2Obj ? p2Obj.color : "#ff3c3c",
         itemSkin,
-        emoji: classEmoji,
         onClick: () => {
           if (k.isMultiplayer) {
             const meObj = this.state.players.find(p => p.id === myPlayer().id);
@@ -870,24 +899,91 @@ class HTMLMenuManager {
     this.updateView();
   }
 
+  cycleWeapon(pObj, dir) {
+    if (this.state.inputCooldown || pObj.ready) return;
+    const activeProf = pObj.profileId || "p1";
+    let selectedWKey;
+    if (k.isMultiplayer && pObj.playroomPlayer) {
+      selectedWKey = pObj.playroomPlayer.getState("selectedWeapon") || pObj.playroomPlayer.getState("selectedSupport") || "mizrak";
+    } else {
+      selectedWKey = store.getSelectedWeapon(activeProf) || store.getSelectedSupport(activeProf) || "mizrak";
+    }
+    const projectileKeys = Object.keys(PROJECTILES);
+    let idx = projectileKeys.indexOf(selectedWKey);
+    if (idx === -1) idx = 0;
+    const nextIdx = (idx + dir + projectileKeys.length) % projectileKeys.length;
+    const nextKey = projectileKeys[nextIdx];
+    const isWeapon = PROJECTILES[nextKey]?.category === "WEAPON";
+    if (isWeapon) {
+      store.setSelectedWeapon(activeProf, nextKey);
+      if (k.isMultiplayer && pObj.id === myPlayer().id) {
+        myPlayer().setState("selectedWeapon", nextKey);
+      }
+    } else {
+      store.setSelectedSupport(activeProf, nextKey);
+      if (k.isMultiplayer && pObj.id === myPlayer().id) {
+        myPlayer().setState("selectedSupport", nextKey);
+      }
+    }
+    this.updateView();
+  }
+
   handleConfirm(pObj) {
     if (this.state.inputCooldown || pObj.ready) return;
 
-    // CAR SELECT
+    const activeProf = pObj.profileId || "p1";
     const type = Object.keys(CAR_TYPES)[pObj.idx];
     const isUnlocked = (k.isMultiplayer && pObj.id !== myPlayer().id)
       ? true
-      : store.getUnlockedCars(pObj.profileId || "p1").includes(type);
+      : store.getUnlockedCars(activeProf).includes(type);
 
-    if (!isUnlocked) {
-      if (k.isMultiplayer && pObj.id !== myPlayer().id) return;
+    let selectedWKey;
+    if (k.isMultiplayer && pObj.playroomPlayer) {
+      selectedWKey = pObj.playroomPlayer.getState("selectedWeapon") || pObj.playroomPlayer.getState("selectedSupport") || "mizrak";
+    } else {
+      selectedWKey = store.getSelectedWeapon(activeProf) || store.getSelectedSupport(activeProf) || "mizrak";
+    }
+    const isWUnlocked = (k.isMultiplayer && pObj.id !== myPlayer().id)
+      ? true
+      : store.getUnlockedProjectiles(activeProf).includes(selectedWKey);
+
+    const triggerErrorShake = () => {
       k.shake(3);
-      // Red shake indicator
       const panelEl = this.contentArea.querySelectorAll('.player-panel')[pObj.profileId === "p2" ? 1 : 0];
       if (panelEl) {
         panelEl.classList.add('shake-error');
         setTimeout(() => panelEl.classList.remove('shake-error'), 400);
       }
+    };
+
+    if (pObj.focusRow === "vehicle" && !isUnlocked) {
+      if (k.isMultiplayer && pObj.id !== myPlayer().id) return;
+      const cost = CAR_COSTS[type] || 0;
+      const success = store.unlockCar(activeProf, type, cost);
+      if (success) {
+        this.updateView();
+      } else {
+        triggerErrorShake();
+      }
+      return;
+    }
+
+    if (pObj.focusRow === "weapon" && !isWUnlocked) {
+      if (k.isMultiplayer && pObj.id !== myPlayer().id) return;
+      const wInfo = PROJECTILES[selectedWKey] || { cost: 0 };
+      const cost = wInfo.cost || 0;
+      const success = store.unlockProjectile(activeProf, selectedWKey, cost);
+      if (success) {
+        this.updateView();
+      } else {
+        triggerErrorShake();
+      }
+      return;
+    }
+
+    // If trying to confirm but one of them is locked (even if not currently focused)
+    if (!isUnlocked || !isWUnlocked) {
+      triggerErrorShake();
       return;
     }
 
@@ -955,14 +1051,9 @@ class HTMLMenuManager {
 
       if (key === "Escape") {
         if (!k.isMultiplayer) {
-          if (this.state.menuState === "MODE_SELECT") {
+          if (this.state.menuState === "CAR_SELECT") {
             this.triggerCooldown();
             this.state.menuState = "PLAY_TYPE_SELECT";
-            this.updateView();
-            return;
-          } else if (this.state.menuState === "CAR_SELECT") {
-            this.triggerCooldown();
-            this.state.menuState = "MODE_SELECT";
             this.updateView();
             return;
           }
@@ -971,55 +1062,75 @@ class HTMLMenuManager {
 
       if (this.state.menuState === "PLAY_TYPE_SELECT") {
         if (key === "w" || key === "ArrowUp") {
-          this.state.selectedPlayTypeIdx = (this.state.selectedPlayTypeIdx - 1 + 2) % 2;
+          this.state.selectedPlayTypeIdx = (this.state.selectedPlayTypeIdx - 1 + 4) % 4;
           this.updateView();
         } else if (key === "s" || key === "ArrowDown") {
-          this.state.selectedPlayTypeIdx = (this.state.selectedPlayTypeIdx + 1) % 2;
+          this.state.selectedPlayTypeIdx = (this.state.selectedPlayTypeIdx + 1) % 4;
           this.updateView();
         } else if (key === " " || key === "Enter") {
           this.confirmPlayType(this.state.selectedPlayTypeIdx);
         }
-      } else if (this.state.menuState === "MODE_SELECT") {
-        if (k.isMultiplayer && !isHost()) return;
+      } else if (this.state.menuState === "SETTINGS") {
+        if (this.state.selectedSettingIdx === undefined) this.state.selectedSettingIdx = 0;
         if (key === "w" || key === "ArrowUp") {
-          this.state.selectedModeIdx = (this.state.selectedModeIdx - 1 + 5) % 5;
-          this.updateModeUIHost();
+          this.state.selectedSettingIdx = (this.state.selectedSettingIdx - 1 + 4) % 4;
+          this.updateView();
         } else if (key === "s" || key === "ArrowDown") {
-          this.state.selectedModeIdx = (this.state.selectedModeIdx + 1) % 5;
-          this.updateModeUIHost();
+          this.state.selectedSettingIdx = (this.state.selectedSettingIdx + 1) % 4;
+          this.updateView();
         } else if (key === " " || key === "Enter") {
-          if (this.state.selectedModeIdx === 4) {
-            this.triggerCooldown();
-            this.state.menuState = "PLAY_TYPE_SELECT";
-            this.state.selectedPlayTypeIdx = 0;
-            this.updateView();
-          } else if (this.state.selectedModeIdx === 0) {
-            this.confirmMode();
-          }
+          this.confirmSettingChoice(this.state.selectedSettingIdx);
+        } else if (key === "Escape") {
+          this.triggerCooldown();
+          this.state.menuState = "PLAY_TYPE_SELECT";
+          this.state.selectedPlayTypeIdx = 3;
+          this.updateView();
         }
       } else {
         // MAP OR CAR SELECT
         if (k.isMultiplayer) {
           const meObj = this.state.players.find(p => p.id === myPlayer().id);
           if (meObj && !meObj.ready) {
-            if (key === "a" || key === "ArrowLeft") this.handleCycle(meObj, -1);
-            else if (key === "d" || key === "ArrowRight") this.handleCycle(meObj, 1);
-            else if (key === " " || key === "Enter") this.handleConfirm(meObj);
+            if (key === "a" || key === "ArrowLeft") {
+              if (meObj.focusRow === "weapon") {
+                this.cycleWeapon(meObj, -1);
+              } else {
+                this.handleCycle(meObj, -1);
+              }
+            } else if (key === "d" || key === "ArrowRight") {
+              if (meObj.focusRow === "weapon") {
+                this.cycleWeapon(meObj, 1);
+              } else {
+                this.handleCycle(meObj, 1);
+              }
+            } else if (key === "w" || key === "ArrowUp") {
+              meObj.focusRow = "vehicle";
+              myPlayer().setState("focusRow", "vehicle");
+              this.updateView();
+            } else if (key === "s" || key === "ArrowDown") {
+              meObj.focusRow = "weapon";
+              myPlayer().setState("focusRow", "weapon");
+              this.updateView();
+            } else if (key === " " || key === "Enter") {
+              this.handleConfirm(meObj);
+            }
           }
         } else {
-          // Join P2 on keyboard action if not joined yet
-          if (!this.state.p2Joined && (key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "ArrowDown")) {
-            this.triggerP2Join();
-            return;
-          }
-
           this.state.players.forEach(p => {
             if (p.profileId === "p2" && !this.state.p2Joined) return;
             if (p.ready) return;
 
             if (p.cycleKeys.includes(key)) {
               const dir = key === p.cycleKeys[0] ? -1 : 1;
-              this.handleCycle(p, dir);
+              if (p.focusRow === "weapon") {
+                this.cycleWeapon(p, dir);
+              } else {
+                this.handleCycle(p, dir);
+              }
+            } else if (p.verticalKeys && p.verticalKeys.includes(key)) {
+              const row = key === p.verticalKeys[0] ? "vehicle" : "weapon";
+              p.focusRow = row;
+              this.updateView();
             } else if (key === p.btnKey || (p.btnKey === "space" && key === " ")) {
               this.handleConfirm(p);
             }
@@ -1041,12 +1152,7 @@ class HTMLMenuManager {
         setState("hostId", myPlayer().id);
       }
 
-      if (this.state.menuState === "MODE_SELECT") {
-        const syncedIdx = getState("selectedModeIdx");
-        if (syncedIdx !== undefined && this.state.selectedModeIdx !== syncedIdx) {
-          this.state.selectedModeIdx = syncedIdx;
-          this.updateView();
-        }
+      if (this.state.menuState === "PLAY_TYPE_SELECT") {
         if (getState("menuState") === "CAR_SELECT") {
           this.state.menuState = "CAR_SELECT";
           this.state.gameMode = getState("gameMode") || "NORMAL";
@@ -1058,9 +1164,11 @@ class HTMLMenuManager {
         this.state.players.forEach(pObj => {
           const syncedIdx = pObj.playroomPlayer.getState("carTypeIdx") || 0;
           const syncedReady = pObj.playroomPlayer.getState("ready") || false;
-          if (pObj.idx !== syncedIdx || pObj.ready !== syncedReady) {
+          const syncedFocus = pObj.playroomPlayer.getState("focusRow") || "vehicle";
+          if (pObj.idx !== syncedIdx || pObj.ready !== syncedReady || pObj.focusRow !== syncedFocus) {
             pObj.idx = syncedIdx;
             pObj.ready = syncedReady;
+            pObj.focusRow = syncedFocus;
             changed = true;
           }
         });

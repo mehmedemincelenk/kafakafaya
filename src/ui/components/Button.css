@@ -1,0 +1,102 @@
+/* Sleek AAA Left Navigation List */
+.menu-nav-list {
+  position: absolute;
+  left: 10%;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  align-items: flex-start;
+  z-index: 20;
+}
+
+.menu-nav-item {
+  font-family: 'Outfit', sans-serif;
+  font-size: 26px;
+  font-weight: 800;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  background: none;
+  border: none;
+  border-left: 4px solid transparent;
+  padding: 6px 0 6px 16px;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  text-align: left;
+  user-select: none;
+}
+
+.menu-nav-item:hover:not(:disabled) {
+  color: var(--text-main);
+  border-left-color: var(--active-secondary);
+  padding-left: 28px;
+  text-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
+}
+
+.menu-nav-item.active:not(:disabled) {
+  color: var(--active-primary);
+  border-left-color: var(--active-primary);
+  padding-left: 28px;
+  text-shadow: 0 0 15px rgba(255, 70, 85, 0.5);
+}
+
+.menu-nav-item.disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+  color: var(--text-muted);
+  border-left-color: transparent;
+}
+
+.nav-gold {
+  color: rgba(255, 215, 0, 0.6) !important;
+}
+
+.nav-gold:hover:not(:disabled) {
+  color: var(--active-gold) !important;
+  border-left-color: var(--active-gold) !important;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.4);
+}
+
+.nav-gold.active:not(:disabled) {
+  color: var(--active-gold) !important;
+  border-left-color: var(--active-gold) !important;
+  text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+}
+
+.nav-back {
+  font-size: 16px;
+  letter-spacing: 3px;
+  margin-top: 15px;
+  opacity: 0.7;
+}
+
+/* Nav Status Label (Çevrimiçi / Yerel lobi indicator) */
+.nav-status-label {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 4px;
+  padding: 4px 8px;
+  background-color: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: 2px;
+  margin-bottom: 10px;
+}
+
+.nav-status-label.status-online {
+  color: var(--active-primary);
+  border-color: rgba(255, 70, 85, 0.3);
+}
+
+.nav-status-label.status-local {
+  color: var(--active-secondary);
+  border-color: rgba(0, 240, 255, 0.3);
+}
+
+.menu-nav-item.active.disabled {
+  opacity: 0.45;
+  border-left-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-muted);
+  padding-left: 20px;
+}

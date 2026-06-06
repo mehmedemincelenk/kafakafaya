@@ -1,3 +1,4 @@
+import "./GridCards.css";
 import { drawHTMLCarDetails } from "./CarDetails.js";
 import { drawHTMLProjectileDetails } from "./ProjectileDetails.js";
 
@@ -37,20 +38,7 @@ export function createCarGridCard({
   }
   card.appendChild(stripes);
 
-  // Corner representative emoji badge
-  if (emoji) {
-    const badge = document.createElement("div");
-    badge.className = "card-emoji-badge";
-    badge.innerText = emoji;
-    card.appendChild(badge);
 
-    card.addEventListener("mouseenter", () => {
-      badge.style.transform = "scale(1.2) rotate(12deg)";
-    });
-    card.addEventListener("mouseleave", () => {
-      badge.style.transform = "scale(1.0) rotate(0deg)";
-    });
-  }
 
   // Locked indicator icon
   if (isLocked) {
@@ -116,20 +104,7 @@ export function createSupportGridCard({
   }
   card.appendChild(stripes);
 
-  // Corner representative emoji badge
-  const isSupport = projCfg.category === "SUPPORT" || projCfg.damage === 0;
-  const categoryEmoji = isSupport ? "📡" : "💘";
-  const badge = document.createElement("div");
-  badge.className = "card-emoji-badge";
-  badge.innerText = categoryEmoji;
-  card.appendChild(badge);
 
-  card.addEventListener("mouseenter", () => {
-    badge.style.transform = "scale(1.2) rotate(12deg)";
-  });
-  card.addEventListener("mouseleave", () => {
-    badge.style.transform = "scale(1.0) rotate(0deg)";
-  });
 
   // Locked indicator icon
   if (isLocked) {

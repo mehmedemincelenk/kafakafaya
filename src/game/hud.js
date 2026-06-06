@@ -9,231 +9,103 @@ function getSkillIcon(car) {
 }
 
 /**
- * Creates and updates the HUD slots for Dash and Skill for both players.
- * Reduces visual clutter in the main game scene.
+ * Creates and updates the HUD slots for Dash and Skill for both players using HTML/CSS.
  * @param {Array} cars - List of active cars in the scene
  */
 export function setupHUD(cars) {
-  // --- Sol Alt HUD (Blue / Player 1) ---
-  const blueDashBg = k.add([
-    k.rect(60, 60, { radius: 10 }),
-    k.pos(70, k.height() - 135),
-    k.color(20, 20, 25),
-    k.opacity(0.85),
-    k.outline(2, k.rgb(255, 170, 0)),
-    k.z(10),
-  ]);
-  const blueDashIcon = k.add([
-    k.text("⚡", { size: 26 }),
-    k.pos(100, k.height() - 105),
-    k.anchor("center"),
-    k.opacity(1),
-    k.z(11),
-  ]);
-  const blueDashCdCircle = k.add([
-    k.circle(18),
-    k.pos(100, k.height() - 105),
-    k.color(15, 15, 20),
-    k.opacity(0),
-    k.outline(1.5, k.rgb(100, 100, 105)),
-    k.anchor("center"),
-    k.z(12),
-  ]);
-  const blueDashCdProgress = k.add([
-    k.circle(18),
-    k.pos(100, k.height() - 105),
-    k.color(255, 170, 0),
-    k.opacity(0),
-    k.outline(1.5, k.rgb(255, 255, 255)),
-    k.anchor("center"),
-    k.scale(1),
-    k.z(13),
-  ]);
-  const blueDashCdText = k.add([
-    k.text("", { size: 12, font: "monospace", weight: "bold" }),
-    k.pos(100, k.height() - 105),
-    k.anchor("center"),
-    k.color(255, 255, 255),
-    k.z(14),
-  ]);
-  const blueDashKey = k.add([
-    k.text("Shift", { size: 11, font: "monospace" }),
-    k.pos(100, k.height() - 65),
-    k.anchor("center"),
-    k.opacity(1),
-    k.color(150, 150, 155),
-    k.z(11),
-  ]);
+  const root = document.getElementById("ui-root");
+  if (!root) return;
 
-  const blueSkillBg = k.add([
-    k.rect(60, 60, { radius: 10 }),
-    k.pos(150, k.height() - 135),
-    k.color(20, 20, 25),
-    k.opacity(0.85),
-    k.outline(2, k.rgb(0, 255, 100)),
-    k.z(10),
-  ]);
-  const blueSkillIcon = k.add([
-    k.text("🛡️", { size: 26 }),
-    k.pos(180, k.height() - 105),
-    k.anchor("center"),
-    k.opacity(1),
-    k.z(11),
-  ]);
-  const blueSkillCdCircle = k.add([
-    k.circle(18),
-    k.pos(180, k.height() - 105),
-    k.color(15, 15, 20),
-    k.opacity(0),
-    k.outline(1.5, k.rgb(100, 100, 105)),
-    k.anchor("center"),
-    k.z(12),
-  ]);
-  const blueSkillCdProgress = k.add([
-    k.circle(18),
-    k.pos(180, k.height() - 105),
-    k.color(0, 255, 100),
-    k.opacity(0),
-    k.outline(1.5, k.rgb(255, 255, 255)),
-    k.anchor("center"),
-    k.scale(1),
-    k.z(13),
-  ]);
-  const blueSkillCdText = k.add([
-    k.text("", { size: 12, font: "monospace", weight: "bold" }),
-    k.pos(180, k.height() - 105),
-    k.anchor("center"),
-    k.color(255, 255, 255),
-    k.z(14),
-  ]);
-  const blueSkillKey = k.add([
-    k.text("Q", { size: 11, font: "monospace" }),
-    k.pos(180, k.height() - 65),
-    k.anchor("center"),
-    k.opacity(1),
-    k.color(150, 150, 155),
-    k.z(11),
-  ]);
+  let hudRoot = document.getElementById("gameplay-hud-root");
+  if (!hudRoot) {
+    hudRoot = document.createElement("div");
+    hudRoot.id = "gameplay-hud-root";
+    root.appendChild(hudRoot);
+  }
 
-  // --- Sağ Alt HUD (Red / Player 2) ---
-  const redDashBg = k.add([
-    k.rect(60, 60, { radius: 10 }),
-    k.pos(k.width() - 220, k.height() - 135),
-    k.color(20, 20, 25),
-    k.opacity(0.85),
-    k.outline(2, k.rgb(255, 170, 0)),
-    k.z(10),
-  ]);
-  const redDashIcon = k.add([
-    k.text("⚡", { size: 26 }),
-    k.pos(k.width() - 190, k.height() - 105),
-    k.anchor("center"),
-    k.opacity(1),
-    k.z(11),
-  ]);
-  const redDashCdCircle = k.add([
-    k.circle(18),
-    k.pos(k.width() - 190, k.height() - 105),
-    k.color(15, 15, 20),
-    k.opacity(0),
-    k.outline(1.5, k.rgb(100, 100, 105)),
-    k.anchor("center"),
-    k.z(12),
-  ]);
-  const redDashCdProgress = k.add([
-    k.circle(18),
-    k.pos(k.width() - 190, k.height() - 105),
-    k.color(255, 170, 0),
-    k.opacity(0),
-    k.outline(1.5, k.rgb(255, 255, 255)),
-    k.anchor("center"),
-    k.scale(1),
-    k.z(13),
-  ]);
-  const redDashCdText = k.add([
-    k.text("", { size: 12, font: "monospace", weight: "bold" }),
-    k.pos(k.width() - 190, k.height() - 105),
-    k.anchor("center"),
-    k.color(255, 255, 255),
-    k.z(14),
-  ]);
-  const redDashKey = k.add([
-    k.text("Enter", { size: 11, font: "monospace" }),
-    k.pos(k.width() - 190, k.height() - 65),
-    k.anchor("center"),
-    k.opacity(1),
-    k.color(150, 150, 155),
-    k.z(11),
-  ]);
+  // Create or update Player Panels
+  let bluePanel = document.getElementById("hud-panel-blue");
+  if (!bluePanel) {
+    bluePanel = document.createElement("div");
+    bluePanel.id = "hud-panel-blue";
+    bluePanel.className = "hud-player-panel player-blue";
+    bluePanel.innerHTML = `
+      <div class="hud-slot" id="blue-dash-slot">
+        <div class="hud-slot-icon">⚡</div>
+        <div class="hud-slot-cooldown" id="blue-dash-cd-overlay"></div>
+        <div class="hud-slot-cd-text" id="blue-dash-cd-text"></div>
+        <div class="hud-slot-accent"></div>
+        <div class="hud-slot-key">Shift</div>
+      </div>
+      <div class="hud-slot" id="blue-skill-slot">
+        <div class="hud-slot-icon" id="blue-skill-icon">🛡️</div>
+        <div class="hud-slot-cooldown" id="blue-skill-cd-overlay"></div>
+        <div class="hud-slot-cd-text" id="blue-skill-cd-text"></div>
+        <div class="hud-slot-accent"></div>
+        <div class="hud-slot-key">Q</div>
+      </div>
+    `;
+    hudRoot.appendChild(bluePanel);
+  }
 
-  const redSkillBg = k.add([
-    k.rect(60, 60, { radius: 10 }),
-    k.pos(k.width() - 140, k.height() - 135),
-    k.color(20, 20, 25),
-    k.opacity(0.85),
-    k.outline(2, k.rgb(0, 255, 100)),
-    k.z(10),
-  ]);
-  const redSkillIcon = k.add([
-    k.text("🛡️", { size: 26 }),
-    k.pos(k.width() - 110, k.height() - 105),
-    k.anchor("center"),
-    k.opacity(1),
-    k.z(11),
-  ]);
-  const redSkillCdCircle = k.add([
-    k.circle(18),
-    k.pos(k.width() - 110, k.height() - 105),
-    k.color(15, 15, 20),
-    k.opacity(0),
-    k.outline(1.5, k.rgb(100, 100, 105)),
-    k.anchor("center"),
-    k.z(12),
-  ]);
-  const redSkillCdProgress = k.add([
-    k.circle(18),
-    k.pos(k.width() - 110, k.height() - 105),
-    k.color(0, 255, 100),
-    k.opacity(0),
-    k.outline(1.5, k.rgb(255, 255, 255)),
-    k.anchor("center"),
-    k.scale(1),
-    k.z(13),
-  ]);
-  const redSkillCdText = k.add([
-    k.text("", { size: 12, font: "monospace", weight: "bold" }),
-    k.pos(k.width() - 110, k.height() - 105),
-    k.anchor("center"),
-    k.color(255, 255, 255),
-    k.z(14),
-  ]);
-  const redSkillKey = k.add([
-    k.text("Numpad 0", { size: 11, font: "monospace" }),
-    k.pos(k.width() - 110, k.height() - 65),
-    k.anchor("center"),
-    k.opacity(1),
-    k.color(150, 150, 155),
-    k.z(11),
-  ]);
+  let redPanel = document.getElementById("hud-panel-red");
+  if (!redPanel) {
+    redPanel = document.createElement("div");
+    redPanel.id = "hud-panel-red";
+    redPanel.className = "hud-player-panel player-red";
+    redPanel.innerHTML = `
+      <div class="hud-slot" id="red-dash-slot">
+        <div class="hud-slot-icon">⚡</div>
+        <div class="hud-slot-cooldown" id="red-dash-cd-overlay"></div>
+        <div class="hud-slot-cd-text" id="red-dash-cd-text"></div>
+        <div class="hud-slot-accent"></div>
+        <div class="hud-slot-key" id="red-dash-key">Enter</div>
+      </div>
+      <div class="hud-slot" id="red-skill-slot">
+        <div class="hud-slot-icon" id="red-skill-icon">🛡️</div>
+        <div class="hud-slot-cooldown" id="red-skill-cd-overlay"></div>
+        <div class="hud-slot-cd-text" id="red-skill-cd-text"></div>
+        <div class="hud-slot-accent"></div>
+        <div class="hud-slot-key" id="red-skill-key">Numpad 0</div>
+      </div>
+    `;
+    hudRoot.appendChild(redPanel);
+  }
 
-  const hudElements = [
-    blueDashBg, blueDashIcon, blueDashCdCircle, blueDashCdProgress, blueDashCdText, blueDashKey,
-    blueSkillBg, blueSkillIcon, blueSkillCdCircle, blueSkillCdProgress, blueSkillCdText, blueSkillKey,
-    redDashBg, redDashIcon, redDashCdCircle, redDashCdProgress, redDashCdText, redDashKey,
-    redSkillBg, redSkillIcon, redSkillCdCircle, redSkillCdProgress, redSkillCdText, redSkillKey
-  ];
+  // Get DOM references for fast access in update loop
+  const elBlueDashSlot = document.getElementById("blue-dash-slot");
+  const elBlueDashCdOverlay = document.getElementById("blue-dash-cd-overlay");
+  const elBlueDashCdText = document.getElementById("blue-dash-cd-text");
+
+  const elBlueSkillSlot = document.getElementById("blue-skill-slot");
+  const elBlueSkillIcon = document.getElementById("blue-skill-icon");
+  const elBlueSkillCdOverlay = document.getElementById("blue-skill-cd-overlay");
+  const elBlueSkillCdText = document.getElementById("blue-skill-cd-text");
+
+  const elRedDashSlot = document.getElementById("red-dash-slot");
+  const elRedDashCdOverlay = document.getElementById("red-dash-cd-overlay");
+  const elRedDashCdText = document.getElementById("red-dash-cd-text");
+  const elRedDashKey = document.getElementById("red-dash-key");
+
+  const elRedSkillSlot = document.getElementById("red-skill-slot");
+  const elRedSkillIcon = document.getElementById("red-skill-icon");
+  const elRedSkillCdOverlay = document.getElementById("red-skill-cd-overlay");
+  const elRedSkillCdText = document.getElementById("red-skill-cd-text");
+  const elRedSkillKey = document.getElementById("red-skill-key");
 
   k.onUpdate(() => {
     const controlsLocked = cars.some(c => c.controlsLocked);
-    const showHUD = !controlsLocked && !k.gameOver && !k.isGamePaused;
+    const showSkills = !controlsLocked && !k.gameOver && !k.isGamePaused;
 
-    hudElements.forEach(el => {
-      el.hidden = !showHUD;
-    });
+    // Tüm HUD kökünü gizlemek yerine sadece oyuncuların yetenek panellerini gizliyoruz.
+    // Böylece skorbord ve geri sayım (3-2-1) duyuruları her zaman görünür kalıyor.
+    if (bluePanel) bluePanel.style.display = showSkills ? "flex" : "none";
+    if (redPanel) redPanel.style.display = showSkills ? "flex" : "none";
 
-    if (!showHUD) return;
+    // Eğer yetenek barları görünür değilse güncellemeleri atla
+    if (!showSkills) return;
 
-    // Correctly find using Kaplay tag checks to avoid shadowing the built-in .tag property.
+    // Correctly find using Kaplay tag checks
     const blueCar = k.isMultiplayer
       ? cars.find(c => c.is("teamBlue"))
       : cars.find(c => c.is("player1"));
@@ -244,115 +116,90 @@ export function setupHUD(cars) {
 
     // Update Blue Player HUD
     if (blueCar) {
-      // Dash Cooldown
+      // Dash
       if (blueCar.dashActive) {
-        blueDashBg.outline = k.rgb(255, 255, 255);
-        blueDashBg.opacity = 0.85;
-        blueDashIcon.opacity = 1.0;
-        blueDashCdCircle.opacity = 0;
-        blueDashCdProgress.opacity = 0;
-        blueDashCdText.text = "";
+        elBlueDashSlot.className = "hud-slot active";
+        elBlueDashCdOverlay.style.height = "0%";
+        elBlueDashCdText.innerText = "";
       } else if (blueCar.dashCooldownTimer > 0) {
-        blueDashBg.outline = k.rgb(100, 100, 105);
-        blueDashBg.opacity = 0.4;
-        blueDashIcon.opacity = 0.3;
-        blueDashCdCircle.opacity = 0.6;
-        blueDashCdProgress.opacity = 0.45;
-        blueDashCdProgress.scaleTo(Math.max(0, blueCar.dashCooldownTimer / (blueCar.dashCooldown || 3.5)));
-        blueDashCdText.text = Math.ceil(blueCar.dashCooldownTimer).toString();
+        elBlueDashSlot.className = "hud-slot cooldown";
+        const pct = (blueCar.dashCooldownTimer / (blueCar.dashCooldown || 3.5)) * 100;
+        elBlueDashCdOverlay.style.height = `${pct}%`;
+        elBlueDashCdText.innerText = Math.ceil(blueCar.dashCooldownTimer);
       } else {
-        blueDashBg.outline = k.rgb(255, 170, 0);
-        blueDashBg.opacity = 0.85;
-        blueDashIcon.opacity = 1.0;
-        blueDashCdCircle.opacity = 0;
-        blueDashCdProgress.opacity = 0;
-        blueDashCdText.text = "";
+        elBlueDashSlot.className = "hud-slot ready-dash";
+        elBlueDashCdOverlay.style.height = "0%";
+        elBlueDashCdText.innerText = "";
       }
 
-      // Skill Cooldown
-      blueSkillIcon.text = getSkillIcon(blueCar);
+      // Skill
+      elBlueSkillIcon.innerText = getSkillIcon(blueCar);
       const bSkillGroup = SKILLS[blueCar.carClass];
       const bSkill = (bSkillGroup && bSkillGroup[blueCar.skillId]) || (bSkillGroup && bSkillGroup.default);
       const bSkillMaxCd = bSkill?.cooldown || 7;
+
       if (blueCar.skillActive) {
-        blueSkillBg.outline = k.rgb(0, 255, 255);
-        blueSkillBg.opacity = 0.85;
-        blueSkillIcon.opacity = 1.0;
-        blueSkillCdCircle.opacity = 0;
-        blueSkillCdProgress.opacity = 0;
-        blueSkillCdText.text = "";
+        elBlueSkillSlot.className = "hud-slot active";
+        elBlueSkillCdOverlay.style.height = "0%";
+        elBlueSkillCdText.innerText = "";
       } else if (blueCar.skillCooldownTimer > 0) {
-        blueSkillBg.outline = k.rgb(100, 100, 105);
-        blueSkillBg.opacity = 0.4;
-        blueSkillIcon.opacity = 0.3;
-        blueSkillCdCircle.opacity = 0.6;
-        blueSkillCdProgress.opacity = 0.45;
-        blueSkillCdProgress.scaleTo(Math.max(0, blueCar.skillCooldownTimer / bSkillMaxCd));
-        blueSkillCdText.text = Math.ceil(blueCar.skillCooldownTimer).toString();
+        elBlueSkillSlot.className = "hud-slot cooldown";
+        const pct = (blueCar.skillCooldownTimer / bSkillMaxCd) * 100;
+        elBlueSkillCdOverlay.style.height = `${pct}%`;
+        elBlueSkillCdText.innerText = Math.ceil(blueCar.skillCooldownTimer);
       } else {
-        blueSkillBg.outline = k.rgb(0, 255, 100);
-        blueSkillBg.opacity = 0.85;
-        blueSkillIcon.opacity = 1.0;
-        blueSkillCdCircle.opacity = 0;
-        blueSkillCdProgress.opacity = 0;
-        blueSkillCdText.text = "";
+        elBlueSkillSlot.className = "hud-slot ready-skill";
+        elBlueSkillCdOverlay.style.height = "0%";
+        elBlueSkillCdText.innerText = "";
       }
     }
 
     // Update Red Player HUD
     if (redCar) {
-      // Dash Cooldown
-      if (redCar.dashActive) {
-        redDashBg.outline = k.rgb(255, 255, 255);
-        redDashBg.opacity = 0.85;
-        redDashIcon.opacity = 1.0;
-        redDashCdCircle.opacity = 0;
-        redDashCdProgress.opacity = 0;
-        redDashCdText.text = "";
-      } else if (redCar.dashCooldownTimer > 0) {
-        redDashBg.outline = k.rgb(100, 100, 105);
-        redDashBg.opacity = 0.4;
-        redDashIcon.opacity = 0.3;
-        redDashCdCircle.opacity = 0.6;
-        redDashCdProgress.opacity = 0.45;
-        redDashCdProgress.scaleTo(Math.max(0, redCar.dashCooldownTimer / (redCar.dashCooldown || 3.5)));
-        redDashCdText.text = Math.ceil(redCar.dashCooldownTimer).toString();
+      // Check for bot to change labels
+      if (redCar.isBot) {
+        if (elRedDashKey) elRedDashKey.innerText = "AI";
+        if (elRedSkillKey) elRedSkillKey.innerText = "AI";
       } else {
-        redDashBg.outline = k.rgb(255, 170, 0);
-        redDashBg.opacity = 0.85;
-        redDashIcon.opacity = 1.0;
-        redDashCdCircle.opacity = 0;
-        redDashCdProgress.opacity = 0;
-        redDashCdText.text = "";
+        if (elRedDashKey) elRedDashKey.innerText = "Enter";
+        if (elRedSkillKey) elRedSkillKey.innerText = "Num 0";
       }
 
-      // Skill Cooldown
-      redSkillIcon.text = getSkillIcon(redCar);
+      // Dash
+      if (redCar.dashActive) {
+        elRedDashSlot.className = "hud-slot active";
+        elRedDashCdOverlay.style.height = "0%";
+        elRedDashCdText.innerText = "";
+      } else if (redCar.dashCooldownTimer > 0) {
+        elRedDashSlot.className = "hud-slot cooldown";
+        const pct = (redCar.dashCooldownTimer / (redCar.dashCooldown || 3.5)) * 100;
+        elRedDashCdOverlay.style.height = `${pct}%`;
+        elRedDashCdText.innerText = Math.ceil(redCar.dashCooldownTimer);
+      } else {
+        elRedDashSlot.className = "hud-slot ready-dash";
+        elRedDashCdOverlay.style.height = "0%";
+        elRedDashCdText.innerText = "";
+      }
+
+      // Skill
+      elRedSkillIcon.innerText = getSkillIcon(redCar);
       const rSkillGroup = SKILLS[redCar.carClass];
       const rSkill = (rSkillGroup && rSkillGroup[redCar.skillId]) || (rSkillGroup && rSkillGroup.default);
       const rSkillMaxCd = rSkill?.cooldown || 7;
+
       if (redCar.skillActive) {
-        redSkillBg.outline = k.rgb(0, 255, 255);
-        redSkillBg.opacity = 0.85;
-        redSkillIcon.opacity = 1.0;
-        redSkillCdCircle.opacity = 0;
-        redSkillCdProgress.opacity = 0;
-        redSkillCdText.text = "";
+        elRedSkillSlot.className = "hud-slot active";
+        elRedSkillCdOverlay.style.height = "0%";
+        elRedSkillCdText.innerText = "";
       } else if (redCar.skillCooldownTimer > 0) {
-        redSkillBg.outline = k.rgb(100, 100, 105);
-        redSkillBg.opacity = 0.4;
-        redSkillIcon.opacity = 0.3;
-        redSkillCdCircle.opacity = 0.6;
-        redSkillCdProgress.opacity = 0.45;
-        redSkillCdProgress.scaleTo(Math.max(0, redCar.skillCooldownTimer / rSkillMaxCd));
-        redSkillCdText.text = Math.ceil(redCar.skillCooldownTimer).toString();
+        elRedSkillSlot.className = "hud-slot cooldown";
+        const pct = (redCar.skillCooldownTimer / rSkillMaxCd) * 100;
+        elRedSkillCdOverlay.style.height = `${pct}%`;
+        elRedSkillCdText.innerText = Math.ceil(redCar.skillCooldownTimer);
       } else {
-        redSkillBg.outline = k.rgb(0, 255, 100);
-        redSkillBg.opacity = 0.85;
-        redSkillIcon.opacity = 1.0;
-        redSkillCdCircle.opacity = 0;
-        redSkillCdProgress.opacity = 0;
-        redSkillCdText.text = "";
+        elRedSkillSlot.className = "hud-slot ready-skill";
+        elRedSkillCdOverlay.style.height = "0%";
+        elRedSkillCdText.innerText = "";
       }
     }
   });

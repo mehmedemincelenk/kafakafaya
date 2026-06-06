@@ -164,10 +164,11 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     k.anchor("center"),
   ]);
 
-  // Klasik Can Barı Dolgusu (Her iki tarafta da kırmızı)
+  // Can Barı Dolgusu (Mavi oyuncu için mavi, kırmızı için kırmızı)
+  const isBlueCar = tag === "teamBlue" || tag === "player1";
   const healthBarFill = k.add([
     k.rect(40, 5, { radius: 1.5 }),
-    k.color(255, 60, 60),
+    k.color(isBlueCar ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60)),
     k.pos(startPos.add(HEALTH_BAR_OFFSET_X, HEALTH_BAR_OFFSET_Y)),
     k.anchor("left"),
     k.scale(1),
@@ -247,13 +248,6 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     }
     if (car.reversedControlsTimer && car.reversedControlsTimer > 0) {
       car.reversedControlsTimer -= k.dt();
-    }
-    if (car.armorBrokenTimer && car.armorBrokenTimer > 0) {
-      car.armorBrokenTimer -= k.dt();
-      // Görsel geri bildirim: zırhı kırılan araç hafif mavi/mor yanıp sönebilir
-      if (car.armorBrokenTimer <= 0) {
-        car.color = car.originalColor;
-      }
     }
     if (car.ghostDamageBoostTimer && car.ghostDamageBoostTimer > 0) {
       car.ghostDamageBoostTimer -= k.dt();

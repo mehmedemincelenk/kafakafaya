@@ -1,0 +1,231 @@
+/* Design System Variables */
+:root {
+  --bg-dark-base: #121214;
+  --bg-dark-surface: rgba(18, 18, 20, 0.85);
+  --bg-card: rgba(21, 32, 43, 0.7);
+  --bg-card-hover: rgba(28, 38, 48, 0.85);
+  --border-color: rgba(75, 80, 95, 0.45);
+
+  --active-primary: #ff4655; /* Valorant Pink/Red */
+  --active-secondary: #00f0ff; /* Cyan */
+  --active-gold: #ffd700; /* Gold */
+
+  --text-main: #f5f5f7;
+  --text-muted: #8c919b;
+
+  --shadow-glow: 0 0 15px rgba(0, 140, 255, 0.25);
+  --shadow-card: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --glass-blur: blur(8px);
+}
+
+/* UI Overlay Root */
+#ui-root {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 10;
+  font-family: 'Outfit', sans-serif;
+  color: var(--text-main);
+  box-sizing: border-box;
+}
+
+#ui-root * {
+  box-sizing: border-box;
+}
+
+/* Base Interactive container */
+.menu-overlay-container {
+  width: 100%;
+  height: 100%;
+  pointer-events: auto;
+  background-color: rgba(18, 18, 20, 0.4); /* Subtle ambient shadow */
+  backdrop-filter: var(--glass-blur);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 40px;
+  animation: fadeIn 0.4s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(1.02);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Title & Header Section */
+.menu-header {
+  position: absolute;
+  left: 10%;
+  top: 18%;
+  text-align: left;
+  user-select: none;
+  z-index: 20;
+}
+
+.menu-title {
+  font-size: 42px;
+  font-weight: 800;
+  letter-spacing: 8px;
+  text-transform: uppercase;
+  margin: 0;
+  color: var(--text-main);
+  text-shadow: 0 0 30px rgba(255, 255, 255, 0.15);
+}
+
+.menu-subtitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 10px;
+  text-transform: uppercase;
+  margin: 8px 0 0 0;
+  color: var(--text-muted);
+}
+
+/* Sub-stage Heading */
+.stage-header {
+  text-align: center;
+  margin-bottom: 25px;
+}
+
+.stage-title {
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--active-gold);
+  margin: 0;
+  text-shadow: 0 0 10px rgba(255, 215, 0, 0.2);
+}
+
+.stage-status {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  margin-top: 5px;
+}
+
+.status-online {
+  color: var(--active-primary);
+}
+
+.status-local {
+  color: var(--active-secondary);
+}
+
+/* Global Indicators */
+.top-indicators {
+  position: absolute;
+  top: 40px;
+  width: calc(100% - 80px);
+  display: flex;
+  justify-content: flex-end;
+  pointer-events: none;
+}
+
+.top-right-group {
+  display: flex;
+  gap: 15px;
+  pointer-events: auto;
+}
+
+.coins-indicator {
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  color: var(--active-gold);
+  background: var(--bg-card);
+  padding: 8px 16px;
+  border-radius: 4px;
+  border: 1px solid rgba(255, 215, 0, 0.25);
+  box-shadow: 0 0 10px rgba(255, 215, 0, 0.05);
+}
+
+/* Global Footer & Layouts */
+.menu-footer {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+}
+
+.help-text {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  text-align: center;
+  user-select: none;
+}
+
+.mth-logo-wrapper {
+  position: absolute;
+  right: 40px;
+  bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 12px;
+  opacity: 0.55;
+  pointer-events: none;
+  z-index: 100;
+  transition: opacity 0.3s ease;
+  user-select: none;
+}
+
+.mth-logo-credits {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+  text-align: right;
+  line-height: 1.4;
+}
+
+.mth-logo {
+  width: 90px;
+  height: auto;
+}
+
+/* Shake Animation for Errors */
+.shake-error {
+  animation: shake 0.35s ease-in-out;
+  border-color: var(--active-primary) !important;
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20%, 60% { transform: translateX(-6px); }
+  40%, 80% { transform: translateX(6px); }
+}
+
+/* Pause Overlay Style matching main screen */
+.pause-overlay-container {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(8px);
+  background: rgba(8, 9, 12, 0.4);
+  font-family: 'Outfit', sans-serif;
+  z-index: 1000;
+  pointer-events: auto;
+  animation: fadeIn 0.25s ease-out;
+}

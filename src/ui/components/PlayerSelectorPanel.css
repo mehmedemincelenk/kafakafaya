@@ -1,0 +1,381 @@
+/* PlayerSelector Panels (AŞAMA 2-3) */
+.players-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 40px;
+  margin: auto;
+  width: 100%;
+  max-width: 1200px;
+}
+
+.vs-divider {
+  width: 1px;
+  height: 680px;
+  background-color: var(--border-color);
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.vs-badge {
+  width: 36px;
+  height: 36px;
+  background-color: var(--bg-dark-base);
+  border: 1px solid var(--border-color);
+  transform: rotate(45deg);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.vs-badge span {
+  transform: rotate(-45deg);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--text-main);
+}
+
+.player-panel {
+  width: 340px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  --player-color: var(--active-primary);
+}
+
+.player-panel.map-select-panel {
+  width: 320px;
+}
+
+.player-panel.ready {
+  transform: scale(1.02);
+}
+
+.player-panel.passive {
+  opacity: 0.35;
+  filter: grayscale(60%);
+}
+
+.panel-stripe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 5px;
+  border-radius: 12px 12px 0 0;
+}
+
+.panel-name {
+  font-size: 15px;
+  font-weight: 900;
+  letter-spacing: 3px;
+  margin: 12px 0 6px 0;
+  color: var(--text-main);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+}
+
+.panel-coins {
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--active-gold);
+  margin-bottom: 14px;
+  text-shadow: 0 0 8px rgba(255, 215, 0, 0.2);
+}
+
+.panel-card {
+  width: 100%;
+  height: auto;
+  min-height: 260px;
+  background: rgba(10, 14, 23, 0.85);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1.5px solid rgba(255, 255, 255, 0.08);
+  border-radius: 8px; /* sharp minimalist corners */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 18px 24px;
+  position: relative;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  transition: all 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.panel-card::before {
+  content: '';
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  width: 8px;
+  height: 8px;
+  border-top: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-left: 1.5px solid rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+}
+
+.panel-card::after {
+  content: '';
+  position: absolute;
+  bottom: 6px;
+  right: 6px;
+  width: 8px;
+  height: 8px;
+  border-bottom: 1.5px solid rgba(255, 255, 255, 0.2);
+  border-right: 1.5px solid rgba(255, 255, 255, 0.2);
+  pointer-events: none;
+}
+
+.player-panel:not(.passive) .panel-card {
+  border-color: color-mix(in srgb, var(--player-color) 30%, rgba(255, 255, 255, 0.08));
+  box-shadow: 0 0 35px color-mix(in srgb, var(--player-color) 8%, transparent), 0 16px 48px rgba(0, 0, 0, 0.75);
+}
+
+.player-panel.ready .panel-card {
+  border-color: var(--player-color);
+  box-shadow: 0 0 40px color-mix(in srgb, var(--player-color) 25%, transparent), 0 20px 60px rgba(0, 0, 0, 0.8);
+  transform: scale(1.02);
+}
+
+.panel-card:hover:not(.disabled) {
+  border-color: rgba(255, 255, 255, 0.18);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.7);
+  transform: translateY(-4px);
+}
+
+.arrow-btn {
+  width: 36px;
+  height: 36px;
+  background: rgba(15, 23, 42, 0.9);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  color: var(--text-main);
+  font-size: 16px;
+  font-weight: 800;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+  z-index: 10;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.arrow-btn:hover {
+  background-color: var(--player-color);
+  color: #0c121e;
+  border-color: var(--player-color);
+  box-shadow: 0 0 15px var(--player-color);
+}
+
+.arrow-btn.arrow-left {
+  position: absolute;
+  left: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.arrow-btn.arrow-right {
+  position: absolute;
+  right: -18px;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.arrow-btn.arrow-left:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.arrow-btn.arrow-right:hover {
+  transform: translateY(-50%) scale(1.1);
+}
+
+.panel-preview {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 5px;
+}
+
+.preview-title {
+  font-size: 16px;
+  font-weight: 900;
+  letter-spacing: 2px;
+  color: var(--text-main);
+  margin: 0 0 10px 0;
+  text-align: center;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.player-panel.ready .preview-title {
+  color: var(--player-color);
+}
+
+.preview-visual {
+  flex: 1;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  border-radius: 6px;
+  overflow: hidden;
+}
+
+/* Stats Styling */
+.panel-stats {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 15px;
+}
+
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+}
+
+.stat-label {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-muted);
+  width: 40px;
+  text-align: left;
+}
+
+.stat-bar-bg {
+  flex: 1;
+  height: 5px;
+  background-color: rgba(18, 18, 20, 0.85);
+  border: 1px solid rgba(75, 80, 95, 0.3);
+  border-radius: 1px;
+  margin: 0 8px;
+  position: relative;
+}
+
+.stat-bar-fill {
+  height: 100%;
+  border-radius: 1px;
+  transition: width 0.3s ease-out;
+}
+
+.stat-value {
+  font-size: 9px;
+  font-weight: 700;
+  color: var(--text-main);
+  width: 25px;
+  text-align: right;
+}
+
+/* Helpers & Action Button */
+.panel-helper-text {
+  font-size: 8.5px;
+  font-weight: 700;
+  color: var(--text-muted);
+  letter-spacing: 0.5px;
+  margin-top: 12px;
+  text-align: center;
+  user-select: none;
+}
+
+.panel-action-btn {
+  width: 100%;
+  max-width: 320px;
+  height: 38px;
+  border-radius: 4px;
+  border: 1px solid var(--border-color);
+  background-color: var(--bg-card-hover);
+  color: var(--text-main);
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1.5px;
+  cursor: pointer;
+  margin-top: 16px;
+  transition: all 0.2s;
+}
+
+.panel-action-btn:hover:not(:disabled) {
+  border-color: var(--player-color);
+  background-color: var(--player-color);
+  color: var(--bg-dark-base);
+  box-shadow: 0 0 10px color-mix(in srgb, var(--player-color) 15%, transparent);
+}
+
+.panel-action-btn.ready {
+  background-color: var(--player-color);
+  border-color: var(--player-color);
+  color: var(--bg-dark-base);
+}
+
+.panel-action-btn.disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  pointer-events: none;
+  background-color: rgba(12, 16, 20, 0.5);
+  color: var(--text-muted);
+}
+
+.panel-desc-text {
+  font-size: 8.5px;
+  color: var(--text-muted);
+  text-align: center;
+  max-width: 240px;
+  line-height: 1.35;
+  margin: 2px 0 6px 0;
+}
+
+.panel-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.12), transparent);
+  margin: 10px 0;
+  position: relative;
+}
+
+/* Locked item buy overlay */
+.card-locked-buy-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(10, 10, 12, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+  border-radius: 4px;
+  backdrop-filter: blur(1.5px);
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+
+.card-locked-buy-overlay span {
+  background: var(--active-gold);
+  color: #0c0f17;
+  font-size: 10px;
+  font-weight: 900;
+  letter-spacing: 1px;
+  padding: 6px 12px;
+  border-radius: 3px;
+  box-shadow: 0 4px 12px rgba(255, 215, 0, 0.25);
+  text-transform: uppercase;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.card-locked-buy-overlay:hover {
+  background: rgba(10, 10, 12, 0.5);
+}
+
+.card-locked-buy-overlay:hover span {
+  transform: scale(1.05);
+  box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
+}

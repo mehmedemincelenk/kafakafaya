@@ -1,6 +1,5 @@
 import { k } from "./kaplay.js";
 import { CAR_TYPES } from "./config.js";
-import { spawnExplosion } from "./utils.js";
 
 // Her araç tipine özel yetenekler. Hem varsayılan hem de mağazadan satın alınabilir ek yetenekler burada tanımlıdır.
 export const SKILLS = {
@@ -13,16 +12,21 @@ export const SKILLS = {
       duration: 2.0,
       desc: "2 saniye boyunca çarpışmada (toslamada) hasarını %50 artırır, alınan hasarı yarıya indirir.",
       activate: (car) => {
-        const w = CAR_TYPES[car.carType].width;
-        const h = CAR_TYPES[car.carType].height;
+        const w = (CAR_TYPES[car.carType]?.width || 48);
+        const h = (CAR_TYPES[car.carType]?.height || 28);
+        // İçi boş, neon mavi ince dış çerçeve (Premium Kalkan Görünümü)
         car.kineticEffect = car.add([
-          k.rect(w + 8, h + 8, { radius: 4 }),
+          k.rect(w + 8, h + 8, { radius: 4, fill: false }),
+          k.outline(2.5, k.rgb(0, 255, 255)),
           k.pos(0, 0),
-          k.color(0, 255, 255), // Neon Cyan
-          k.opacity(0.4),
           k.anchor("center"),
           k.z(1),
         ]);
+        car.kineticEffect.onUpdate(() => {
+          if (car.kineticEffect) {
+            car.kineticEffect.opacity = 0.4 + Math.sin(k.time() * 10) * 0.2;
+          }
+        });
       },
       deactivate: (car) => {
         if (car.kineticEffect) {
@@ -34,20 +38,25 @@ export const SKILLS = {
     gnss_jammer: {
       name: "ELEKTRO-MANYETİK ŞOK",
       icon: "📡",
-      cooldown: 9,
-      duration: 3.0,
-      desc: "3 saniye boyunca elektro-manyetik tamponları açar. Bu sürede toslanan rakibin kontrollerini 2 saniyeliğine kilitleyip tersine çevirir.",
+      cooldown: 8,
+      duration: 2.5,
+      desc: "2.5 saniye boyunca elektro-manyetik tamponları açar. Bu sürede toslanan rakibin kontrollerini 1 saniyeliğine kilitler.",
       activate: (car) => {
-        const w = CAR_TYPES[car.carType].width;
-        const h = CAR_TYPES[car.carType].height;
+        const w = (CAR_TYPES[car.carType]?.width || 48);
+        const h = (CAR_TYPES[car.carType]?.height || 28);
+        // İçi boş, neon altın sarısı dış çerçeve
         car.shockEffect = car.add([
-          k.rect(w + 8, h + 8, { radius: 4 }),
+          k.rect(w + 8, h + 8, { radius: 4, fill: false }),
+          k.outline(2.5, k.rgb(255, 215, 0)),
           k.pos(0, 0),
-          k.color(255, 215, 0), // Neon Yellow/Gold
-          k.opacity(0.45),
           k.anchor("center"),
           k.z(1),
         ]);
+        car.shockEffect.onUpdate(() => {
+          if (car.shockEffect) {
+            car.shockEffect.opacity = 0.45 + Math.sin(k.time() * 12) * 0.2;
+          }
+        });
       },
       deactivate: (car) => {
         if (car.shockEffect) {
@@ -61,16 +70,45 @@ export const SKILLS = {
       name: "HAYALET MODU",
       icon: "👻",
       cooldown: 8,
-      duration: 2.0,
-      desc: "Hayalet moduna geçerek rakiplerin içinden geçer. Çıkışta 1 saniye boyunca %20 fazla vurur.",
+      duration: 2.5,
+      desc: "2.5 saniye boyunca hayalet moduna geçerek hızlanır ve rakiplerin içinden geçer. Çıkışta 1.5 saniye boyunca ilk toslaması %35 fazla hasar verir.",
       activate: (car) => {
         car.isGhost = true;
         car.opacity = 0.35;
+
+        // Hayalet modundayken arkasında gölge izleri bırakma animasyonu
+        car.ghostTrailLoop = car.onUpdate(() => {
+          if (k.chance(0.25)) {
+            const w = CAR_TYPES[car.carType]?.width || 58;
+            const h = CAR_TYPES[car.carType]?.height || 38;
+            const r = CAR_TYPES[car.carType]?.radius || 6;
+            const trail = k.add([
+              k.rect(w, h, { radius: r, fill: false }),
+              k.outline(1.5, k.rgb(120, 120, 255)),
+              k.pos(car.pos),
+              k.rotate(car.angle),
+              k.opacity(0.35),
+              k.anchor("center"),
+              k.z(car.z - 1),
+            ]);
+            trail.onUpdate(() => {
+              trail.opacity -= k.dt() * 1.5;
+              if (trail.opacity <= 0) {
+                trail.destroy();
+              }
+            });
+          }
+        });
       },
       deactivate: (car) => {
         car.isGhost = false;
         car.opacity = 1.0;
-        car.ghostDamageBoostTimer = 1.0; // 1 saniye içinde vurursa %20 fazla hasar
+        car.ghostDamageBoostTimer = 1.5; // 1.5 saniye içinde vurursa %35 fazla hasar
+
+        if (car.ghostTrailLoop) {
+          try { car.ghostTrailLoop.cancel(); } catch (e) {}
+          car.ghostTrailLoop = null;
+        }
         
         // Çıkışta mavi kıvılcım patlaması
         for (let i = 0; i < 8; i++) {
@@ -94,6 +132,7 @@ export const SKILLS = {
       icon: "👻",
       cooldown: 6,
       duration: 0.8,
+      desc: "0.8 saniye boyunca hayalete dönüşerek rakiplerin içinden geçer.",
       activate: (car) => {
         car.isGhost = true;
         car.opacity = 0.3;
@@ -103,45 +142,7 @@ export const SKILLS = {
         car.opacity = 1.0;
       }
     },
-    boost: {
-      name: "TURBO BOOST",
-      icon: "⚡",
-      cooldown: 6,
-      duration: 1.0,
-      activate: (car) => {
-        car.speed = car.maxSpeed * 2.5;
-        car.acceleration = car.acceleration * 2.0;
-        car.boostEffect = car.add([
-          k.rect(40, 4),
-          k.pos(-25, 0),
-          k.color(0, 255, 255),
-          k.opacity(0.7),
-          k.anchor("center"),
-        ]);
-      },
-      deactivate: (car) => {
-        car.acceleration = CAR_TYPES[car.carType].acceleration;
-        if (car.boostEffect) {
-          try { car.boostEffect.destroy(); } catch (e) {}
-          car.boostEffect = null;
-        }
-      }
-    },
-    phase: {
-      name: "HAYALET MODU",
-      icon: "👻",
-      cooldown: 9,
-      duration: 1.5,
-      activate: (car) => {
-        car.isGhost = true;
-        car.opacity = 0.35;
-        car.speed = car.maxSpeed * 1.5;
-      },
-      deactivate: (car) => {
-        car.isGhost = false;
-        car.opacity = 1.0;
-      }
-    }
+
   },
 
   GUCLU: {
@@ -149,22 +150,30 @@ export const SKILLS = {
     swarm_mark: {
       name: "ZIRH KIRICI",
       icon: "💥",
-      cooldown: 7,
+      cooldown: 8,
       duration: 3.0,
-      desc: "Zırh Kırıcı dalgası açar. Bu esnada çarpılan rakibin zırhı 3 saniyeliğine kırılır (+%20 hasar).",
+      desc: "3 saniye boyunca toslama hasarını %30 artırır ve araba kütlesini 1.5 katına çıkarır. Artan kütle sebebiyle direksiyon kabiliyeti %15 azalır.",
       activate: (car) => {
-        const w = CAR_TYPES[car.carType].width;
-        const h = CAR_TYPES[car.carType].height;
+        const baseMass = CAR_TYPES[car.carType]?.mass || 1.3;
+        car.mass = baseMass * 1.5;
+        const w = (CAR_TYPES[car.carType]?.width || 50);
+        const h = (CAR_TYPES[car.carType]?.height || 30);
+        // İçi boş, neon turuncu dış çerçeve
         car.swarmEffect = car.add([
-          k.rect(w + 10, h + 10, { radius: 4 }),
+          k.rect(w + 10, h + 10, { radius: 4, fill: false }),
+          k.outline(2.5, k.rgb(255, 120, 0)),
           k.pos(0, 0),
-          k.color(180, 100, 255), // Mor zırh kırıcı parıltısı
-          k.opacity(0.55),
           k.anchor("center"),
           k.z(1),
         ]);
+        car.swarmEffect.onUpdate(() => {
+          if (car.swarmEffect) {
+            car.swarmEffect.opacity = 0.45 + Math.cos(k.time() * 8) * 0.25;
+          }
+        });
       },
       deactivate: (car) => {
+        car.mass = CAR_TYPES[car.carType]?.mass || 1.3;
         if (car.swarmEffect) {
           try { car.swarmEffect.destroy(); } catch (e) {}
           car.swarmEffect = null;
@@ -175,28 +184,54 @@ export const SKILLS = {
     sarp_ram: {
       name: "SARP DUAL KOÇBAŞI",
       icon: "🐂",
-      cooldown: 8,
-      duration: 2.0,
-      desc: "SARP Çift Koçbaşını aktif eder. Toslama kütlesini artırır ve çarpışma hasarı almaz.",
+      cooldown: 10,
+      duration: 2.5,
+      desc: "2.5 saniye boyunca toslama kütlesini 2.5 katına çıkarır ve çarpışma hasarı almaz. Ağır koçbaşı yüzünden ivmelenmesi %40, direksiyon kabiliyeti %35 azalır.",
       activate: (car) => {
-        const w = CAR_TYPES[car.carType].width;
-        car.mass = car.mass * 3.5;
+        const w = (CAR_TYPES[car.carType]?.width || 58);
+        const h = (CAR_TYPES[car.carType]?.height || 38);
+        const baseMass = CAR_TYPES[car.carType]?.mass || 1.8;
+        car.mass = baseMass * 2.5;
         car.isInvulnerable = true; // Koçbaşı esnasında toslamadan hasar yemez
+        
         car.ramBumper = car.add([
-          k.rect(10, CAR_TYPES[car.carType].height + 12, { radius: 2 }),
+          k.rect(10, h + 12, { radius: 2 }),
           k.pos(w / 2 + 5, 0),
           k.anchor("center"),
           k.color(255, 69, 0),
           k.opacity(0.85),
           k.z(1)
         ]);
+        car.ramBumper.onUpdate(() => {
+          if (car.ramBumper) {
+            car.ramBumper.opacity = 0.65 + Math.sin(k.time() * 14) * 0.2;
+          }
+        });
+
+        // İçi boş, neon koçbaşı aurası
+        car.ramAura = car.add([
+          k.rect(w + 10, h + 10, { radius: 6, fill: false }),
+          k.outline(2.5, k.rgb(255, 69, 0)),
+          k.pos(0, 0),
+          k.anchor("center"),
+          k.z(1)
+        ]);
+        car.ramAura.onUpdate(() => {
+          if (car.ramAura) {
+            car.ramAura.opacity = 0.3 + Math.sin(k.time() * 10) * 0.15;
+          }
+        });
       },
       deactivate: (car) => {
-        car.mass = CAR_TYPES[car.carType].mass;
+        car.mass = CAR_TYPES[car.carType]?.mass || 1.8;
         car.isInvulnerable = false;
         if (car.ramBumper) {
           try { car.ramBumper.destroy(); } catch (e) {}
           car.ramBumper = null;
+        }
+        if (car.ramAura) {
+          try { car.ramAura.destroy(); } catch (e) {}
+          car.ramAura = null;
         }
       }
     },
@@ -206,89 +241,36 @@ export const SKILLS = {
       icon: "💥",
       cooldown: 7,
       duration: 2.0,
+      desc: "2 saniye boyunca toslama kütlesini 2.2 katına çıkarır. Direksiyon kabiliyeti %15 azalır.",
       activate: (car) => {
-        car.mass = car.mass * 3;
-        const w = CAR_TYPES[car.carType].width;
-        const h = CAR_TYPES[car.carType].height;
-        const r = CAR_TYPES[car.carType].radius || 2;
+        const baseMass = CAR_TYPES[car.carType]?.mass || 1.55;
+        car.mass = baseMass * 2.2;
+        const w = (CAR_TYPES[car.carType]?.width || 50);
+        const h = (CAR_TYPES[car.carType]?.height || 30);
+        const r = (CAR_TYPES[car.carType]?.radius || 2);
+        // İçi boş, altın sarısı öfke aurası
         car.rageEffect = car.add([
-          k.rect(w + 8, h + 8, { radius: r + 1 }),
+          k.rect(w + 8, h + 8, { radius: r + 1, fill: false }),
+          k.outline(2.5, k.rgb(255, 215, 0)),
           k.pos(0, 0),
           k.anchor("center"),
-          k.color(255, 215, 0),
-          k.opacity(0.5),
           k.z(1),
         ]);
+        car.rageEffect.onUpdate(() => {
+          if (car.rageEffect) {
+            car.rageEffect.opacity = 0.4 + Math.sin(k.time() * 12) * 0.2;
+          }
+        });
       },
       deactivate: (car) => {
-        car.mass = CAR_TYPES[car.carType].mass;
+        car.mass = CAR_TYPES[car.carType]?.mass || 1.55;
         if (car.rageEffect) {
           try { car.rageEffect.destroy(); } catch (e) {}
           car.rageEffect = null;
         }
       }
     },
-    shockwave: {
-      name: "SOK DALGASI",
-      icon: "💥",
-      cooldown: 7,
-      duration: 0.5,
-      activate: (car) => {
-        const range = 160;
-        const opponents = k.get("player").filter(other => other !== car);
-        opponents.forEach(other => {
-          const dist = car.pos.dist(other.pos);
-          if (dist < range) {
-            const dir = other.pos.sub(car.pos).unit();
-            other.speed = -other.maxSpeed * 1.5;
-            other.angle += k.choose([-45, 45]);
-            k.shake(3.0);
-          }
-        });
 
-        const shock = k.add([
-          k.circle(0),
-          k.pos(car.pos),
-          k.color(255, 100, 0),
-          k.opacity(0.8),
-          k.outline(3, k.rgb(255, 255, 255)),
-          k.anchor("center"),
-        ]);
-        shock.onUpdate(() => {
-          shock.radius += k.dt() * 400;
-          shock.opacity -= k.dt() * 2;
-          if (shock.radius >= range) {
-            shock.destroy();
-          }
-        });
-      },
-      deactivate: (car) => {}
-    },
-    ram: {
-      name: "KOCBASI BARBAR",
-      icon: "🐂",
-      cooldown: 8,
-      duration: 2.0,
-      activate: (car) => {
-        const w = CAR_TYPES[car.carType].width;
-        car.mass = car.mass * 3.5;
-        car.ramBumper = car.add([
-          k.rect(10, CAR_TYPES[car.carType].height + 12, { radius: 2 }),
-          k.pos(w / 2 + 5, 0),
-          k.anchor("center"),
-          k.color(255, 69, 0),
-          k.opacity(0.8),
-          k.z(1)
-        ]);
-      },
-      deactivate: (car) => {
-        car.mass = CAR_TYPES[car.carType].mass;
-        if (car.ramBumper) {
-          try { car.ramBumper.destroy(); } catch (e) {}
-          car.ramBumper = null;
-        }
-      }
-    }
   },
 
   TANK: {
@@ -298,28 +280,33 @@ export const SKILLS = {
       icon: "🧱",
       cooldown: 8,
       duration: 1.2,
-      desc: "Aktif süspansiyon ile kendini yere sabitler. Hasar almaz ve gelen tüm darbe gücünü yansıtır.",
+      desc: "1.2 saniye boyunca kendini yere sabitler. Alınan toslama hasarını yok sayar, toslayan rakibi püskürterek hasar yansıtır.",
       activate: (car) => {
         car.isInvulnerable = true;
         car.isAnchored = true;
         car.mass = 99999;
         car.speed = 0;
 
-        const w = CAR_TYPES[car.carType].width;
-        const h = CAR_TYPES[car.carType].height;
+        const w = (CAR_TYPES[car.carType]?.width || 76);
+        const h = (CAR_TYPES[car.carType]?.height || 52);
+        // İçi boş, kalın neon turuncu koruyucu alan
         car.suspensionEffect = car.add([
-          k.rect(w + 14, h + 14, { radius: 6 }),
+          k.rect(w + 14, h + 14, { radius: 6, fill: false }),
+          k.outline(3.0, k.rgb(255, 140, 0)),
           k.pos(0, 0),
-          k.color(255, 140, 0), // Turuncu koruyucu alan
-          k.opacity(0.45),
           k.anchor("center"),
           k.z(1),
         ]);
+        car.suspensionEffect.onUpdate(() => {
+          if (car.suspensionEffect) {
+            car.suspensionEffect.opacity = 0.45 + Math.sin(k.time() * 15) * 0.2;
+          }
+        });
       },
       deactivate: (car) => {
         car.isInvulnerable = false;
         car.isAnchored = false;
-        car.mass = CAR_TYPES[car.carType].mass;
+        car.mass = CAR_TYPES[car.carType]?.mass || 2.5;
         if (car.suspensionEffect) {
           try { car.suspensionEffect.destroy(); } catch (e) {}
           car.suspensionEffect = null;
@@ -332,20 +319,27 @@ export const SKILLS = {
       icon: "🛡️",
       cooldown: 10,
       duration: 3.0,
-      desc: "3 saniye boyunca reaktif zırhı açar. Alınan toslama hasarını yok sayar ve her toslamada 25 HP can yeniler.",
+      desc: "3 saniye boyunca reaktif zırhı açar. Alınan toslama hasarını yok sayar. Süresince toslamalarla 20 HP can yeniler (En fazla 2 kere).",
       activate: (car) => {
-        const w = CAR_TYPES[car.carType].width;
-        const h = CAR_TYPES[car.carType].height;
+        car.reactiveHealsLeft = 2; // Can yenileme limiti
+        const w = (CAR_TYPES[car.carType]?.width || 78);
+        const h = (CAR_TYPES[car.carType]?.height || 54);
+        // İçi boş, neon yeşil reaktif zırh aurası
         car.reactiveArmorGlow = car.add([
-          k.rect(w + 12, h + 12, { radius: 6 }),
+          k.rect(w + 12, h + 12, { radius: 6, fill: false }),
+          k.outline(2.5, k.rgb(0, 255, 128)),
           k.pos(0, 0),
-          k.color(0, 255, 128), // Neon Greenish Teal
-          k.opacity(0.4),
           k.anchor("center"),
           k.z(1),
         ]);
+        car.reactiveArmorGlow.onUpdate(() => {
+          if (car.reactiveArmorGlow) {
+            car.reactiveArmorGlow.opacity = 0.4 + Math.sin(k.time() * 10) * 0.2;
+          }
+        });
       },
       deactivate: (car) => {
+        car.reactiveHealsLeft = 0;
         if (car.reactiveArmorGlow) {
           try { car.reactiveArmorGlow.destroy(); } catch (e) {}
           car.reactiveArmorGlow = null;
@@ -358,182 +352,39 @@ export const SKILLS = {
       icon: "🧱",
       cooldown: 8,
       duration: 1.2,
+      desc: "1.2 saniye boyunca kendini yere sabitler. Alınan toslama hasarını yok sayar ve çarpan rakibi geriye iter.",
       activate: (car) => {
         car.isInvulnerable = true;
         car.isAnchored = true;
         car.mass = 99999;
         car.speed = 0;
+
+        const w = (CAR_TYPES[car.carType]?.width || 76);
+        const h = (CAR_TYPES[car.carType]?.height || 52);
+        // İçi boş, demir grisi dış çerçeve
+        car.ironEffect = car.add([
+          k.rect(w + 10, h + 10, { radius: 4, fill: false }),
+          k.outline(2.5, k.rgb(128, 128, 128)),
+          k.pos(0, 0),
+          k.anchor("center"),
+          k.z(1),
+        ]);
+        car.ironEffect.onUpdate(() => {
+          if (car.ironEffect) {
+            car.ironEffect.opacity = 0.5 + Math.sin(k.time() * 8) * 0.2;
+          }
+        });
       },
       deactivate: (car) => {
         car.isInvulnerable = false;
         car.isAnchored = false;
-        car.mass = CAR_TYPES[car.carType].mass;
-      }
-    },
-    ironclad: {
-      name: "ZIRHLI DUVAR",
-      icon: "🧱",
-      cooldown: 9,
-      duration: 2.0,
-      activate: (car) => {
-        car.isInvulnerable = true;
-        car.mass = car.mass * 5;
-        car.scaleTo(1.4);
-      },
-      deactivate: (car) => {
-        car.isInvulnerable = false;
-        car.mass = CAR_TYPES[car.carType].mass;
-        car.scaleTo(1.0);
-      }
-    },
-    mine: {
-      name: "PATLAYICI MAYIN",
-      icon: "💣",
-      cooldown: 7,
-      duration: 0.1,
-      activate: (car) => {
-        const backOffset = CAR_TYPES[car.carType].width / 2 + 15;
-        const rad = k.deg2rad(car.angle);
-        const spawnPos = car.pos.sub(k.vec2(Math.cos(rad) * backOffset, Math.sin(rad) * backOffset));
-        
-        const mine = k.add([
-          k.circle(10),
-          k.pos(spawnPos),
-          k.color(255, 30, 30),
-          k.outline(2, k.rgb(255, 255, 255)),
-          k.anchor("center"),
-          k.area(),
-          "mine",
-          {
-            owner: car,
-            exploded: false
-          }
-        ]);
-
-        mine.onUpdate(() => {
-          mine.color = Math.floor(k.time() * 8) % 2 === 0 ? k.rgb(255, 30, 30) : k.rgb(50, 0, 0);
-        });
-
-        k.onCollide("player", mine, (player, m) => {
-          if (m.exploded || player === m.owner) return;
-          m.exploded = true;
-          
-          const damage = 35;
-          player.hp = Math.max(0, player.hp - damage);
-          
-          const origColor = player.color;
-          player.color = k.rgb(255, 255, 255);
-          k.wait(0.2, () => {
-            player.color = origColor;
-          });
-
-          const kbDir = player.pos.sub(m.pos).unit();
-          player.speed = -player.maxSpeed * 1.2;
-          player.angle += k.choose([-60, 60]);
-
-          k.shake(4.0);
-          spawnExplosion(m.pos, damage);
-          m.destroy();
-        });
-
-        k.wait(8.0, () => {
-          if (mine.exists()) mine.destroy();
-        });
-      },
-      deactivate: () => {}
-    }
-  },
-
-  // Drift sınıfı (Diğer mağaza yetenekleri uyumluluğu için tutulur)
-  DRIFT: {
-    default: {
-      name: "TURBO DRIFT",
-      icon: "🌀",
-      cooldown: 5,
-      duration: 1.5,
-      activate: (car) => {
-        car.turnSpeed = car.turnSpeed * 1.8;
-      },
-      deactivate: (car) => {
-        car.turnSpeed = CAR_TYPES[car.carType].turnSpeed;
-      }
-    },
-    nitro: {
-      name: "NITRO GAZI",
-      icon: "🔥",
-      cooldown: 5,
-      duration: 1.2,
-      activate: (car) => {
-        car.speed = car.maxSpeed * 2.0;
-        car.nitroTimer = k.onUpdate(() => {
-          if (!car.exists()) return;
-          const backPos = car.pos.sub(k.vec2(Math.cos(car.angle * Math.PI / 180), Math.sin(car.angle * Math.PI / 180)).scale(20));
-          const particle = k.add([
-            k.circle(k.rand(3, 6)),
-            k.pos(backPos),
-            k.color(255, k.rand(50, 150), 0),
-            k.opacity(0.8),
-            k.anchor("center"),
-          ]);
-          particle.onUpdate(() => {
-            particle.opacity -= k.dt() * 3;
-            if (particle.opacity <= 0) particle.destroy();
-          });
-        });
-      },
-      deactivate: (car) => {
-        if (car.nitroTimer) {
-          car.nitroTimer.cancel();
-          car.nitroTimer = null;
+        car.mass = CAR_TYPES[car.carType]?.mass || 2.65;
+        if (car.ironEffect) {
+          try { car.ironEffect.destroy(); } catch (e) {}
+          car.ironEffect = null;
         }
       }
     },
-    smoke: {
-      name: "SIS BOMBASI",
-      icon: "💨",
-      cooldown: 8,
-      duration: 2.5,
-      activate: (car) => {
-        car.smokeInterval = k.onUpdate(() => {
-          if (!car.exists()) return;
-          const backOffset = CAR_TYPES[car.carType].width / 2 + 10;
-          const rad = k.deg2rad(car.angle);
-          const spawnPos = car.pos.sub(k.vec2(Math.cos(rad) * backOffset, Math.sin(rad) * backOffset));
-          
-          const cloud = k.add([
-            k.circle(k.rand(15, 25)),
-            k.pos(spawnPos.add(k.rand(-10, 10), k.rand(-10, 10))),
-            k.color(120, 125, 135),
-            k.opacity(0.65),
-            k.anchor("center"),
-            k.area(),
-            k.z(-2),
-            "smokeCloud"
-          ]);
 
-          cloud.onUpdate(() => {
-            cloud.opacity -= k.dt() * 0.5;
-            cloud.radius += k.dt() * 8;
-            if (cloud.opacity <= 0) {
-              cloud.destroy();
-            }
-          });
-
-          const range = 40;
-          const opponents = k.get("player").filter(other => other !== car);
-          opponents.forEach(other => {
-            if (other.pos.dist(cloud.pos) < range) {
-              other.speed = other.speed * 0.96;
-            }
-          });
-        });
-      },
-      deactivate: (car) => {
-        if (car.smokeInterval) {
-          car.smokeInterval.cancel();
-          car.smokeInterval = null;
-        }
-      }
-    }
   }
 };

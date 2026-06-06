@@ -90,14 +90,17 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
     }
 
     // DEMİR ve AKTİF SÜSPANSİYON yeteneği aktifse roller değişir (demir/süspansiyon olan saldırgan olur ve clash iptal edilir)
+    let isParry = false;
     if (car1.skillActive && (car1.skillName === "DEMIR" || car1.skillId === "active_suspension" || car1.skillName === "AKTİF SÜSPANSİYON")) {
       attacker = car1;
       victim = car2;
       isClash = false;
+      isParry = true;
     } else if (car2.skillActive && (car2.skillName === "DEMIR" || car2.skillId === "active_suspension" || car2.skillName === "AKTİF SÜSPANSİYON")) {
       attacker = car2;
       victim = car1;
       isClash = false;
+      isParry = true;
     }
 
     if (isClash) {
@@ -113,18 +116,57 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
 
     const attackerHitsWithBumper = attacker === car1 ? car1HitsWithBumper : car2HitsWithBumper;
 
-    if (attackerHitsWithBumper && !isTeammate) {
-      let hitDamage = damage;
+    if (isParry) {
+      // Parry visual feedback: ekran sarsıntısı, genişleyen turuncu halka, altın kıvılcımlar!
+      k.shake(10);
+      const ring = k.add([
+        k.circle(10),
+        k.pos(midPoint),
+        k.color(255, 140, 0),
+        k.opacity(0.8),
+        k.anchor("center"),
+        k.z(10),
+      ]);
+      ring.onUpdate(() => {
+        ring.radius += 200 * k.dt();
+        ring.opacity -= 2.5 * k.dt();
+        if (ring.opacity <= 0) {
+          ring.destroy();
+        }
+      });
 
-      // BARKAN 2 Sürü Saldırısı (Zırh Kırıcı) yeteneği aktifse zırh kırılması uygula
-      if (attacker.skillActive && attacker.skillId === "swarm_mark") {
-        victim.armorBrokenTimer = 3.0;
-        victim.color = k.rgb(180, 100, 255); // Mor renk görsel gösterge
+      for (let i = 0; i < 12; i++) {
+        const angle = k.rand(0, 360);
+        const speed = k.rand(150, 300);
+        const spark = k.add([
+          k.pos(midPoint),
+          k.color(255, 215, 0),
+          k.rect(4, 4),
+          k.anchor("center"),
+          k.opacity(1),
+          k.z(10),
+          k.lifespan(0.4),
+        ]);
+        spark.onUpdate(() => {
+          spark.move(Math.cos(k.deg2rad(angle)) * speed, Math.sin(k.deg2rad(angle)) * speed);
+        });
       }
 
-      // Hayalet modundan çıktıktan sonraki ilk 1 saniyede hasar artışı
+      inflictDamage(victim, 15);
+      damage = 15;
+      if (victim === car1) car1TookDamage = true;
+      if (victim === car2) car2TookDamage = true;
+    } else if (attackerHitsWithBumper && !isTeammate) {
+      let hitDamage = damage;
+
+      // BARKAN 2 Sürü Saldırısı (Zırh Kırıcı) yeteneği aktifse hasarı %30 artır
+      if (attacker.skillActive && attacker.skillId === "swarm_mark") {
+        hitDamage = Math.floor(hitDamage * 1.30);
+      }
+
+      // Hayalet modundan çıktıktan sonraki ilk 1.5 saniyede hasar artışı
       if (attacker.ghostDamageBoostTimer && attacker.ghostDamageBoostTimer > 0) {
-        hitDamage = Math.floor(hitDamage * 1.20);
+        hitDamage = Math.floor(hitDamage * 1.35);
         attacker.ghostDamageBoostTimer = 0; // Bonusu tüket
       }
 
@@ -153,30 +195,32 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
             warningText.pos = victim.pos.add(0, -45);
           }
         });
-        k.wait(2.0, () => {
+        k.wait(1.0, () => {
           if (victim.exists()) victim.controlsLocked = false;
         });
       }
 
-      // REAKTİF ZIRH (tactical_repair) - Çarpışmada hasarı yok say, 25 HP doldur
+      // REAKTİF ZIRH (tactical_repair) - Çarpışmada hasarı yok say, limitli 20 HP can yenileme
       if (victim.skillActive && victim.skillId === "tactical_repair") {
-        victim.hp = Math.min(victim.maxHp, victim.hp + 25);
-        const orig = victim.color;
-        victim.color = k.rgb(100, 255, 100);
-        k.wait(0.25, () => {
-          if (victim.exists()) victim.color = orig;
-        });
-        const healText = k.add([
-          k.text("+25 HP", { size: 10 }),
-          k.pos(victim.pos.add(0, -50)),
-          k.color(100, 255, 100),
-          k.anchor("center"),
-          k.lifespan(0.8),
-        ]);
-        healText.onUpdate(() => {
-          if (victim.exists()) healText.pos = victim.pos.add(0, -50);
-        });
-
+        if (victim.reactiveHealsLeft > 0) {
+          victim.reactiveHealsLeft--;
+          victim.hp = Math.min(victim.maxHp, victim.hp + 20);
+          const orig = victim.color;
+          victim.color = k.rgb(100, 255, 100);
+          k.wait(0.25, () => {
+            if (victim.exists()) victim.color = orig;
+          });
+          const healText = k.add([
+            k.text("+20 HP", { size: 10 }),
+            k.pos(victim.pos.add(0, -50)),
+            k.color(100, 255, 100),
+            k.anchor("center"),
+            k.lifespan(0.8),
+          ]);
+          healText.onUpdate(() => {
+            if (victim.exists()) healText.pos = victim.pos.add(0, -50);
+          });
+        }
         hitDamage = 0;
       }
 
@@ -216,6 +260,31 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
     } else {
       k.shake(3);
       spawnExplosion(midPoint, 4);
+    }
+  });
+
+  // Araçların yavaşken veya temas halindeyken iç içe geçmesini engelleyen ayrıştırma (collision resolution)
+  k.onCollideUpdate("player", "player", (car1, car2) => {
+    if (car1.id === car2.id) return;
+    if (car1.isGhost || car2.isGhost) return;
+    if (car1.state === "CLASH" || car2.state === "CLASH") return; // Düello sırasında ayrıştırma yapmıyoruz
+
+    const diff = car2.pos.sub(car1.pos);
+    const dist = diff.len();
+
+    // Dinamik olarak araç ebatlarına göre minimum güvenli mesafe hesaplıyoruz
+    const r1 = Math.max(car1.width || 40, car1.height || 24) * 0.45;
+    const r2 = Math.max(car2.width || 40, car2.height || 24) * 0.45;
+    const minDistance = r1 + r2;
+
+    if (dist < minDistance) {
+      const overlap = minDistance - dist;
+      const normal = dist > 0 ? diff.unit() : k.vec2(1, 0);
+      const push = normal.scale(overlap * 0.5);
+      
+      // Her iki aracı zıt yönlere iterek iç içe geçmelerini önlüyoruz
+      car1.pos = car1.pos.sub(push);
+      car2.pos = car2.pos.add(push);
     }
   });
 }

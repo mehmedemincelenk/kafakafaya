@@ -1,3 +1,4 @@
+import "./PlayerSelectorPanel.css";
 import { drawHTMLCarDetails } from "./CarDetails.js";
 import { drawHTMLProjectileDetails } from "./ProjectileDetails.js";
 
@@ -7,16 +8,18 @@ export function createPlayerSelectorPanel({
   ready,
   isMapSelect,
   previewData,
+  focusRow,
   onPrev,
   onNext,
   onConfirm,
+  onFocusRow,
   isInteractive,
   coins,
   statusText,
   helperText
 }) {
   const panel = document.createElement("div");
-  panel.className = `player-panel ${ready ? 'ready' : ''} ${!isInteractive && !ready ? 'passive' : ''}`;
+  panel.className = `player-panel ${ready ? 'ready' : ''} ${!isInteractive && !ready ? 'passive' : ''} ${isMapSelect ? 'map-select-panel' : ''}`;
   panel.style.setProperty('--player-color', color);
 
   // Top active indicator stripe
@@ -43,8 +46,8 @@ export function createPlayerSelectorPanel({
   card.className = "panel-card";
   card.appendChild(stripe);
 
-  // Arrow left
-  if (isInteractive && !ready && onPrev) {
+  // Arrow left (Map select only)
+  if (isInteractive && !ready && onPrev && isMapSelect) {
     const leftBtn = document.createElement("button");
     leftBtn.className = "arrow-btn arrow-left";
     leftBtn.innerText = "<";
@@ -60,12 +63,39 @@ export function createPlayerSelectorPanel({
   preview.className = "panel-preview";
 
   if (!isMapSelect) {
-    // 1. VEHICLE (İKA) SECTION
-    const ikaSection = document.createElement("div");
-    ikaSection.className = "details-section";
-    ikaSection.style.marginBottom = "12px";
-    ikaSection.style.borderColor = color; // Colored border matching player
+    preview.style.display = "flex";
+    preview.style.flexDirection = "column";
+    preview.style.gap = "14px";
+    preview.style.width = "100%";
+    preview.style.alignItems = "stretch";
 
+    // Card 1: Vehicle Card (ARAÇ KARTI)
+    const vehicleCard = document.createElement("div");
+    const isCarUnlocked = previewData.isCarUnlocked !== false;
+    vehicleCard.className = isCarUnlocked ? "details-section" : "details-section locked-section";
+    vehicleCard.style.position = "relative";
+    
+    if (focusRow === "vehicle") {
+      vehicleCard.style.borderColor = color;
+      vehicleCard.style.boxShadow = `0 0 15px color-mix(in srgb, ${color} 30%, transparent), inset 0 0 10px rgba(0,0,0,0.5)`;
+    } else {
+      vehicleCard.style.borderColor = "rgba(255, 255, 255, 0.08)";
+      vehicleCard.style.boxShadow = "inset 0 0 10px rgba(0,0,0,0.5)";
+    }
+    
+    vehicleCard.style.display = "flex";
+    vehicleCard.style.flexDirection = "column";
+    vehicleCard.style.gap = "12px";
+
+    if (isInteractive && !ready) {
+      vehicleCard.style.cursor = "pointer";
+      vehicleCard.addEventListener("click", () => {
+        if (onFocusRow) onFocusRow("vehicle");
+        if (!isCarUnlocked && onConfirm) onConfirm();
+      });
+    }
+
+    // Title/Name
     const ikaTitle = document.createElement("div");
     ikaTitle.className = "section-title";
     ikaTitle.style.borderLeftColor = color;
@@ -73,59 +103,181 @@ export function createPlayerSelectorPanel({
     ikaTitle.style.justifyContent = "space-between";
     ikaTitle.style.alignItems = "center";
     ikaTitle.innerHTML = `
-      <span>ARAÇ NİTELİKLERİ: ${previewData.name.toUpperCase()}</span>
+      <span>${previewData.name.toUpperCase()}</span>
       <span class="car-class-badge" style="font-size: 8px; margin: 0; padding: 2px 6px;">${previewData.class.toUpperCase()}</span>
     `;
-    ikaSection.appendChild(ikaTitle);
+    vehicleCard.appendChild(ikaTitle);
 
-    // Vehicle Drawing
+    // Vehicle Drawing container with left/right arrows
+    const ikaVisualContainer = document.createElement("div");
+    ikaVisualContainer.style.display = "flex";
+    ikaVisualContainer.style.alignItems = "center";
+    ikaVisualContainer.style.justifyContent = "center";
+    ikaVisualContainer.style.width = "100%";
+    ikaVisualContainer.style.position = "relative";
+    ikaVisualContainer.style.margin = "6px 0";
+
+    // Left cycle arrow for vehicle
+    if (isInteractive && !ready && onPrev) {
+      const leftArrow = document.createElement("button");
+      leftArrow.className = "arrow-btn arrow-left";
+      leftArrow.style.width = "24px";
+      leftArrow.style.height = "24px";
+      leftArrow.style.fontSize = "11px";
+      leftArrow.style.left = "0px";
+      leftArrow.style.setProperty('--player-color', color);
+      leftArrow.innerText = "<";
+      leftArrow.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onPrev();
+      });
+      ikaVisualContainer.appendChild(leftArrow);
+    }
+
     const ikaVisual = document.createElement("div");
     ikaVisual.className = "preview-visual car-visual";
-    ikaVisual.style.height = "90px";
-    ikaVisual.style.margin = "10px 0";
+    ikaVisual.style.height = "140px";
+    ikaVisual.style.margin = "0";
+    ikaVisual.style.display = "flex";
+    ikaVisual.style.alignItems = "center";
+    ikaVisual.style.justifyContent = "center";
 
     const ikaChassis = document.createElement("div");
     ikaChassis.className = "car-chassis-preview";
     ikaChassis.style.transform = "rotate(90deg)";
     ikaChassis.style.boxShadow = "none";
-    ikaChassis.style.animation = "none";
-    drawHTMLCarDetails(ikaChassis, previewData.name, color, previewData.skinId || "default", 1.3);
+    ikaChassis.style.animation = "carFloat 3s ease-in-out infinite";
+    drawHTMLCarDetails(ikaChassis, previewData.name, color, previewData.skinId || "default", 2.2);
+    ikaChassis.style.marginTop = "0px";
     ikaVisual.appendChild(ikaChassis);
-    ikaSection.appendChild(ikaVisual);
+    ikaVisualContainer.appendChild(ikaVisual);
 
+    // Right cycle arrow for vehicle
+    if (isInteractive && !ready && onNext) {
+      const rightArrow = document.createElement("button");
+      rightArrow.className = "arrow-btn arrow-right";
+      rightArrow.style.width = "24px";
+      rightArrow.style.height = "24px";
+      rightArrow.style.fontSize = "11px";
+      rightArrow.style.right = "0px";
+      rightArrow.style.setProperty('--player-color', color);
+      rightArrow.innerText = ">";
+      rightArrow.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onNext();
+      });
+      ikaVisualContainer.appendChild(rightArrow);
+    }
+    vehicleCard.appendChild(ikaVisualContainer);
 
-    // Vehicle Signature Skill box
+    // Vehicle Signature Skill box (Nested inside vehicleCard)
     if (previewData.skillDesc) {
-      const skillBox = document.createElement("div");
-      skillBox.className = "details-skill-box";
+      const skillBody = document.createElement("div");
+      skillBody.className = "details-skill-box";
+      skillBody.style.marginTop = "0px";
 
       const skillName = previewData.skill.substring(2); // Remove emoji
       const skillIcon = previewData.skill.substring(0, 2); // Extract emoji
 
-      skillBox.innerHTML = `
+      skillBody.innerHTML = `
         <div class="skill-box-header">
           <span class="skill-icon-emoji">${skillIcon}</span>
           <div class="skill-name-meta">
             <span class="skill-title-name">${skillName.toUpperCase()}</span>
-            <span class="skill-stats-meta" style="color: var(--text-muted);">İMZA YETENEĞİ</span>
           </div>
         </div>
         <p class="skill-description-text">${previewData.skillDesc}</p>
       `;
-      ikaSection.appendChild(skillBox);
+      vehicleCard.appendChild(skillBody);
     }
 
-    preview.appendChild(ikaSection);
+    // Vehicle Stats (Nested inside vehicleCard)
+    if (previewData.stats && previewData.stats.length > 0) {
+      const statsBox = document.createElement("div");
+      statsBox.className = "stats-list-container";
+      statsBox.style.padding = "4px 0px";
+      statsBox.style.display = "flex";
+      statsBox.style.flexDirection = "column";
+      statsBox.style.gap = "8px";
 
-    // 2. PROJECTILE (DİHA) SECTION
+      previewData.stats.forEach(stat => {
+        const row = document.createElement("div");
+        row.style.display = "flex";
+        row.style.flexDirection = "column";
+        row.style.gap = "4px";
+
+        const labelRow = document.createElement("div");
+        labelRow.style.display = "flex";
+        labelRow.style.justifyContent = "space-between";
+        labelRow.style.fontSize = "9px";
+        labelRow.style.fontWeight = "bold";
+        labelRow.style.color = "var(--text-muted)";
+        labelRow.innerHTML = `
+          <span>${stat.name.toUpperCase()}</span>
+          <span style="color: var(--text-color);">${stat.display}</span>
+        `;
+        row.appendChild(labelRow);
+
+        const barBg = document.createElement("div");
+        barBg.style.width = "100%";
+        barBg.style.height = "4px";
+        barBg.style.backgroundColor = "rgba(255,255,255,0.06)";
+        barBg.style.borderRadius = "2px";
+        barBg.style.overflow = "hidden";
+
+        const barFill = document.createElement("div");
+        barFill.style.height = "100%";
+        barFill.style.width = `${Math.min(100, (stat.val / stat.max) * 100)}%`;
+        barFill.style.backgroundColor = color;
+        barFill.style.borderRadius = "2px";
+        barFill.style.boxShadow = `0 0 8px ${color}`;
+
+        barBg.appendChild(barFill);
+        row.appendChild(barBg);
+        statsBox.appendChild(row);
+      });
+      vehicleCard.appendChild(statsBox);
+    }
+
+    if (!isCarUnlocked) {
+      const buyOverlay = document.createElement("div");
+      buyOverlay.className = "card-locked-buy-overlay";
+      buyOverlay.innerHTML = `<span>SATIN AL: 🪙${previewData.carCost || 0}</span>`;
+      vehicleCard.appendChild(buyOverlay);
+    }
+
+    preview.appendChild(vehicleCard);
+
+    // Card 2: Weapon Card (MÜHİMMAT KARTI)
     if (previewData.weaponName) {
       const specs = previewData.weaponSpecs;
       const isSupport = specs.category === "SUPPORT" || specs.damage === 0;
       const dihaColor = isSupport ? "#ff0080" : "#ff3c3c"; // support neon pink, weapon red
 
-      const dihaSection = document.createElement("div");
-      dihaSection.className = "details-section";
-      dihaSection.style.borderColor = dihaColor;
+      const weaponCard = document.createElement("div");
+      const isWUnlocked = previewData.isWeaponUnlocked !== false;
+      weaponCard.className = isWUnlocked ? "details-section" : "details-section locked-section";
+      weaponCard.style.position = "relative";
+      
+      if (focusRow === "weapon") {
+        weaponCard.style.borderColor = dihaColor;
+        weaponCard.style.boxShadow = `0 0 15px color-mix(in srgb, ${dihaColor} 30%, transparent), inset 0 0 10px rgba(0,0,0,0.5)`;
+      } else {
+        weaponCard.style.borderColor = "rgba(255, 255, 255, 0.08)";
+        weaponCard.style.boxShadow = "inset 0 0 10px rgba(0,0,0,0.5)";
+      }
+      
+      weaponCard.style.display = "flex";
+      weaponCard.style.flexDirection = "column";
+      weaponCard.style.gap = "12px";
+
+      if (isInteractive && !ready) {
+        weaponCard.style.cursor = "pointer";
+        weaponCard.addEventListener("click", () => {
+          if (onFocusRow) onFocusRow("weapon");
+          if (!isWUnlocked && onConfirm) onConfirm();
+        });
+      }
 
       const dihaTitle = document.createElement("div");
       dihaTitle.className = "section-title";
@@ -134,10 +286,10 @@ export function createPlayerSelectorPanel({
       dihaTitle.style.justifyContent = "space-between";
       dihaTitle.style.alignItems = "center";
       dihaTitle.innerHTML = `
-        <span>MÜHİMMAT: ${specs.name.toUpperCase()}</span>
+        <span>${specs.name.toUpperCase()}</span>
         <span class="car-class-badge" style="font-size: 8px; margin: 0; padding: 2px 6px; color: ${dihaColor}; border-color: ${dihaColor}; background-color: rgba(255, 60, 60, 0.1);">${isSupport ? "DESTEK" : "TAARRUZ"}</span>
       `;
-      dihaSection.appendChild(dihaTitle);
+      weaponCard.appendChild(dihaTitle);
 
       // Weapon/DİHA cycle arrows (left/right) if interactive & not ready
       const dihaVisualContainer = document.createElement("div");
@@ -216,18 +368,25 @@ export function createPlayerSelectorPanel({
         });
         dihaVisualContainer.appendChild(rightArrow);
       }
-
-      dihaSection.appendChild(dihaVisualContainer);
+      weaponCard.appendChild(dihaVisualContainer);
 
       // DİHA description behavior box
       if (specs.behavior) {
         const descBox = document.createElement("div");
         descBox.className = "details-behavior-box";
+        descBox.style.marginTop = "0px";
         descBox.innerHTML = `<p class="behavior-description-text">${specs.behavior.toUpperCase()}</p>`;
-        dihaSection.appendChild(descBox);
+        weaponCard.appendChild(descBox);
       }
 
-      preview.appendChild(dihaSection);
+      if (!isWUnlocked) {
+        const buyOverlay = document.createElement("div");
+        buyOverlay.className = "card-locked-buy-overlay";
+        buyOverlay.innerHTML = `<span>SATIN AL: 🪙${specs.cost || 0}</span>`;
+        weaponCard.appendChild(buyOverlay);
+      }
+
+      preview.appendChild(weaponCard);
     }
   } else {
     // MAP SELECT
@@ -264,8 +423,8 @@ export function createPlayerSelectorPanel({
 
   card.appendChild(preview);
 
-  // Arrow right
-  if (isInteractive && !ready && onNext) {
+  // Arrow right (Map select only)
+  if (isInteractive && !ready && onNext && isMapSelect) {
     const rightBtn = document.createElement("button");
     rightBtn.className = "arrow-btn arrow-right";
     rightBtn.innerText = ">";
@@ -287,17 +446,34 @@ export function createPlayerSelectorPanel({
   }
 
   // Confirm / Buy / Locked button at the bottom
+  const hasLockedItems = !isMapSelect && previewData && (!previewData.isCarUnlocked || !previewData.isWeaponUnlocked);
   const actionBtn = document.createElement("button");
-  actionBtn.className = `panel-action-btn ${ready ? 'ready' : ''} ${!isInteractive && !ready ? 'disabled' : ''}`;
-  actionBtn.innerHTML = statusText.toUpperCase();
 
-  if (isInteractive && !ready) {
-    actionBtn.addEventListener("click", (e) => {
-      e.stopPropagation();
-      onConfirm();
-    });
+  if (isMapSelect) {
+    actionBtn.className = `panel-action-btn ${ready ? 'ready' : ''} ${!isInteractive && !ready ? 'disabled' : ''}`;
+    actionBtn.innerHTML = statusText.toUpperCase();
+    if (isInteractive && !ready) {
+      actionBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onConfirm();
+      });
+    } else {
+      actionBtn.disabled = true;
+    }
   } else {
-    actionBtn.disabled = true;
+    // Character select: only displays "HAZIR" (disabled/gray if any item is locked)
+    const isBtnDisabled = !isInteractive || ready || hasLockedItems;
+    actionBtn.className = `panel-action-btn ${ready ? 'ready' : ''} ${isBtnDisabled ? 'disabled' : ''}`;
+    actionBtn.innerHTML = "HAZIR";
+    
+    if (isInteractive && !ready && !hasLockedItems) {
+      actionBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        onConfirm();
+      });
+    } else {
+      actionBtn.disabled = true;
+    }
   }
   panel.appendChild(actionBtn);
 

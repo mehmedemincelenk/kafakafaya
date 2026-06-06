@@ -34,14 +34,18 @@ export const POWERUPS = {
     name: "AKILLI MUHIMMAT",
     color: k.rgb(255, 0, 0), // Kırmızı: Akıllı mühimmat kiti
     activate: (car) => {
-      spawnSelectedProjectile(car, car.selectedWeapon || "mizrak");
+      if (car.selectedWeapon) {
+        spawnSelectedProjectile(car, car.selectedWeapon);
+      }
     }
   },
   TAKTIK_DESTEK: {
     name: "TAKTIK DESTEK",
     color: k.rgb(255, 0, 128), // Neon Pembe: Taktik destek kiti
     activate: (car) => {
-      spawnSelectedProjectile(car, car.selectedSupport || "mini_iha");
+      if (car.selectedSupport) {
+        spawnSelectedProjectile(car, car.selectedSupport);
+      }
     }
   }
 };
@@ -57,7 +61,8 @@ function createLocalPowerup(sp) {
     k.rotate(45),
     k.color(config.color),
     k.anchor("center"),
-    k.area(),
+    // Görsel boyutu 10x10 iken toplama alanını daha geniş (32x32) yaparak çarpışma hassasiyetini iyileştiriyoruz
+    k.area({ shape: new k.Rect(k.vec2(-16, -16), 32, 32) }),
     "powerup",
     { 
       type: sp.type,
@@ -124,16 +129,16 @@ function isInsideObstacle(px, py, mapData) {
 function createSinglePowerup() {
   const r = k.rand(0, 1);
   let chosenType = "TAMIR";
-  if (r < 0.20) {
-    chosenType = "TAMIR"; // %20 ihtimal
-  } else if (r < 0.35) {
-    chosenType = "NITRO"; // %15 ihtimal
-  } else if (r < 0.50) {
-    chosenType = "SARJ";  // %15 ihtimal
+  if (r < 0.35) {
+    chosenType = "TAMIR"; // %35 ihtimal
+  } else if (r < 0.60) {
+    chosenType = "NITRO"; // %25 ihtimal
   } else if (r < 0.80) {
-    chosenType = "AKILLI_MUHIMMAT"; // %30 ihtimal (Roket/Mühimmat)
+    chosenType = "SARJ";  // %20 ihtimal
+  } else if (r < 0.92) {
+    chosenType = "AKILLI_MUHIMMAT"; // %12 ihtimal (Roket/Mühimmat)
   } else {
-    chosenType = "TAKTIK_DESTEK";  // %20 ihtimal (İHA/Destek)
+    chosenType = "TAKTIK_DESTEK";  // %8 ihtimal (İHA/Destek)
   }
 
   // Aktif haritayı alarak engellerin içine doğmasını engelle
@@ -168,7 +173,7 @@ export function spawnPowerup() {
   if (k.isMultiplayer) {
     if (!isHost()) return;
     const existing = getState("powerups") || [];
-    if (existing.length >= 4) return;
+    if (existing.length >= 6) return;
 
     const count = (k.chance(0.4) && existing.length === 0) ? 2 : 1;
     for (let i = 0; i < count; i++) {
@@ -176,7 +181,7 @@ export function spawnPowerup() {
     }
   } else {
     const existing = k.get("powerup");
-    if (existing.length >= 4) return;
+    if (existing.length >= 6) return;
 
     const count = (k.chance(0.4) && existing.length === 0) ? 2 : 1;
     for (let i = 0; i < count; i++) {

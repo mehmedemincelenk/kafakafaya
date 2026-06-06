@@ -1,6 +1,10 @@
 import { PROJECTILES } from "../../config.js";
 
 export function drawHTMLProjectileDetails(parentEl, type, color, scale = 1) {
+  // Override color for realistic military/hypersonic paint scheme
+  const isGreen = type === "fettah" || type === "fettah_2" || type === "ebabil";
+  color = isGreen ? "#4a6e41" : "#d2d4dc";
+
   parentEl.innerHTML = "";
   parentEl.style.position = "relative";
   parentEl.style.display = "flex";
