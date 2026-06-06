@@ -271,5 +271,15 @@ export function initGameScene() {
       matchManager.update();
       suddenDeath.update(matchManager.roundTimeLeft);
     });
+
+    // Sahneden çıkarken HTML arayüz elemanlarını temizle (Memory Leak ve UI Hayaletleşme Engelleme)
+    k.onDestroy(() => {
+      const hudRoot = document.getElementById("gameplay-hud-root");
+      if (hudRoot) hudRoot.remove();
+      const pauseMenu = document.getElementById("pause-menu-root");
+      if (pauseMenu) pauseMenu.remove();
+      const gameOverMenu = document.getElementById("game-over-root");
+      if (gameOverMenu) gameOverMenu.remove();
+    });
   });
 }
