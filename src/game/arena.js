@@ -34,16 +34,38 @@ export function setupArena(mapData) {
 
   // Harita Engellerini (Obstacles) Ekle
   mapData.obstacles.forEach((obs, idx) => {
-    k.add([
+    const obstacle = k.add([
       k.rect(obs.w, obs.h, { radius: 4 }),
       k.pos(obs.x, obs.y),
-      k.color(obs.color[0], obs.color[1], obs.color[2]),
-      k.outline(2, k.rgb(obs.color[0] + 30, obs.color[1] + 30, obs.color[2] + 30)),
+      k.color(obs.color[0] * 0.7, obs.color[1] * 0.7, obs.color[2] * 0.7), // Daha mat/koyu ana gövde
+      k.outline(2.5, k.rgb(obs.color[0], obs.color[1], obs.color[2])), // Canlı neon dış sınır çizgisi
       k.anchor("center"),
       k.area(),
       "obstacle",
       { id: idx }
     ]);
+
+    // Neon Enerji Çekirdeği (İç parıltı katmanı)
+    if (obs.w > 16 && obs.h > 16) {
+      obstacle.add([
+        k.rect(obs.w - 10, obs.h - 10, { radius: 2 }),
+        k.pos(0, 0),
+        k.color(obs.color[0] * 0.2, obs.color[1] * 0.2, obs.color[2] * 0.2), // Derin karanlık iç alan
+        k.outline(1.5, k.rgb(obs.color[0] * 1.3, obs.color[1] * 1.3, obs.color[2] * 1.3)), // Parlak iç çizgi
+        k.anchor("center"),
+      ]);
+
+      // Çekirdek içi teknolojik vurgu çizgisi (Yatay şerit)
+      if (Math.min(obs.w, obs.h) > 24) {
+        obstacle.add([
+          k.rect(obs.w - 24, 2),
+          k.pos(0, 0),
+          k.color(obs.color[0], obs.color[1], obs.color[2]),
+          k.opacity(0.85),
+          k.anchor("center"),
+        ]);
+      }
+    }
   });
 
   // Engellerle Çarpışma Mekaniği (Sadece Host veya Yerel modda hız yansıması yapar)

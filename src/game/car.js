@@ -39,30 +39,93 @@ export function drawCarDetails(parent, type, color, skinId) {
     parent.color = bodyColor;
   }
 
-  // Tekerlekler
+  // 2. Wheels / Treads (Tekerlekler ve Paletler)
   const wOffset = wHalf - 8;
   const hOffset = hHalf - 1;
-  [[-wOffset, -hOffset], [wOffset, -hOffset], [-wOffset, hOffset], [wOffset, hOffset]].forEach(([x, y]) => {
-    parent.add([k.rect(12, 6), k.pos(x, y), k.color(30, 30, 32), k.anchor("center")]);
-  });
 
-  // Farlar
-  [[-hHalf + 5], [hHalf - 5]].forEach(([y]) => {
-    parent.add([k.rect(5, 8, { radius: 1 }), k.pos(wHalf, y), k.color(255, 255, 255), k.anchor("center")]);
-  });
+  if (carClass === "TANK") {
+    // Tanklar için devasa palet tasarımı
+    // Sol Palet
+    parent.add([k.rect(cfg.width - 4, 8, { radius: 2 }), k.pos(0, -hHalf - 1), k.color(30, 30, 32), k.anchor("center")]);
+    // Sağ Palet
+    parent.add([k.rect(cfg.width - 4, 8, { radius: 2 }), k.pos(0, hHalf + 1), k.color(30, 30, 32), k.anchor("center")]);
+    
+    // Palet içi dişli çarklar (3 adet sol, 3 adet sağ)
+    [-wOffset, 0, wOffset].forEach(x => {
+      parent.add([k.circle(2.5), k.pos(x, -hHalf - 1), k.color(55, 55, 60), k.anchor("center")]);
+      parent.add([k.circle(2.5), k.pos(x, hHalf + 1), k.color(55, 55, 60), k.anchor("center")]);
+    });
+  } else {
+    // Hızlı ve Güçlü sınıflar için tekerlekler ve jantlar
+    [[-wOffset, -hOffset], [wOffset, -hOffset], [-wOffset, hOffset], [wOffset, hOffset]].forEach(([x, y]) => {
+      // Tekerlek lastiği
+      parent.add([k.rect(13, 6, { radius: 1.5 }), k.pos(x, y), k.color(30, 30, 32), k.anchor("center")]);
+      // Jant detayı (Takım rengiyle uyumlu şerit)
+      parent.add([k.rect(7, 2, { radius: 0.5 }), k.pos(x, y), k.color(color.r * 0.8, color.g * 0.8, color.b * 0.8), k.anchor("center")]);
+    });
+  }
 
-  // Sınıf Bazlı Süslemeler
-  if (carClass === "GUCLU") {
-    parent.add([k.rect(4, cfg.height + 4), k.pos(wHalf + 2, 0), k.color(20, 20, 22), k.anchor("center")]);
-    parent.add([k.rect(8, 4), k.pos(wHalf, -hHalf + 4), k.color(color), k.anchor("center")]);
-    parent.add([k.rect(8, 4), k.pos(wHalf, hHalf - 4), k.color(color), k.anchor("center")]);
-  } else if (carClass === "TANK") {
-    parent.add([k.rect(cfg.width - 24, cfg.height - 12, { radius: 2 }), k.pos(-4, 0), k.color(20, 20, 22), k.anchor("center")]);
-    parent.add([k.rect(8, 4), k.pos(-wHalf - 3, -6), k.color(color), k.anchor("center")]);
-    parent.add([k.rect(8, 4), k.pos(-wHalf - 3, 6), k.color(color), k.anchor("center")]);
-  } else if (carClass === "HIPHIZLI") {
-    parent.add([k.rect(cfg.width - 12, 2), k.pos(0, -hHalf + 3), k.color(color), k.anchor("center")]);
-    parent.add([k.rect(cfg.width - 12, 2), k.pos(0, hHalf - 3), k.color(color), k.anchor("center")]);
+  // 3. Cyber Cockpit Glass & Reflection (Siber Kokpit Camı ve Yansıma)
+  const cabinWidth = cfg.width * 0.42;
+  const cabinHeight = cfg.height * 0.42;
+  parent.add([
+    k.rect(cabinWidth, cabinHeight, { radius: 1.5 }),
+    k.pos(-cfg.width * 0.05, 0),
+    k.color(20, 24, 30),
+    k.anchor("center")
+  ]);
+  // Kokpit içi cam yansıması (Parlak neon çizgi)
+  parent.add([
+    k.rect(cabinWidth * 0.4, 1.5),
+    k.pos(-cfg.width * 0.05, -cabinHeight * 0.2),
+    k.color(100, 220, 255),
+    k.rotate(-15),
+    k.anchor("center")
+  ]);
+
+  // 4. Neon Side Decals / LED Stripes (Neon Gövde Şeritleri)
+  parent.add([k.rect(cfg.width * 0.45, 1.5), k.pos(-cfg.width * 0.05, -hHalf + 4), k.color(color), k.anchor("center")]);
+  parent.add([k.rect(cfg.width * 0.45, 1.5), k.pos(-cfg.width * 0.05, hHalf - 4), k.color(color), k.anchor("center")]);
+
+  // 5. LED Headlights & Brake Lights (Farlar ve Stop Lambaları)
+  // Ön Farlar (Beyaz LED)
+  parent.add([k.rect(5, 2.5, { radius: 0.5 }), k.pos(wHalf - 1.5, -hHalf + 5), k.color(255, 255, 255), k.anchor("center")]);
+  parent.add([k.rect(5, 2.5, { radius: 0.5 }), k.pos(wHalf - 1.5, hHalf - 5), k.color(255, 255, 255), k.anchor("center")]);
+  // Arka Stoplar (Kırmızı LED)
+  parent.add([k.rect(1.5, 4), k.pos(-wHalf + 0.5, -hHalf + 6), k.color(255, 40, 40), k.anchor("center")]);
+  parent.add([k.rect(1.5, 4), k.pos(-wHalf + 0.5, hHalf - 6), k.color(255, 40, 40), k.anchor("center")]);
+
+  // 6. Class-Specific Detailed Trim Layout
+  if (carClass === "HIPHIZLI") {
+    // Rüzgarlık (Spoiler) Destekleri ve Kanadı
+    parent.add([k.rect(2, 6), k.pos(-wHalf + 5, -hHalf + 6), k.color(bodyColor.r * 0.7, bodyColor.g * 0.7, bodyColor.b * 0.7), k.anchor("center")]);
+    parent.add([k.rect(2, 6), k.pos(-wHalf + 5, hHalf - 6), k.color(bodyColor.r * 0.7, bodyColor.g * 0.7, bodyColor.b * 0.7), k.anchor("center")]);
+    parent.add([k.rect(3, cfg.height - 4, { radius: 1 }), k.pos(-wHalf + 3, 0), k.color(20, 22, 25), k.anchor("center")]);
+    // Ön splitter kanatları
+    parent.add([k.rect(4, 2), k.pos(wHalf - 1, -hHalf + 2), k.color(20, 22, 25), k.anchor("center")]);
+    parent.add([k.rect(4, 2), k.pos(wHalf - 1, hHalf - 2), k.color(20, 22, 25), k.anchor("center")]);
+  } 
+  else if (carClass === "GUCLU") {
+    // Çift Egzoz ve Isı Parlaması
+    parent.add([k.rect(4, 4), k.pos(-wHalf - 2, -hHalf + 8), k.color(40, 40, 45), k.anchor("center")]);
+    parent.add([k.circle(1.2), k.pos(-wHalf - 4, -hHalf + 8), k.color(255, 140, 0), k.anchor("center")]);
+    parent.add([k.rect(4, 4), k.pos(-wHalf - 2, hHalf - 8), k.color(40, 40, 45), k.anchor("center")]);
+    parent.add([k.circle(1.2), k.pos(-wHalf - 4, hHalf - 8), k.color(255, 140, 0), k.anchor("center")]);
+    // Ön Darbe Izgarası (Koçbaşı)
+    parent.add([k.rect(4, cfg.height - 6, { radius: 1 }), k.pos(wHalf + 1, 0), k.color(35, 35, 40), k.anchor("center")]);
+  } 
+  else if (carClass === "TANK") {
+    // Ağır Zırh Plakaları
+    parent.add([k.rect(cfg.width * 0.65, 3, { radius: 0.5 }), k.pos(-2, -hHalf + 5), k.color(bodyColor.r * 0.75, bodyColor.g * 0.75, bodyColor.b * 0.75), k.anchor("center")]);
+    parent.add([k.rect(cfg.width * 0.65, 3, { radius: 0.5 }), k.pos(-2, hHalf - 5), k.color(bodyColor.r * 0.75, bodyColor.g * 0.75, bodyColor.b * 0.75), k.anchor("center")]);
+    // Zırh Üzerindeki Perçinler (Rivetler)
+    [-wOffset + 12, 0, wOffset - 12].forEach(x => {
+      parent.add([k.circle(0.8), k.pos(x, -hHalf + 5), k.color(120, 122, 130), k.anchor("center")]);
+      parent.add([k.circle(0.8), k.pos(x, hHalf - 5), k.color(120, 122, 130), k.anchor("center")]);
+    });
+    // Merkez Kule / Sensör Kapağı
+    parent.add([k.circle(7), k.pos(-5, 0), k.color(30, 32, 36), k.anchor("center")]);
+    parent.add([k.circle(4), k.pos(-5, 0), k.color(color), k.anchor("center")]);
   }
 }
 
