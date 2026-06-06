@@ -65,29 +65,27 @@ export function drawCarDetails(parent, type, color, skinId) {
     });
   }
 
-  // 3. Cyber Cockpit Glass & Reflection (Siber Kokpit Camı ve Yansıma)
-  const cabinWidth = cfg.width * 0.42;
-  const cabinHeight = cfg.height * 0.42;
-  parent.add([
-    k.rect(cabinWidth, cabinHeight, { radius: 1.5 }),
-    k.pos(-cfg.width * 0.05, 0),
-    k.color(20, 24, 30),
-    k.anchor("center")
-  ]);
-  // Kokpit içi cam yansıması (Parlak neon çizgi)
-  parent.add([
-    k.rect(cabinWidth * 0.4, 1.5),
-    k.pos(-cfg.width * 0.05, -cabinHeight * 0.2),
-    k.color(100, 220, 255),
-    k.rotate(-15),
-    k.anchor("center")
-  ]);
+  // 3. Cyber Cockpit Glass & Reflection (Stealth Kapgan haricindekilere çizer)
+  if (type !== "KAPGAN") {
+    const cabinWidth = cfg.width * 0.42;
+    const cabinHeight = cfg.height * 0.42;
+    parent.add([
+      k.rect(cabinWidth, cabinHeight, { radius: 1.5 }),
+      k.pos(-cfg.width * 0.05, 0),
+      k.color(20, 24, 30),
+      k.anchor("center")
+    ]);
+    // Kokpit içi cam yansıması (Parlak neon çizgi)
+    parent.add([
+      k.rect(cabinWidth * 0.4, 1.5),
+      k.pos(-cfg.width * 0.05, -cabinHeight * 0.2),
+      k.color(100, 220, 255),
+      k.rotate(-15),
+      k.anchor("center")
+    ]);
+  }
 
-  // 4. Neon Side Decals / LED Stripes (Neon Gövde Şeritleri)
-  parent.add([k.rect(cfg.width * 0.45, 1.5), k.pos(-cfg.width * 0.05, -hHalf + 4), k.color(color), k.anchor("center")]);
-  parent.add([k.rect(cfg.width * 0.45, 1.5), k.pos(-cfg.width * 0.05, hHalf - 4), k.color(color), k.anchor("center")]);
-
-  // 5. LED Headlights & Brake Lights (Farlar ve Stop Lambaları)
+  // 4. LED Headlights & Brake Lights (Farlar ve Stop Lambaları)
   // Ön Farlar (Beyaz LED)
   parent.add([k.rect(5, 2.5, { radius: 0.5 }), k.pos(wHalf - 1.5, -hHalf + 5), k.color(255, 255, 255), k.anchor("center")]);
   parent.add([k.rect(5, 2.5, { radius: 0.5 }), k.pos(wHalf - 1.5, hHalf - 5), k.color(255, 255, 255), k.anchor("center")]);
@@ -95,37 +93,83 @@ export function drawCarDetails(parent, type, color, skinId) {
   parent.add([k.rect(1.5, 4), k.pos(-wHalf + 0.5, -hHalf + 6), k.color(255, 40, 40), k.anchor("center")]);
   parent.add([k.rect(1.5, 4), k.pos(-wHalf + 0.5, hHalf - 6), k.color(255, 40, 40), k.anchor("center")]);
 
-  // 6. Class-Specific Detailed Trim Layout
-  if (carClass === "HIPHIZLI") {
-    // Rüzgarlık (Spoiler) Destekleri ve Kanadı
-    parent.add([k.rect(2, 6), k.pos(-wHalf + 5, -hHalf + 6), k.color(bodyColor.r * 0.7, bodyColor.g * 0.7, bodyColor.b * 0.7), k.anchor("center")]);
-    parent.add([k.rect(2, 6), k.pos(-wHalf + 5, hHalf - 6), k.color(bodyColor.r * 0.7, bodyColor.g * 0.7, bodyColor.b * 0.7), k.anchor("center")]);
-    parent.add([k.rect(3, cfg.height - 4, { radius: 1 }), k.pos(-wHalf + 3, 0), k.color(20, 22, 25), k.anchor("center")]);
-    // Ön splitter kanatları
-    parent.add([k.rect(4, 2), k.pos(wHalf - 1, -hHalf + 2), k.color(20, 22, 25), k.anchor("center")]);
-    parent.add([k.rect(4, 2), k.pos(wHalf - 1, hHalf - 2), k.color(20, 22, 25), k.anchor("center")]);
+  // 5. Unique Vehicle Details based on exact identity / ability
+  if (type === "BARKAN") {
+    // BARKAN: Kinetik Tampon / Swift Attacker
+    // Front kinetics buffers
+    parent.add([k.rect(3, 4), k.pos(wHalf + 1, -hHalf + 7), k.color(color), k.anchor("center")]);
+    parent.add([k.rect(3, 4), k.pos(wHalf + 1, hHalf - 7), k.color(color), k.anchor("center")]);
+    // Lightning neon stripes on sides
+    parent.add([k.rect(cfg.width * 0.4, 1.5), k.pos(-2, -hHalf + 4), k.color(color), k.anchor("center")]);
+    parent.add([k.rect(cfg.width * 0.4, 1.5), k.pos(-2, hHalf - 4), k.color(color), k.anchor("center")]);
+    // Small rear fins
+    parent.add([k.rect(2, 6, { radius: 0.5 }), k.pos(-wHalf + 3, 0), k.color(20, 22, 25), k.anchor("center")]);
   } 
-  else if (carClass === "GUCLU") {
-    // Çift Egzoz ve Isı Parlaması
-    parent.add([k.rect(4, 4), k.pos(-wHalf - 2, -hHalf + 8), k.color(40, 40, 45), k.anchor("center")]);
-    parent.add([k.circle(1.2), k.pos(-wHalf - 4, -hHalf + 8), k.color(255, 140, 0), k.anchor("center")]);
-    parent.add([k.rect(4, 4), k.pos(-wHalf - 2, hHalf - 8), k.color(40, 40, 45), k.anchor("center")]);
-    parent.add([k.circle(1.2), k.pos(-wHalf - 4, hHalf - 8), k.color(255, 140, 0), k.anchor("center")]);
-    // Ön Darbe Izgarası (Koçbaşı)
-    parent.add([k.rect(4, cfg.height - 6, { radius: 1 }), k.pos(wHalf + 1, 0), k.color(35, 35, 40), k.anchor("center")]);
+  else if (type === "ASLAN") {
+    // ASLAN: GNSS Jammer / Electronic Warfare Antenna
+    // Center Radar Dish
+    parent.add([k.circle(6), k.pos(-wHalf * 0.2, 0), k.color(30, 35, 45), k.anchor("center")]);
+    // Radar grid line
+    parent.add([k.rect(12, 1.5), k.pos(-wHalf * 0.2, 0), k.color(color), k.rotate(45), k.anchor("center")]);
+    // Side emission pods
+    parent.add([k.rect(4, 3), k.pos(-wHalf * 0.5, -hHalf + 4), k.color(color), k.anchor("center")]);
+    parent.add([k.rect(4, 3), k.pos(-wHalf * 0.5, hHalf - 4), k.color(color), k.anchor("center")]);
   } 
-  else if (carClass === "TANK") {
-    // Ağır Zırh Plakaları
-    parent.add([k.rect(cfg.width * 0.65, 3, { radius: 0.5 }), k.pos(-2, -hHalf + 5), k.color(bodyColor.r * 0.75, bodyColor.g * 0.75, bodyColor.b * 0.75), k.anchor("center")]);
-    parent.add([k.rect(cfg.width * 0.65, 3, { radius: 0.5 }), k.pos(-2, hHalf - 5), k.color(bodyColor.r * 0.75, bodyColor.g * 0.75, bodyColor.b * 0.75), k.anchor("center")]);
-    // Zırh Üzerindeki Perçinler (Rivetler)
-    [-wOffset + 12, 0, wOffset - 12].forEach(x => {
-      parent.add([k.circle(0.8), k.pos(x, -hHalf + 5), k.color(120, 122, 130), k.anchor("center")]);
-      parent.add([k.circle(0.8), k.pos(x, hHalf - 5), k.color(120, 122, 130), k.anchor("center")]);
-    });
-    // Merkez Kule / Sensör Kapağı
-    parent.add([k.circle(7), k.pos(-5, 0), k.color(30, 32, 36), k.anchor("center")]);
-    parent.add([k.circle(4), k.pos(-5, 0), k.color(color), k.anchor("center")]);
+  else if (type === "KAPGAN") {
+    // KAPGAN: Hayalet Taarruz / Stealth Interceptor
+    // Triangle cockpit visor (stealth cabin)
+    parent.add([k.polygon([k.vec2(-8, -5), k.vec2(8, 0), k.vec2(-8, 5)]), k.pos(0, 0), k.color(15, 15, 20), k.anchor("center")]);
+    // Swept-back stealth fins
+    parent.add([k.rect(3, 10), k.pos(-wHalf + 6, -hHalf + 5), k.color(15, 15, 20), k.rotate(-35), k.anchor("center")]);
+    parent.add([k.rect(3, 10), k.pos(-wHalf + 6, hHalf - 5), k.color(15, 15, 20), k.rotate(35), k.anchor("center")]);
+    // Dark violet neon highlights
+    const glowColor = k.rgb(160, 32, 240); // Violet neon
+    parent.add([k.rect(10, 1.5), k.pos(wHalf - 12, -hHalf + 6), k.color(glowColor), k.anchor("center")]);
+    parent.add([k.rect(10, 1.5), k.pos(wHalf - 12, hHalf - 6), k.color(glowColor), k.anchor("center")]);
+  } 
+  else if (type === "BARKAN_2") {
+    // BARKAN_2: Swarm Mark / Advanced Strike Platform
+    // Laser targeting scope on top (Red dot optics)
+    parent.add([k.rect(10, 5, { radius: 1 }), k.pos(-wHalf * 0.3, -4), k.color(30, 30, 35), k.anchor("center")]);
+    parent.add([k.circle(1.5), k.pos(-wHalf * 0.3 + 5, -4), k.color(255, 0, 0), k.anchor("center")]); // Red laser lens
+    // Double booster nozzles on back
+    parent.add([k.rect(4, 5), k.pos(-wHalf - 2, -5), k.color(25, 25, 30), k.anchor("center")]);
+    parent.add([k.rect(4, 5), k.pos(-wHalf - 2, 5), k.color(25, 25, 30), k.anchor("center")]);
+    parent.add([k.circle(1.2), k.pos(-wHalf - 4, -5), k.color(255, 120, 0), k.anchor("center")]);
+    parent.add([k.circle(1.2), k.pos(-wHalf - 4, 5), k.color(255, 120, 0), k.anchor("center")]);
+  } 
+  else if (type === "TUNGA") {
+    // TUNGA: Sarp Dual Ram / Heavy Impact Rammer
+    // Heavy ramming horns (pointed teeth)
+    parent.add([k.polygon([k.vec2(0, -4), k.vec2(10, 0), k.vec2(0, 4)]), k.pos(wHalf, -7), k.color(50, 52, 58), k.anchor("center")]);
+    parent.add([k.polygon([k.vec2(0, -4), k.vec2(10, 0), k.vec2(0, 4)]), k.pos(wHalf, 7), k.color(50, 52, 58), k.anchor("center")]);
+    // Reinforced steel nose bar
+    parent.add([k.rect(4, cfg.height - 8), k.pos(wHalf - 2, 0), k.color(30, 30, 35), k.anchor("center")]);
+    // Heavy mudguards
+    parent.add([k.rect(15, 3), k.pos(-wOffset, -hHalf - 1.5), k.color(50, 52, 58), k.anchor("center")]);
+    parent.add([k.rect(15, 3), k.pos(-wOffset, hHalf + 1.5), k.color(50, 52, 58), k.anchor("center")]);
+  } 
+  else if (type === "GOLGE_SUVARI") {
+    // GOLGE_SUVARI: Active Suspension / Advanced Siege Tank
+    // Large heavy turret dome
+    parent.add([k.circle(9), k.pos(-wHalf * 0.2, 0), k.color(30, 32, 36), k.anchor("center")]);
+    // Turret hatch/control point
+    parent.add([k.circle(5), k.pos(-wHalf * 0.2, 0), k.color(color), k.anchor("center")]);
+    // Long front-mounted projectile launcher barrel (Namlu)
+    parent.add([k.rect(14, 4), k.pos(-wHalf * 0.2 + 10, 0), k.color(30, 32, 36), k.anchor("center")]);
+    // Front mine sweeper shield
+    parent.add([k.rect(4, cfg.height - 12, { radius: 1 }), k.pos(wHalf + 2, 0), k.color(45, 45, 50), k.anchor("center")]);
+  } 
+  else if (type === "ALPAR") {
+    // ALPAR: Tactical Repair / Reactive Armor Fortress
+    // Reactive armor plates (grid layout)
+    for (let x = -wHalf + 14; x < wHalf - 10; x += 14) {
+      parent.add([k.rect(10, 3, { radius: 0.5 }), k.pos(x, -hHalf + 5), k.color(bodyColor.r * 0.8, bodyColor.g * 0.8, bodyColor.b * 0.8), k.anchor("center")]);
+      parent.add([k.rect(10, 3, { radius: 0.5 }), k.pos(x, hHalf - 5), k.color(bodyColor.r * 0.8, bodyColor.g * 0.8, bodyColor.b * 0.8), k.anchor("center")]);
+    }
+    // Green emergency/repair flashing LED beacons
+    parent.add([k.circle(2), k.pos(-wHalf * 0.4, -4), k.color(100, 255, 100), k.anchor("center")]);
+    parent.add([k.circle(2), k.pos(-wHalf * 0.4, 4), k.color(100, 255, 100), k.anchor("center")]);
   }
 }
 
