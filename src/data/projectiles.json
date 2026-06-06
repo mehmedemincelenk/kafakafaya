@@ -370,7 +370,7 @@
         "homing": true,
         "turn_speed": 70,
         "health": 2,
-        "behavior_description": "Aero-balistik manevra kabiliyetine sahip ikinci nesil hipersonik füzedir. Durdurulamaz hızda devasa hasar verir."
+        "behavior_description": "Aero-balistik manevra kabiliyetine sahip second nesil hipersonik füzedir. Durdurulamaz hızda devasa hasar verir."
       }
     },
     {

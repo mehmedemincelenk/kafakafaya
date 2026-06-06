@@ -47,7 +47,7 @@ export const CAR_TYPES = {
     color: [90, 94, 98], // Dark Slate Grey
     maxSpeed: 310, reverseSpeed: -260, acceleration: 140, deceleration: 160, turnSpeed: 230, maxHp: 120, mass: 1.3,
     class: "GUCLU",
-    skillId: "swarm_mark", // ZIRH KIRICI
+    skillId: "swarm_mark", // SÜRÜ HEDEFLEME
     manufacturer: "HAVELSAN"
   },
   TUNGA: {

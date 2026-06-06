@@ -206,7 +206,7 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
   const HEALTH_BAR_OFFSET_X = -20;
   
   const resolvedClass = config.class || "DENGELI";
-  const resolvedSkillId = skillId || config.skillId || "default";
+  const resolvedSkillId = (!skillId || skillId === "default") ? (config.skillId || "default") : skillId;
   
   const skillGroup = SKILLS[resolvedClass];
   const skillInfo = (skillGroup && skillGroup[resolvedSkillId]) || (skillGroup && skillGroup.default);

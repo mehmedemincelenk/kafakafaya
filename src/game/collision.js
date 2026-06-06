@@ -159,7 +159,7 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
     } else if (attackerHitsWithBumper && !isTeammate) {
       let hitDamage = damage;
 
-      // BARKAN 2 Sürü Saldırısı (Zırh Kırıcı) yeteneği aktifse hasarı %30 artır
+      // BARKAN 2 Sürü Hedefleme yeteneği aktifse hasarı %30 artır
       if (attacker.skillActive && attacker.skillId === "swarm_mark") {
         hitDamage = Math.floor(hitDamage * 1.30);
       }

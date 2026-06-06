@@ -148,7 +148,7 @@ export const SKILLS = {
   GUCLU: {
     // --- BARKAN 2 YAYGIN YETENEĞİ ---
     swarm_mark: {
-      name: "ZIRH KIRICI",
+      name: "SÜRÜ HEDEFLEME",
       icon: "💥",
       cooldown: 8,
       duration: 3.0,
