@@ -140,19 +140,19 @@ export const SKILLS = {
       icon: "👻",
       cooldown: 8,
       duration: 2.2,
-      desc: "Görünmez/saydam moda geçip hızlanır. Rakibin içinden geçebilir; temas ederse 30 hasar verir ve 20 HP can çalar.",
+      desc: "Görünmez/saydam moda geçip hızlanır. Rakibin içinden geçebilir; temas ederse 35 hasar verir ve rakibi 1.5 saniyeliğine %40 yavaşlatır.",
       activate: (car) => {
         car.isGhost = true;
         car.opacity = 0.35;
         car.speed = car.maxSpeed * 1.35;
         
-        let hasStolen = false;
+        let hasHit = false;
         car.ghostUpdate = car.onUpdate(() => {
           const target = k.get("player").find(p => p.carTag !== car.carTag);
-          if (target && target.exists() && car.pos.dist(target.pos) < 45 && !hasStolen) {
-            hasStolen = true;
-            inflictDamage(target, 30);
-            car.hp = Math.min(car.maxHp, car.hp + 20);
+          if (target && target.exists() && car.pos.dist(target.pos) < 45 && !hasHit) {
+            hasHit = true;
+            inflictDamage(target, 35);
+            target.slowTimer = 1.5; // slows opponent
             spawnExplosion(car.pos, 25, k.rgb(120, 100, 255));
           }
         });
