@@ -19,7 +19,10 @@ export function initMultiplayerListeners() {
       playroomPlayers.sort((a, b) => a.id.localeCompare(b.id));
     }
     player.onQuit(() => {
-      playroomPlayers = playroomPlayers.filter(p => p.id !== player.id);
+      const idx = playroomPlayers.findIndex(p => p.id === player.id);
+      if (idx !== -1) {
+        playroomPlayers.splice(idx, 1);
+      }
       playroomPlayers.sort((a, b) => a.id.localeCompare(b.id));
     });
   });

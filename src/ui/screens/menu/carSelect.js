@@ -443,7 +443,7 @@ export function renderCarGridPanel() {
     // Determine selection status
     const p1Obj = this.state.players[0];
     let p1Weapon, p1Support;
-    if (k.isMultiplayer && p1Obj.playroomPlayer) {
+    if (k.isMultiplayer && p1Obj && p1Obj.playroomPlayer) {
       p1Weapon = p1Obj.playroomPlayer.getState("selectedWeapon") || "mizrak";
       p1Support = p1Obj.playroomPlayer.getState("selectedSupport") || "mini_iha";
     } else {
@@ -473,8 +473,8 @@ export function renderCarGridPanel() {
       isLocked,
       isSelectedByP1,
       isSelectedByP2,
-      p1Color: p1Obj.color,
-      p2Color: p2Obj ? p2Obj.color : "#ff3c3c",
+      p1Color: p1Obj ? p1Obj.color : "#ffb800",
+      p2Color: p2Obj ? p2Obj.color : "#00e676",
       onClick: () => {
         if (k.isMultiplayer) {
           const meObj = this.state.players.find(p => p.id === myPlayer().id);
@@ -683,8 +683,8 @@ export function checkStartCarLocal() {
     this.state.hostCarTransitioning = true;
     setTimeout(() => {
       const options = Object.keys(CAR_TYPES);
-      const p1Type = options[this.state.players[0].idx];
-      const p2Type = this.state.p2Joined ? options[this.state.players[1].idx] : options[Math.floor(k.rand(0, options.length))];
+      const p1Type = this.state.players[0] ? options[this.state.players[0].idx] : "BARKAN";
+      const p2Type = (this.state.p2Joined && this.state.players[1]) ? options[this.state.players[1].idx] : options[Math.floor(k.rand(0, options.length))];
 
       // Dismount UI Overlay before switching scene
       this.dismount();

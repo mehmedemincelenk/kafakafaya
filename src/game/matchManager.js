@@ -5,6 +5,7 @@ import { playroomPlayers } from "../multiplayer.js";
 import { spawnExplosion } from "../utils.js";
 import { syncPowerups } from "./powerup.js";
 import { showGameOverMenu } from "./gameOver.js";
+import { MAPS } from "../maps.js";
 import "../ui/styles/hud.css";
 
 export class MatchManager {
@@ -544,6 +545,8 @@ export class MatchManager {
               setState("roundOver", false);
               setState("roundWinner", null);
               setState("isGamePaused", false);
+              const randomMap = k.choose(MAPS);
+              setState("gameMap", randomMap.name);
               setState("gameReloadTrigger", (getState("gameReloadTrigger") || 0) + 1);
             }
           },

@@ -35,8 +35,13 @@ export function confirmCustomHostChoice(idx) {
   this.triggerCooldown();
 
   if (idx === 0) {
-    this.state.selectedCustomHostIdx = 1;
-    this.updateView();
+    const val = (this.state.customHostCode || "").trim();
+    if (val) {
+      this.connectPlayroom(val);
+    } else {
+      this.state.selectedCustomHostIdx = 1;
+      this.updateView();
+    }
   } else if (idx === 1) {
     const val = (this.state.customHostCode || "").trim();
     if (val) {
@@ -57,8 +62,13 @@ export function confirmJoinChoice(idx) {
   this.triggerCooldown();
 
   if (idx === 0) {
-    this.state.selectedJoinIdx = 1;
-    this.updateView();
+    const val = (this.state.joinRoomCode || "").trim();
+    if (val) {
+      this.connectPlayroom(val);
+    } else {
+      this.state.selectedJoinIdx = 1;
+      this.updateView();
+    }
   } else if (idx === 1) {
     const val = (this.state.joinRoomCode || "").trim();
     if (val) {

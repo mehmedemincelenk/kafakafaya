@@ -273,6 +273,19 @@ export function initGameScene() {
     k.onUpdate(() => {
       matchManager.update();
       if (matchManager.sceneTransitioned) return;
+
+      if (k.isMultiplayer && playroomPlayers.length < 2 && !k.gameOver) {
+        k.gameOver = true;
+        matchManager.sceneTransitioned = true;
+        matchManager.showAnnouncement("RAKİP AYRILDI", "BAĞLANTI KOPACAK • MENÜYE DÖNÜLÜYOR...", "draw-match");
+        k.wait(3.0, () => {
+          matchManager.clearAnnouncement();
+          if (pauseMenu) pauseMenu.cancel();
+          k.go("menu");
+        });
+        return;
+      }
+
       suddenDeath.update(matchManager.roundTimeLeft);
     });
 

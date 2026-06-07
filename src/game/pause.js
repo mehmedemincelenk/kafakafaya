@@ -1,6 +1,7 @@
 import { k } from "../kaplay.js";
 import { isHost, getState, setState } from "playroomkit";
 import { playroomPlayers } from "../multiplayer.js";
+import { MAPS } from "../maps.js";
 
 export function setupPauseMenu(opts) {
   const { p1Type, p2Type, gameMode, p2Joined } = opts;
@@ -60,22 +61,30 @@ export function setupPauseMenu(opts) {
     const optionsContainer = document.createElement("div");
     optionsContainer.className = "menu-nav-list";
 
+    const isMp = k.isMultiplayer;
+    const isHostUser = isMp ? isHost() : true;
+
     if (view === "main") {
       pauseOptions.forEach((opt, idx) => {
         const btn = document.createElement("button");
         btn.className = `menu-nav-item ${idx === pauseSelectionIdx ? "active" : ""}`;
         btn.innerText = opt;
 
+        if (isMp && !isHostUser) {
+          btn.classList.add("disabled");
+          btn.disabled = true;
+        }
+
         // Hover
         btn.addEventListener("mouseenter", () => {
-          if (k.isMultiplayer && !isHost()) return;
+          if (isMp && !isHostUser) return;
           pauseSelectionIdx = idx;
           updatePauseMenuVisuals();
         });
 
         // Click
         btn.addEventListener("click", () => {
-          if (k.isMultiplayer && !isHost()) return;
+          if (isMp && !isHostUser) return;
           triggerChoice(opt);
         });
 
@@ -98,16 +107,21 @@ export function setupPauseMenu(opts) {
         btn.className = `menu-nav-item ${idx === settingsSelectionIdx ? "active" : ""}`;
         btn.innerText = opt;
 
+        if (isMp && !isHostUser) {
+          btn.classList.add("disabled");
+          btn.disabled = true;
+        }
+
         // Hover
         btn.addEventListener("mouseenter", () => {
-          if (k.isMultiplayer && !isHost()) return;
+          if (isMp && !isHostUser) return;
           settingsSelectionIdx = idx;
           updatePauseMenuVisuals();
         });
 
         // Click
         btn.addEventListener("click", () => {
-          if (k.isMultiplayer && !isHost()) return;
+          if (isMp && !isHostUser) return;
           triggerSettingsChoice(idx);
         });
 
@@ -125,7 +139,12 @@ export function setupPauseMenu(opts) {
     help.style.left = "10%";
     help.style.letterSpacing = "2px";
     help.style.fontSize = "11px";
-    help.innerText = "SEÇİM: W-S / YÖN TUŞLARI • ONAY: ENTER / SPACE";
+    if (isMp && !isHostUser) {
+      help.innerText = "KURUCUNUN SEÇİM YAPMASI BEKLENİYOR...";
+      help.style.color = "var(--active-gold)";
+    } else {
+      help.innerText = "SEÇİM: W-S / YÖN TUŞLARI • ONAY: ENTER / SPACE";
+    }
     overlay.appendChild(help);
 
     updatePauseMenuVisuals();
@@ -173,6 +192,8 @@ export function setupPauseMenu(opts) {
         setState("roundOver", false);
         setState("roundWinner", null);
         setState("isGamePaused", false);
+        const randomMap = k.choose(MAPS);
+        setState("gameMap", randomMap.name);
         setState("gameReloadTrigger", (getState("gameReloadTrigger") || 0) + 1);
       } else {
         k.isGamePaused = false;

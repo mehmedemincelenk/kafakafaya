@@ -5,6 +5,7 @@ import { playroomPlayers, isConnected, initMultiplayerListeners } from "../../mu
 import { insertCoin, myPlayer, isHost, setState, getState, getRoomCode } from "playroomkit";
 import { spawnExplosion, getTurkishGuestName } from "../../utils.js";
 import { SKILLS } from "../../skill.js";
+import { MAPS } from "../../maps.js";
 import {
   createNavButton,
   createPlayerSelectorPanel,
@@ -1188,12 +1189,27 @@ class HTMLMenuManager {
           }
         });
 
+        if (this.state.players.length > playroomPlayers.length) {
+          this.state.players = this.state.players.slice(0, playroomPlayers.length);
+          changed = true;
+        }
+
         if (changed) this.updateView();
 
         if (isHost()) {
-          const allReady = playroomPlayers.every(p => p.getState("ready"));
+          const allReady = playroomPlayers.length >= 2 && playroomPlayers.every(p => p.getState("ready"));
           if (allReady && getState("gameState") !== "playing" && !this.state.hostCarTransitioning) {
             this.state.hostCarTransitioning = true;
+            
+            // Choose the map before transitioning to playing state to avoid race condition!
+            const randomMap = k.choose(MAPS);
+            setState("gameMap", randomMap.name);
+            setState("blueScore", 0);
+            setState("redScore", 0);
+            setState("roundOver", false);
+            setState("roundWinner", null);
+            setState("isGamePaused", false);
+
             setTimeout(() => {
               setState("gameState", "playing");
             }, 600);
