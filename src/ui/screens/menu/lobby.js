@@ -348,10 +348,14 @@ export function renderMultiplayerJoin() {
   input.value = this.state.joinRoomCode || "";
   input.addEventListener("input", (e) => {
     let val = e.target.value.toUpperCase();
-    if (val.includes("#R=")) {
-      const parts = val.split("#R=");
-      if (parts.length > 1) {
-        val = parts[1].split("&")[0];
+    const urlMatch = val.match(/[#?&]R=([^&]+)/);
+    if (urlMatch) {
+      val = urlMatch[1];
+    } else if (val.startsWith("HTTP://") || val.startsWith("HTTPS://")) {
+      const parts = val.split("/");
+      const last = parts[parts.length - 1].trim();
+      if (last) {
+        val = last;
       }
     }
     this.state.joinRoomCode = val;

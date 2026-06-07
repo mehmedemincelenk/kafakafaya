@@ -34,7 +34,9 @@ export function setupPlayersState() {
         color: playerColor,
         idx: p.getState("carTypeIdx") !== undefined ? p.getState("carTypeIdx") : (p.id === myPlayer().id ? (defaultCarIdx !== -1 ? defaultCarIdx : 0) : 0),
         ready: p.getState("ready") || false,
-        focusRow: p.getState("focusRow") || "vehicle"
+        focusRow: p.getState("focusRow") || "vehicle",
+        selectedWeapon: p.getState("selectedWeapon") || "mizrak",
+        selectedSupport: p.getState("selectedSupport") || "mini_iha"
       };
     });
   } else {

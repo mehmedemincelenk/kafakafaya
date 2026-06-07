@@ -95,7 +95,8 @@ class HTMLMenuManager {
       this.setupPlayersState();
     }
 
-    if (this.state.menuState === "PLAY_TYPE_SELECT" && window.location.hash && window.location.hash.includes("r=")) {
+    const hasRoomCode = /[#?&]r=/i.test(window.location.hash || "") || /[?&]r=/i.test(window.location.search || "");
+    if (this.state.menuState === "PLAY_TYPE_SELECT" && hasRoomCode) {
       this.state.selectedPlayTypeIdx = 2;
       setTimeout(() => {
         this.confirmPlayType(2);
@@ -743,10 +744,15 @@ class HTMLMenuManager {
           };
 
           let resolvedCode = roomCode;
-          if (!resolvedCode && window.location.hash && window.location.hash.includes("r=")) {
-            const hashParts = window.location.hash.split("r=");
-            if (hashParts.length > 1) {
-              resolvedCode = hashParts[1].split("&")[0];
+          if (!resolvedCode) {
+            const hashMatch = (window.location.hash || "").match(/[#?&]r=([^&]+)/i);
+            if (hashMatch) {
+              resolvedCode = hashMatch[1];
+            } else {
+              const searchMatch = (window.location.search || "").match(/[?&]r=([^&]+)/i);
+              if (searchMatch) {
+                resolvedCode = searchMatch[1];
+              }
             }
           }
 
@@ -1154,6 +1160,8 @@ class HTMLMenuManager {
           const syncedIdx = pObj.playroomPlayer.getState("carTypeIdx") || 0;
           const syncedReady = pObj.playroomPlayer.getState("ready") || false;
           const syncedFocus = pObj.playroomPlayer.getState("focusRow") || "vehicle";
+          const syncedWeapon = pObj.playroomPlayer.getState("selectedWeapon") || "mizrak";
+          const syncedSupport = pObj.playroomPlayer.getState("selectedSupport") || "mini_iha";
 
           const pUsername = pObj.playroomPlayer.getState("username");
           let displayName = pObj.name;
@@ -1162,11 +1170,20 @@ class HTMLMenuManager {
             displayName = isGuest ? getTurkishGuestName(pUsername) : pUsername.toUpperCase();
           }
 
-          if (pObj.idx !== syncedIdx || pObj.ready !== syncedReady || pObj.focusRow !== syncedFocus || pObj.name !== displayName) {
+          if (
+            pObj.idx !== syncedIdx ||
+            pObj.ready !== syncedReady ||
+            pObj.focusRow !== syncedFocus ||
+            pObj.name !== displayName ||
+            pObj.selectedWeapon !== syncedWeapon ||
+            pObj.selectedSupport !== syncedSupport
+          ) {
             pObj.idx = syncedIdx;
             pObj.ready = syncedReady;
             pObj.focusRow = syncedFocus;
             pObj.name = displayName;
+            pObj.selectedWeapon = syncedWeapon;
+            pObj.selectedSupport = syncedSupport;
             changed = true;
           }
         });
