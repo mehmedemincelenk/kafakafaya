@@ -12,10 +12,10 @@ import { spawnPortalPair, setupPortalCooldownUpdater } from "../game/portal.js";
 import { store } from "../store.js";
 import { CAR_TYPES } from "../config.js";
 import { setupBotAI } from "../game/bot.js";
-import { setupSuddenDeath } from "../game/suddenDeath.js";
-import { MatchManager } from "../game/matchManager.js";
+import { setupSuddenDeath } from "../game/suddendeath.js";
+import { MatchManager } from "../game/matchmanager.js";
 import { getTurkishGuestName } from "../utils.js";
-import { cleanupGameOverMenu } from "../game/gameOver.js";
+import { cleanupGameOverMenu } from "../game/gameover.js";
 
 export function initGameScene() {
   k.scene("game", (localParams) => {

@@ -4,7 +4,7 @@ import { store } from "../store.js";
 import { playroomPlayers } from "../multiplayer.js";
 import { spawnExplosion } from "../utils.js";
 import { syncPowerups } from "./powerup.js";
-import { showGameOverMenu } from "./gameOver.js";
+import { showGameOverMenu } from "./gameover.js";
 import { MAPS } from "../maps.js";
 import "../ui/styles/hud.css";
 

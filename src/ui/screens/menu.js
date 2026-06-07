@@ -654,25 +654,7 @@ class HTMLMenuManager {
     this.helpText.innerText = "";
   }
 
-  updateAuthFocus() {
-    updateAuthFocus.call(this);
-  }
 
-  renderAuth() {
-    renderAuth.call(this);
-  }
-
-  confirmAuthChoice(choice) {
-    return confirmAuthChoice.call(this, choice);
-  }
-
-  renderSettings() {
-    renderSettings.call(this);
-  }
-
-  confirmSettingChoice(choice) {
-    confirmSettingChoice.call(this, choice);
-  }
 
   async confirmPlayType(choice) {
     this.triggerCooldown();
@@ -818,77 +800,7 @@ class HTMLMenuManager {
     }
   }
 
-  confirmLobbyChoice(idx) {
-    confirmLobbyChoice.call(this, idx);
-  }
 
-  confirmCustomHostChoice(idx) {
-    confirmCustomHostChoice.call(this, idx);
-  }
-
-  confirmJoinChoice(idx) {
-    confirmJoinChoice.call(this, idx);
-  }
-
-  renderMultiplayerLobbySelect() {
-    renderMultiplayerLobbySelect.call(this);
-  }
-
-  renderMultiplayerCustomHost() {
-    renderMultiplayerCustomHost.call(this);
-  }
-
-  renderMultiplayerJoin() {
-    renderMultiplayerJoin.call(this);
-  }
-
-  renderSuggestVehicle() {
-    renderSuggestVehicle.call(this);
-  }
-
-  updateSuggestFocus() {
-    updateSuggestFocus.call(this);
-  }
-
-  confirmSuggestChoice(choice) {
-    return confirmSuggestChoice.call(this, choice);
-  }
-
-  setupPlayersState() {
-    setupPlayersState.call(this);
-  }
-
-  renderCarSelect() {
-    renderCarSelect.call(this);
-  }
-
-  renderCarPreviewPanel(pObj) {
-    return renderCarPreviewPanel.call(this, pObj);
-  }
-
-  renderCarGridPanel() {
-    return renderCarGridPanel.call(this);
-  }
-
-  handleCycle(pObj, dir) {
-    handleCycle.call(this, pObj, dir);
-  }
-
-  cycleWeapon(pObj, dir) {
-    cycleWeapon.call(this, pObj, dir);
-  }
-
-  handleConfirm(pObj) {
-    handleConfirm.call(this, pObj);
-  }
-
-  triggerP2Join() {
-    triggerP2Join.call(this);
-  }
-
-  checkStartCarLocal() {
-    checkStartCarLocal.call(this);
-  }
 
   // --- KEYBOARD & CONTROLS BINDING ---
 
@@ -1049,5 +961,31 @@ class HTMLMenuManager {
     }, 100);
   }
 }
+
+Object.assign(HTMLMenuManager.prototype, {
+  renderAuth,
+  confirmAuthChoice,
+  updateAuthFocus,
+  renderSettings,
+  confirmSettingChoice,
+  renderMultiplayerLobbySelect,
+  renderMultiplayerCustomHost,
+  renderMultiplayerJoin,
+  confirmLobbyChoice,
+  confirmCustomHostChoice,
+  confirmJoinChoice,
+  renderSuggestVehicle,
+  updateSuggestFocus,
+  confirmSuggestChoice,
+  setupPlayersState,
+  renderCarSelect,
+  renderCarPreviewPanel,
+  renderCarGridPanel,
+  handleCycle,
+  cycleWeapon,
+  handleConfirm,
+  triggerP2Join,
+  checkStartCarLocal
+});
 
 export const menuOverlay = new HTMLMenuManager();
