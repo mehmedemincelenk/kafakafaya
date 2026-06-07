@@ -176,6 +176,23 @@ class HTMLMenuManager {
     const header = document.createElement("div");
     header.className = "menu-header";
 
+    // Eğer iframe içindeysek (başka platformlar, itch.io vb.) ana siteye yönlendiren şık bir neon banner ekleyelim
+    if (window.self !== window.top) {
+      const banner = document.createElement("div");
+      banner.className = "platform-banner";
+      banner.style.fontSize = "11px";
+      banner.style.letterSpacing = "1.5px";
+      banner.style.color = "rgba(0, 240, 255, 0.85)";
+      banner.style.textShadow = "0 0 8px rgba(0, 240, 255, 0.4)";
+      banner.style.marginBottom = "8px";
+      banner.style.cursor = "pointer";
+      banner.innerHTML = "⚡ DAHA İYİ PERFORMANS VE KAYITLAR İÇİN <b>OYUNLARIMIZ.COM</b> ADRESİNDEN OYNAYIN! ➔";
+      banner.onclick = () => {
+        window.open("https://oyunlarimiz.com", "_blank");
+      };
+      header.appendChild(banner);
+    }
+
     const title = document.createElement("h1");
     title.className = "menu-title";
     title.innerText = "Kafa Kafaya";

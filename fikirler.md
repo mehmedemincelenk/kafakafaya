@@ -11,3 +11,5 @@ MOD
 - futbol kalesi gibi kale olur karsıyı oraya atabilirsen direkt kazanırsın ki zaten herkes oradan gelir geldigi yere yollarsın (ama bu pis bi rekabet ortamı sanki)
 
 
+OYUNCU KAZANIMI
+- baska platformda ise "kendi sitemizden oyna devam etmek için" yazısı olabilir.
