@@ -37,3 +37,22 @@ export function inflictDamage(victim, damage) {
     }
   });
 }
+
+// Generate a deterministic Turkish guest name based on device/guest UUID
+export function getTurkishGuestName(username) {
+  const turkishNames = [
+    "BOZKURT", "ALPARSLAN", "YENİÇERİ", "KARTAL", "YAVUZ", "GÖKTÜRK", 
+    "TARKAN", "FATİH", "ATAMAN", "BÖRTEÇİNE", "BARBAROS", "BATUR", 
+    "CENGAVER", "YİĞİT", "HAKAN", "EFELER", "DELİLER", "SANCAR", 
+    "ALTAY", "GÖKMEN", "TAYFUN", "RÜZGAR", "ŞAHİN", "ATMACA", 
+    "AKINCI", "POYRAZ", "BORAN", "TUGAY"
+  ];
+  if (!username) return "MİSAFİR";
+  let hash = 0;
+  for (let i = 0; i < username.length; i++) {
+    hash = username.charCodeAt(i) + ((hash << 5) - hash);
+  }
+  const index = Math.abs(hash) % turkishNames.length;
+  const suffix = Math.abs(hash) % 100;
+  return `${turkishNames[index]}${suffix}`;
+}

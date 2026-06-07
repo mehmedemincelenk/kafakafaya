@@ -10,22 +10,14 @@ export function setupSuddenDeath(cars, checkGameOver) {
   const safeZoneBorder = k.add([
     k.rect(k.width() - 48, k.height() - 48, { radius: 10, fill: false }),
     k.pos(24, 24),
-    k.outline(2, k.rgb(0, 240, 255)), // Starts safe/blue
+    k.outline(2, k.rgb(255, 184, 0)), // Starts safe/gold (branding brand alignment)
     k.z(-8),
   ]);
   safeZoneBorder.hidden = true; // Oyun başında sınır çizgisini gizliyoruz
 
-  const zoneWarningText = k.add([
-    k.text("", { size: 14, font: "sans-serif", weight: "bold", letterSpacing: 2 }),
-    k.pos(k.width() / 2, 90),
-    k.anchor("center"),
-    k.color(255, 70, 85),
-  ]);
-
   function update(roundTimeLeft) {
     if (roundTimeLeft <= 30 && roundTimeLeft > 0) {
       safeZoneBorder.hidden = false; // Sadece Sudden Death başlayınca görünür yapıyoruz
-      zoneWarningText.text = "TEHLİKE: GÜVENLİ ALAN DARALIYOR!";
       
       const timeInSuddenDeath = Math.max(0, 30 - roundTimeLeft);
       // Boundary goes from 24px margin (screen bounds), shrinking by 9.7px/s up to ~315px
@@ -80,11 +72,10 @@ export function setupSuddenDeath(cars, checkGameOver) {
       });
     } else {
       safeZoneBorder.hidden = true; // Pasif durumdayken gizli tutuyoruz
-      zoneWarningText.text = "";
       safeZoneBorder.width = k.width() - 48;
       safeZoneBorder.height = k.height() - 48;
       safeZoneBorder.pos = k.vec2(24, 24);
-      safeZoneBorder.outline.color = k.rgb(0, 240, 255);
+      safeZoneBorder.outline.color = k.rgb(255, 184, 0);
       safeZoneBorder.outline.width = 2;
 
       // Clean up potential color drifts
@@ -101,7 +92,6 @@ export function setupSuddenDeath(cars, checkGameOver) {
     update,
     destroy: () => {
       try { safeZoneBorder.destroy(); } catch (e) {}
-      try { zoneWarningText.destroy(); } catch (e) {}
     }
   };
 }

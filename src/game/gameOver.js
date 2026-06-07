@@ -3,6 +3,15 @@ import { isHost } from "playroomkit";
 
 let activeGameOverKeys = null;
 
+export function cleanupGameOverMenu() {
+  if (activeGameOverKeys) {
+    activeGameOverKeys.cancel();
+    activeGameOverKeys = null;
+  }
+  const o = document.getElementById("game-over-root");
+  if (o) o.remove();
+}
+
 export function showGameOverMenu(opts) {
   const { titleText, winnerColor, goldEarned, scoreText, modeText, onRestart, onChangeCar, onMainMenu } = opts;
   let selectedIdx = 0;
@@ -11,17 +20,17 @@ export function showGameOverMenu(opts) {
   const root = document.getElementById("ui-root");
   if (!root) return;
 
-  // Remove existing pause or game over overlays
+  // Clean up any existing game over menu or keys
+  cleanupGameOverMenu();
+
+  // Remove existing pause overlays
   const existingPause = document.getElementById("pause-menu-root");
   if (existingPause) existingPause.remove();
 
-  let overlay = document.getElementById("game-over-root");
-  if (!overlay) {
-    overlay = document.createElement("div");
-    overlay.id = "game-over-root";
-    overlay.className = "pause-overlay-container"; // Reuse identical glassmorphism styles
-    root.appendChild(overlay);
-  }
+  const overlay = document.createElement("div");
+  overlay.id = "game-over-root";
+  overlay.className = "pause-overlay-container"; // Reuse identical glassmorphism styles
+  root.appendChild(overlay);
 
   function renderContent() {
     overlay.innerHTML = "";
@@ -33,10 +42,21 @@ export function showGameOverMenu(opts) {
     const title = document.createElement("h1");
     title.className = "menu-title";
     title.innerText = titleText;
-    title.style.color = winnerColor === "blue" ? "var(--active-secondary)" : "var(--active-primary)";
-    title.style.textShadow = winnerColor === "blue" 
-      ? "0 0 30px rgba(0, 240, 255, 0.4)" 
-      : "0 0 30px rgba(255, 70, 85, 0.4)";
+    if (winnerColor) {
+      if (winnerColor === "blue") {
+        title.style.color = "var(--active-secondary)";
+        title.style.textShadow = "0 0 30px rgba(0, 240, 255, 0.4)";
+      } else if (winnerColor === "red") {
+        title.style.color = "var(--active-primary)";
+        title.style.textShadow = "0 0 30px rgba(255, 70, 85, 0.4)";
+      } else {
+        title.style.color = winnerColor;
+        title.style.textShadow = `0 0 30px ${winnerColor.replace('rgb', 'rgba').replace(')', ', 0.4)')}`;
+      }
+    } else {
+      title.style.color = "var(--active-primary)";
+      title.style.textShadow = "0 0 30px rgba(255, 70, 85, 0.4)";
+    }
     header.appendChild(title);
 
     const subtitle = document.createElement("h2");
@@ -51,7 +71,7 @@ export function showGameOverMenu(opts) {
     optionsContainer.className = "menu-nav-list";
 
     const isMp = k.isMultiplayer;
-    const isHostUser = isHost();
+    const isHostUser = isMp ? isHost() : true;
 
     options.forEach((opt, idx) => {
       const btn = document.createElement("button");
@@ -115,7 +135,7 @@ export function showGameOverMenu(opts) {
   }
 
   function triggerChoice(choice) {
-    cleanup();
+    cleanupGameOverMenu();
     if (choice === "YENİDEN OYNA") {
       onRestart();
     } else if (choice === "ARAÇ DEĞİŞTİR") {
@@ -123,15 +143,6 @@ export function showGameOverMenu(opts) {
     } else if (choice === "ANA MENÜ") {
       onMainMenu();
     }
-  }
-
-  function cleanup() {
-    if (activeGameOverKeys) {
-      activeGameOverKeys.cancel();
-      activeGameOverKeys = null;
-    }
-    const o = document.getElementById("game-over-root");
-    if (o) o.remove();
   }
 
   // Bind keys
@@ -156,6 +167,6 @@ export function showGameOverMenu(opts) {
   renderContent();
 
   return {
-    destroy: cleanup
+    destroy: cleanupGameOverMenu
   };
 }

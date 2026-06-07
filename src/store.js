@@ -90,6 +90,7 @@ function sanitizeAndApply(pId, data) {
       unlockedProjectiles: unlockedProjectiles,
       selectedWeapon: typeof data.selectedWeapon === "string" ? data.selectedWeapon : defaultProfile.selectedWeapon,
       selectedSupport: typeof data.selectedSupport === "string" ? data.selectedSupport : defaultProfile.selectedSupport,
+      selectedProjectile: typeof data.selectedProjectile === "string" ? data.selectedProjectile : (typeof data.selectedWeapon === "string" ? data.selectedWeapon : "mizrak"),
       stats: { ...defaultProfile.stats, ...(data.stats || {}) }
     };
   }
@@ -248,17 +249,26 @@ export const store = {
 
   // --- BLOK 4.5: AKILLI MÜHİMMATLAR & DESTEK İHALARI SORGULAMA VE SATIN ALMA ---
   getUnlockedProjectiles: (pId = "p1") => getProfile(pId).unlockedProjectiles || ["mizrak", "mini_iha"],
+  getSelectedProjectile: (pId = "p1") => getProfile(pId).selectedProjectile || getProfile(pId).selectedWeapon || "mizrak",
   getSelectedWeapon: (pId = "p1") => getProfile(pId).selectedWeapon || "mizrak",
   getSelectedSupport: (pId = "p1") => getProfile(pId).selectedSupport || "mini_iha",
+  setSelectedProjectile: (pId = "p1", projectileId) => {
+    const p = getProfile(pId);
+    p.selectedProjectile = projectileId;
+    saveProfile(pId);
+    return true;
+  },
   setSelectedWeapon: (pId = "p1", projectileId) => {
     const p = getProfile(pId);
     p.selectedWeapon = projectileId;
+    p.selectedProjectile = projectileId;
     saveProfile(pId);
     return true;
   },
   setSelectedSupport: (pId = "p1", projectileId) => {
     const p = getProfile(pId);
     p.selectedSupport = projectileId;
+    p.selectedProjectile = projectileId;
     saveProfile(pId);
     return true;
   },

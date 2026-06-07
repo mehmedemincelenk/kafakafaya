@@ -1,5 +1,6 @@
 import { k } from "../kaplay.js";
 import { SKILLS } from "../skill.js";
+import { myPlayer } from "playroomkit";
 
 function getSkillIcon(car) {
   if (!car) return "⭐";
@@ -35,14 +36,14 @@ export function setupHUD(cars) {
         <div class="hud-slot-cooldown" id="blue-dash-cd-overlay"></div>
         <div class="hud-slot-cd-text" id="blue-dash-cd-text"></div>
         <div class="hud-slot-accent"></div>
-        <div class="hud-slot-key">Shift</div>
+        <div class="hud-slot-key" id="blue-dash-key">Shift</div>
       </div>
       <div class="hud-slot" id="blue-skill-slot">
         <div class="hud-slot-icon" id="blue-skill-icon">🛡️</div>
         <div class="hud-slot-cooldown" id="blue-skill-cd-overlay"></div>
         <div class="hud-slot-cd-text" id="blue-skill-cd-text"></div>
         <div class="hud-slot-accent"></div>
-        <div class="hud-slot-key">Q</div>
+        <div class="hud-slot-key" id="blue-skill-key">Q</div>
       </div>
     `;
     hudRoot.appendChild(bluePanel);
@@ -76,11 +77,13 @@ export function setupHUD(cars) {
   const elBlueDashSlot = document.getElementById("blue-dash-slot");
   const elBlueDashCdOverlay = document.getElementById("blue-dash-cd-overlay");
   const elBlueDashCdText = document.getElementById("blue-dash-cd-text");
+  const elBlueDashKey = document.getElementById("blue-dash-key");
 
   const elBlueSkillSlot = document.getElementById("blue-skill-slot");
   const elBlueSkillIcon = document.getElementById("blue-skill-icon");
   const elBlueSkillCdOverlay = document.getElementById("blue-skill-cd-overlay");
   const elBlueSkillCdText = document.getElementById("blue-skill-cd-text");
+  const elBlueSkillKey = document.getElementById("blue-skill-key");
 
   const elRedDashSlot = document.getElementById("red-dash-slot");
   const elRedDashCdOverlay = document.getElementById("red-dash-cd-overlay");
@@ -111,6 +114,32 @@ export function setupHUD(cars) {
 
     if (bluePanel) bluePanel.style.display = showBlue ? "flex" : "none";
     if (redPanel) redPanel.style.display = showRed ? "flex" : "none";
+
+    // Update key labels dynamically depending on multiplayer or offline
+    if (k.isMultiplayer) {
+      const isMyCarBlue = blueCar && blueCar.playerInfo && blueCar.playerInfo.id === myPlayer()?.id;
+      const isMyCarRed = redCar && redCar.playerInfo && redCar.playerInfo.id === myPlayer()?.id;
+
+      if (elBlueDashKey) elBlueDashKey.innerText = isMyCarBlue ? "Shift" : "";
+      if (elBlueSkillKey) elBlueSkillKey.innerText = isMyCarBlue ? "Q" : "";
+
+      if (elRedDashKey) elRedDashKey.innerText = isMyCarRed ? "Shift" : "";
+      if (elRedSkillKey) elRedSkillKey.innerText = isMyCarRed ? "Q" : "";
+    } else {
+      // Offline local mode
+      if (elBlueDashKey) elBlueDashKey.innerText = "Shift";
+      if (elBlueSkillKey) elBlueSkillKey.innerText = "Q";
+
+      if (redCar) {
+        if (redCar.isBot) {
+          if (elRedDashKey) elRedDashKey.innerText = "AI";
+          if (elRedSkillKey) elRedSkillKey.innerText = "AI";
+        } else {
+          if (elRedDashKey) elRedDashKey.innerText = "Enter";
+          if (elRedSkillKey) elRedSkillKey.innerText = "Num 0";
+        }
+      }
+    }
 
     // Update Blue Player HUD if visible
     if (showBlue && blueCar) {
@@ -154,14 +183,7 @@ export function setupHUD(cars) {
 
     // Update Red Player HUD if visible
     if (showRed && redCar) {
-      // Check for bot to change labels
-      if (redCar.isBot) {
-        if (elRedDashKey) elRedDashKey.innerText = "AI";
-        if (elRedSkillKey) elRedSkillKey.innerText = "AI";
-      } else {
-        if (elRedDashKey) elRedDashKey.innerText = "Enter";
-        if (elRedSkillKey) elRedSkillKey.innerText = "Num 0";
-      }
+
 
       // Dash
       if (redCar.dashActive) {

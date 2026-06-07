@@ -30,12 +30,15 @@ export class MatchManager {
     this.roundTimeLeft = 90;
     this.lastReloadTrigger = k.isMultiplayer ? (getState("gameReloadTrigger") || 0) : 0;
     this.roundOverProcessed = false;
+    this.sceneTransitioned = false;
 
     // UI Elements
     this.blueScoreValEl = null;
     this.timerValEl = null;
     this.redScoreValEl = null;
     this.winnerText = null;
+    this.timerBoxEl = null;
+    this.suddenDeathWarningEl = null;
 
     this.setupUI();
   }
@@ -68,20 +71,33 @@ export class MatchManager {
       const p1Val = k.isMultiplayer ? 0 : this.p1Score;
       const p2Val = k.isMultiplayer ? 0 : this.p2Score;
 
+      // Dynamic colors based on cars
+      const p1Color = this.cars.find(c => c.is("teamBlue") || c.is("player1"))?.originalColor || this.cars[0]?.originalColor || this.cars[0]?.color || k.rgb(255, 184, 0);
+      const p2Color = this.cars.find(c => c.is("teamRed") || c.is("player2"))?.originalColor || this.cars[1]?.originalColor || this.cars[1]?.color || k.rgb(0, 230, 118);
+
+      const p1CSSColor = `rgb(${p1Color.r}, ${p1Color.g}, ${p1Color.b})`;
+      const p2CSSColor = `rgb(${p2Color.r}, ${p2Color.g}, ${p2Color.b})`;
+
       const blueBox = document.createElement("div");
       blueBox.className = "hud-score-box team-blue";
+      blueBox.style.backgroundColor = p1CSSColor;
+      blueBox.style.boxShadow = `0 0 10px rgba(${p1Color.r}, ${p1Color.g}, ${p1Color.b}, 0.45)`;
       this.blueScoreValEl = document.createElement("span");
       this.blueScoreValEl.innerText = p1Val;
       blueBox.appendChild(this.blueScoreValEl);
 
       const timerBox = document.createElement("div");
       timerBox.className = "hud-timer-box";
+      this.timerBoxEl = timerBox;
+      
       this.timerValEl = document.createElement("span");
       this.timerValEl.innerText = "01:30";
       timerBox.appendChild(this.timerValEl);
 
       const redBox = document.createElement("div");
       redBox.className = "hud-score-box team-red";
+      redBox.style.backgroundColor = p2CSSColor;
+      redBox.style.boxShadow = `0 0 10px rgba(${p2Color.r}, ${p2Color.g}, ${p2Color.b}, 0.45)`;
       this.redScoreValEl = document.createElement("span");
       this.redScoreValEl.innerText = p2Val;
       redBox.appendChild(this.redScoreValEl);
@@ -94,13 +110,19 @@ export class MatchManager {
       modeLabel.className = "hud-mode-label";
       modeLabel.innerText = this.gameMode === "multiplayer" ? "ÇEVRİMİÇİ" : (this.p2Joined ? "OMUZ OMUZA" : "ANTRENMAN");
 
+      this.suddenDeathWarningEl = document.createElement("div");
+      this.suddenDeathWarningEl.className = "hud-sudden-death-warning";
+      this.suddenDeathWarningEl.innerText = "TEHLİKE: GÜVENLİ ALAN DARALIYOR!";
+      this.suddenDeathWarningEl.style.display = "none";
+
       scoreboard.appendChild(scoreBar);
       scoreboard.appendChild(modeLabel);
+      scoreboard.appendChild(this.suddenDeathWarningEl);
       hudRoot.appendChild(scoreboard);
     }
   }
 
-  showAnnouncement(title, subtitle, type = "draw-match") {
+  showAnnouncement(title, subtitle, type = "draw-match", customColor = null) {
     const root = document.getElementById("ui-root");
     if (!root) return;
 
@@ -120,10 +142,18 @@ export class MatchManager {
 
     const banner = document.createElement("div");
     banner.className = `hud-banner-strip ${type}`;
+    if (customColor) {
+      banner.style.borderTopColor = customColor;
+      banner.style.borderBottomColor = customColor;
+    }
 
     const titleEl = document.createElement("h1");
     titleEl.className = "hud-announcement-title";
     titleEl.innerText = title;
+    if (customColor) {
+      titleEl.style.color = customColor;
+      titleEl.style.textShadow = `0 0 15px ${customColor}`;
+    }
     banner.appendChild(titleEl);
 
     if (subtitle) {
@@ -197,9 +227,13 @@ export class MatchManager {
   }
 
   update() {
+    if (this.sceneTransitioned) return;
+
     if (k.isMultiplayer) {
       this.updateMultiplayerSync();
     }
+
+    if (this.sceneTransitioned) return;
 
     if (k.gameOver) return;
     // Raundun bittiğini (biri 0 HP olduğunda) milisaniyesinde algılamak için her frame kontrol ediyoruz
@@ -233,12 +267,24 @@ export class MatchManager {
 
     if (this.timerValEl) {
       this.timerValEl.innerText = timeStr;
-      if (this.roundTimeLeft <= 10) {
+      if (this.roundTimeLeft <= 30) {
         this.timerValEl.style.color = "rgb(255, 70, 85)";
-        this.timerValEl.style.textShadow = "0 0 8px rgba(255, 70, 85, 0.4)";
+        this.timerValEl.style.textShadow = "0 0 10px rgba(255, 70, 85, 0.8)";
+        if (this.timerBoxEl) {
+          this.timerBoxEl.classList.add("sudden-death");
+        }
+        if (this.suddenDeathWarningEl) {
+          this.suddenDeathWarningEl.style.display = "block";
+        }
       } else {
         this.timerValEl.style.color = "";
         this.timerValEl.style.textShadow = "";
+        if (this.timerBoxEl) {
+          this.timerBoxEl.classList.remove("sudden-death");
+        }
+        if (this.suddenDeathWarningEl) {
+          this.suddenDeathWarningEl.style.display = "none";
+        }
       }
     }
   }
@@ -257,6 +303,7 @@ export class MatchManager {
       k.wait(2.5, () => {
         this.clearAnnouncement();
         this.pauseMenu.cancel();
+        this.sceneTransitioned = true;
         k.go("game", this.getLocalReloadParams());
       });
     }
@@ -267,8 +314,8 @@ export class MatchManager {
     if (k.isMultiplayer) {
       if (!isHost()) return;
 
-      const blueTeam = this.cars.filter((c, idx) => idx % 2 === 0);
-      const redTeam = this.cars.filter((c, idx) => idx % 2 === 1);
+      const blueTeam = this.cars.filter(c => c.is("teamBlue"));
+      const redTeam = this.cars.filter(c => c.is("teamRed"));
 
       const blueAlive = blueTeam.some(c => c.hp > 0);
       const redAlive = redTeam.some(c => c.hp > 0);
@@ -326,22 +373,31 @@ export class MatchManager {
           let titleText = "";
           let modeText = "";
 
+          const p1Name = this.cars[0]?.name?.toUpperCase() || "1. OYUNCU";
+          const p2Name = this.cars[1]?.name?.toUpperCase() || "2. OYUNCU";
+
           if (this.p2Joined) {
             modeText = "OMUZ OMUZA";
-            titleText = isP1Winner ? "🏆 1. OYUNCU (MAVİ) ŞAMPİYON! 🏆" : "🏆 2. OYUNCU (KIRMIZI) ŞAMPİYON! 🏆";
+            titleText = isP1Winner ? `🏆 ${p1Name} ŞAMPİYON! 🏆` : `🏆 ${p2Name} ŞAMPİYON! 🏆`;
           } else {
             modeText = "ANTRENMAN";
-            titleText = isP1Winner ? "🏆 ZAFER! MAVİ KAZANDI 🏆" : "🛸 KKSAN_BOT ALDI GÖTÜRDÜ! 🛸";
+            titleText = isP1Winner ? `🏆 ZAFER! ${p1Name} KAZANDI 🏆` : "🛸 KKSAN_BOT ALDI GÖTÜRDÜ! 🛸";
           }
+
+          const p1Color = this.cars[0]?.originalColor || this.cars[0]?.color || k.rgb(255, 184, 0);
+          const p2Color = this.cars[1]?.originalColor || this.cars[1]?.color || k.rgb(0, 230, 118);
+          const winnerColorObj = isP1Winner ? p1Color : p2Color;
+          const winnerCSSColor = `rgb(${winnerColorObj.r}, ${winnerColorObj.g}, ${winnerColorObj.b})`;
 
           showGameOverMenu({
             titleText: titleText,
-            winnerColor: isP1Winner ? "blue" : "red",
+            winnerColor: winnerCSSColor,
             goldEarned: isP1Winner ? 100 : 30,
             scoreText: `${nextP1Score} - ${nextP2Score}`,
             modeText: modeText,
             onRestart: () => {
               this.pauseMenu.cancel();
+              this.sceneTransitioned = true;
               k.go("game", {
                 ...this.getLocalReloadParams(),
                 p1Score: 0,
@@ -350,6 +406,7 @@ export class MatchManager {
             },
             onChangeCar: () => {
               this.pauseMenu.cancel();
+              this.sceneTransitioned = true;
               k.go("menu", {
                 startState: "CAR_SELECT",
                 gameMode: this.gameMode,
@@ -358,16 +415,28 @@ export class MatchManager {
             },
             onMainMenu: () => {
               this.pauseMenu.cancel();
+              this.sceneTransitioned = true;
               k.go("menu");
             }
           });
         } else {
+          let title = "BERABERE";
+          let winnerCSSColor = null;
+          if (roundWinner === 1 || roundWinner === 2) {
+            const winnerCar = this.cars[roundWinner - 1];
+            const winnerName = winnerCar?.name?.toUpperCase() || (roundWinner === 1 ? "1. OYUNCU" : "2. OYUNCU");
+            title = `${winnerName} RAUNDU!`;
+            const winnerColorObj = winnerCar?.originalColor || winnerCar?.color;
+            if (winnerColorObj) {
+              winnerCSSColor = `rgb(${winnerColorObj.r}, ${winnerColorObj.g}, ${winnerColorObj.b})`;
+            }
+          }
           const type = roundWinner === 1 ? "blue-winner" : roundWinner === 2 ? "red-winner" : "draw-match";
-          const title = roundWinner === 1 ? "MAVİ RAUND!" : roundWinner === 2 ? "KIRMIZI RAUND!" : "BERABERE";
-          this.showAnnouncement(title, "RAUND TAMAMLANDI", type);
+          this.showAnnouncement(title, "RAUND TAMAMLANDI", type, winnerCSSColor);
           k.wait(2.5, () => {
             this.clearAnnouncement();
             this.pauseMenu.cancel();
+            this.sceneTransitioned = true;
             k.go("game", {
               ...this.getLocalReloadParams(),
               p1Score: nextP1Score,
@@ -380,6 +449,8 @@ export class MatchManager {
   }
 
   updateMultiplayerSync() {
+    if (this.sceneTransitioned) return;
+
     if (isHost()) {
       setState("hostId", myPlayer().id);
     }
@@ -428,10 +499,10 @@ export class MatchManager {
       const nextRed = getState("redScore") || 0;
 
       if (nextBlue >= 3 || nextRed >= 3) {
-        const myIndex = playroomPlayers.findIndex(p => p.id === myPlayer().id);
+        const myCar = this.cars.find(c => c.playerInfo && c.playerInfo.id === myPlayer()?.id);
         let goldEarned = 50;
-        if (myIndex !== -1) {
-          const isBlueTeam = myIndex % 2 === 0;
+        if (myCar) {
+          const isBlueTeam = myCar.is("teamBlue");
           const blueWon = nextBlue >= 3;
           const redWon = nextRed >= 3;
 
@@ -451,9 +522,17 @@ export class MatchManager {
         }
 
         const isBlueWinner = nextBlue >= 3;
+        const winnerCar = this.cars.find(c => isBlueWinner ? c.is("teamBlue") : c.is("teamRed"));
+        const winnerName = winnerCar?.name?.toUpperCase() || (isBlueWinner ? "1. TAKIM" : "2. TAKIM");
+
+        const p1Color = this.cars.find(c => c.is("teamBlue"))?.originalColor || k.rgb(255, 184, 0);
+        const p2Color = this.cars.find(c => c.is("teamRed"))?.originalColor || k.rgb(0, 230, 118);
+        const winnerColorObj = isBlueWinner ? p1Color : p2Color;
+        const winnerCSSColor = `rgb(${winnerColorObj.r}, ${winnerColorObj.g}, ${winnerColorObj.b})`;
+
         showGameOverMenu({
-          titleText: isBlueWinner ? "🏆 MAVİ TAKIM ŞAMPİYON! 🏆" : "🏆 KIRMIZI TAKIM ŞAMPİYON! 🏆",
-          winnerColor: isBlueWinner ? "blue" : "red",
+          titleText: `🏆 ${winnerName} ŞAMPİYON! 🏆`,
+          winnerColor: winnerCSSColor,
           goldEarned: goldEarned,
           scoreText: `${nextBlue} - ${nextRed}`,
           modeText: "ÇOK OYUNCULU",
@@ -492,9 +571,19 @@ export class MatchManager {
           }
         });
       } else {
+        let title = "BERABERE";
+        let winnerCSSColor = null;
+        if (winner === 1 || winner === 2) {
+          const winnerCar = this.cars.find(c => winner === 1 ? c.is("teamBlue") : c.is("teamRed"));
+          const winnerName = winnerCar?.name?.toUpperCase() || (winner === 1 ? "1. TAKIM" : "2. TAKIM");
+          title = `${winnerName} RAUNDU!`;
+          const winnerColorObj = winnerCar?.originalColor || winnerCar?.color;
+          if (winnerColorObj) {
+            winnerCSSColor = `rgb(${winnerColorObj.r}, ${winnerColorObj.g}, ${winnerColorObj.b})`;
+          }
+        }
         const type = winner === 1 ? "blue-winner" : winner === 2 ? "red-winner" : "draw-match";
-        const title = winner === 1 ? "MAVİ RAUND!" : winner === 2 ? "KIRMIZI RAUND!" : "BERABERE";
-        this.showAnnouncement(title, "RAUND TAMAMLANDI", type);
+        this.showAnnouncement(title, "RAUND TAMAMLANDI", type, winnerCSSColor);
 
         k.wait(2.5, () => {
           this.clearAnnouncement();
@@ -513,13 +602,17 @@ export class MatchManager {
     if (currentTrigger !== this.lastReloadTrigger) {
       this.lastReloadTrigger = currentTrigger;
       this.pauseMenu.cancel();
+      this.sceneTransitioned = true;
       k.go("game");
+      return;
     }
 
     // 6. Go to Menu Trigger Listener
     if (getState("gameState") === "lobby") {
       this.pauseMenu.cancel();
+      this.sceneTransitioned = true;
       k.go("menu");
+      return;
     }
   }
 

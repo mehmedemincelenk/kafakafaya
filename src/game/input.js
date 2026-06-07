@@ -32,15 +32,13 @@ export function getCarInputs(car, playerInfo, controls) {
         playerInfo.setState("clashTaps", (playerInfo.getState("clashTaps") || 0) + 1);
       }
 
-      const isBlue = car.isBlue;
-      const dashKey = isBlue ? "shift" : "enter";
-      const skillKey = isBlue ? "q" : "numpad0";
-      const altSkillKey = isBlue ? "q" : "0";
+      const dashKey = "shift";
+      const skillKey = "q";
 
       if (k.isKeyPressed(dashKey)) {
         playerInfo.setState("dashPressed", true);
       }
-      if (k.isKeyPressed(skillKey) || (!isBlue && k.isKeyPressed(altSkillKey))) {
+      if (k.isKeyPressed(skillKey)) {
         playerInfo.setState("skillPressed", true);
       }
     } else {

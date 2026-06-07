@@ -56,7 +56,7 @@ export function spawnWeapon(shooter, type) {
       }
     ]);
 
-    const projColor = k.rgb(255, 60, 60);
+    const projColor = shooter.color || k.rgb(255, 60, 60);
     drawProjectileDetails(proj, type, projColor);
 
     proj.onUpdate(() => {

@@ -333,6 +333,17 @@
   }
 }
 
+@keyframes clash-gold-pulse {
+  from {
+    text-shadow: 0 0 15px rgba(255, 215, 0, 0.5);
+    transform: scale(0.98);
+  }
+  to {
+    text-shadow: 0 0 30px rgba(255, 215, 0, 0.9);
+    transform: scale(1.02);
+  }
+}
+
 /* Pre-round phase container */
 .hud-pre-round {
   display: flex;
@@ -358,15 +369,21 @@
   font-size: 80px;
   font-weight: 900;
   line-height: 1;
-  color: rgb(255, 70, 85); /* Valorant Red */
-  text-shadow: 0 0 15px rgba(255, 70, 85, 0.2);
+  color: #ffffff; /* White */
+  text-shadow: 0 0 15px rgba(255, 255, 255, 0.35);
   margin: 10px 0;
   animation: count-pulse 0.4s cubic-bezier(0.25, 0.8, 0.25, 1) forwards;
 }
 
 .hud-countdown.start-go {
-  color: rgb(0, 240, 255); /* Neon Cyan */
-  text-shadow: 0 0 15px rgba(0, 240, 255, 0.3);
+  color: #ffffff; /* White */
+  text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+}
+
+.hud-countdown.clash-gold {
+  color: rgb(255, 215, 0); /* Gold */
+  text-shadow: 0 0 20px rgba(255, 215, 0, 0.6), 0 0 10px rgba(255, 215, 0, 0.3);
+  animation: clash-gold-pulse 0.4s ease-in-out infinite alternate;
 }
 
 /* Subtext Label (e.g. RAUND 1) */
@@ -484,5 +501,54 @@
   }
   .hud-announcement-subtitle {
     font-size: 10px;
+  }
+
+  .hud-sudden-death-warning {
+    font-size: 9px !important;
+    letter-spacing: 1.5px !important;
+  }
+}
+
+/* Sudden Death Warning Text */
+.hud-sudden-death-warning {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2.5px;
+  color: rgb(255, 70, 85);
+  text-transform: uppercase;
+  text-shadow: 0 0 10px rgba(255, 70, 85, 0.7);
+  animation: warning-pulse 0.8s ease-in-out infinite alternate;
+  margin-top: 4px;
+  text-align: center;
+}
+
+/* Pulsing outline for the timer box during Sudden Death */
+.hud-timer-box.sudden-death {
+  border: 1.5px solid rgba(255, 70, 85, 0.8) !important;
+  box-shadow: 0 0 15px rgba(255, 70, 85, 0.5);
+  animation: timer-danger-pulse 1s ease-in-out infinite alternate;
+}
+
+@keyframes warning-pulse {
+  from {
+    transform: scale(0.95);
+    text-shadow: 0 0 5px rgba(255, 70, 85, 0.5);
+    opacity: 0.8;
+  }
+  to {
+    transform: scale(1.05);
+    text-shadow: 0 0 15px rgba(255, 70, 85, 0.9);
+    opacity: 1;
+  }
+}
+
+@keyframes timer-danger-pulse {
+  from {
+    border-color: rgba(255, 70, 85, 0.6);
+    box-shadow: 0 0 8px rgba(255, 70, 85, 0.3);
+  }
+  to {
+    border-color: rgba(255, 70, 85, 1);
+    box-shadow: 0 0 18px rgba(255, 70, 85, 0.7);
   }
 }

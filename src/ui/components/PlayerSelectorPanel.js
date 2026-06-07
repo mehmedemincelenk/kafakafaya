@@ -102,8 +102,9 @@ export function createPlayerSelectorPanel({
     ikaTitle.style.display = "flex";
     ikaTitle.style.justifyContent = "space-between";
     ikaTitle.style.alignItems = "center";
+    const mfgText = previewData.manufacturer ? ` / ${previewData.manufacturer.toUpperCase()}` : "";
     ikaTitle.innerHTML = `
-      <span>${previewData.name.toUpperCase()}</span>
+      <span>${previewData.name.toUpperCase()}<span style="font-size: 8px; color: var(--text-muted); font-weight: 500; letter-spacing: 1px;">${mfgText}</span></span>
       <span class="car-class-badge" style="font-size: 8px; margin: 0; padding: 2px 6px;">${previewData.class.toUpperCase()}</span>
     `;
     vehicleCard.appendChild(ikaTitle);
@@ -285,8 +286,9 @@ export function createPlayerSelectorPanel({
       dihaTitle.style.display = "flex";
       dihaTitle.style.justifyContent = "space-between";
       dihaTitle.style.alignItems = "center";
+      const weaponMfgText = specs.manufacturer ? ` / ${specs.manufacturer.toUpperCase()}` : "";
       dihaTitle.innerHTML = `
-        <span>${specs.name.toUpperCase()}</span>
+        <span>${specs.name.toUpperCase()}<span style="font-size: 8px; color: var(--text-muted); font-weight: 500; letter-spacing: 1px;">${weaponMfgText}</span></span>
         <span class="car-class-badge" style="font-size: 8px; margin: 0; padding: 2px 6px; color: ${dihaColor}; border-color: ${dihaColor}; background-color: rgba(255, 60, 60, 0.1);">${isSupport ? "DESTEK" : "TAARRUZ"}</span>
       `;
       weaponCard.appendChild(dihaTitle);

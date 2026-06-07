@@ -14,6 +14,8 @@ import { CAR_TYPES } from "../config.js";
 import { setupBotAI } from "../game/bot.js";
 import { setupSuddenDeath } from "../game/suddenDeath.js";
 import { MatchManager } from "../game/matchManager.js";
+import { getTurkishGuestName } from "../utils.js";
+import { cleanupGameOverMenu } from "../game/gameOver.js";
 
 export function initGameScene() {
   k.scene("game", (localParams) => {
@@ -129,14 +131,22 @@ export function initGameScene() {
         const options = Object.keys(CAR_TYPES);
         const carType = options[p.getState("carTypeIdx") || 0] || "BARKAN";
 
-        const color = idx % 2 === 0 ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60);
+        const pColor = p.getProfile()?.color;
+        const color = pColor ? k.rgb(pColor.r, pColor.g, pColor.b) : (idx % 2 === 0 ? k.rgb(255, 184, 0) : k.rgb(0, 230, 118));
         const tag = idx % 2 === 0 ? "teamBlue" : "teamRed";
 
         const skinId = p.getState("skinId") || "default";
         const skillId = p.getState("skillId") || "default";
 
+        const pUsername = p.getState("username");
+        let displayName = `Oyuncu ${idx + 1}`;
+        if (pUsername) {
+          const isGuest = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(pUsername) || (pUsername.length >= 15 && !pUsername.includes("-"));
+          displayName = isGuest ? getTurkishGuestName(pUsername) : pUsername.toUpperCase();
+        }
+
         const car = addCar({
-          name: p.getProfile().name || `Oyuncu ${idx + 1}`,
+          name: displayName,
           tag,
           color,
           startPos,
@@ -162,7 +172,7 @@ export function initGameScene() {
       const p1 = addCar({
         name: "Oyuncu 1",
         tag: "player1",
-        color: k.rgb(0, 140, 255),
+        color: k.rgb(255, 184, 0),
         startPos: k.vec2(180, k.height() / 2),
         startAngle: 0,
         controls: {
@@ -187,7 +197,7 @@ export function initGameScene() {
       const p2 = addCar({
         name: p2Joined ? "Oyuncu 2" : "KKSAN_BOT",
         tag: "player2",
-        color: k.rgb(255, 60, 60),
+        color: k.rgb(0, 230, 118),
         startPos: k.vec2(k.width() - 180, k.height() / 2),
         startAngle: 180,
         controls: {
@@ -262,6 +272,7 @@ export function initGameScene() {
     // Güncelleme Döngüsü
     k.onUpdate(() => {
       matchManager.update();
+      if (matchManager.sceneTransitioned) return;
       suddenDeath.update(matchManager.roundTimeLeft);
     });
 
@@ -270,10 +281,14 @@ export function initGameScene() {
     sceneCleanup.onDestroy(() => {
       const hudRoot = document.getElementById("gameplay-hud-root");
       if (hudRoot) hudRoot.remove();
-      const pauseMenu = document.getElementById("pause-menu-root");
-      if (pauseMenu) pauseMenu.remove();
-      const gameOverMenu = document.getElementById("game-over-root");
-      if (gameOverMenu) gameOverMenu.remove();
+      const pauseMenuEl = document.getElementById("pause-menu-root");
+      if (pauseMenuEl) pauseMenuEl.remove();
+      const gameOverMenuEl = document.getElementById("game-over-root");
+      if (gameOverMenuEl) gameOverMenuEl.remove();
+
+      // Cancel and cleanup event listeners/keys
+      if (pauseMenu) pauseMenu.cancel();
+      cleanupGameOverMenu();
     });
   });
 }

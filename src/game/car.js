@@ -257,10 +257,11 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     k.pos(startPos),
     k.rotate(startAngle),
     k.anchor("center"),
-    k.area({ shape: new k.Rect(k.vec2(-config.width / 2, -config.height / 2), config.width, config.height) }), // Çarpışma alanı algılayıcı hitbox
+    k.area(), // Çarpışma alanı algılayıcı hitbox (rect ve anchor özelliklerini otomatik miras alır)
     tag,      // Oyuncuyu ayırt eden benzersiz etiket (örn. 'player1')
     "player", // Genel grup etiketi
     {
+      name: name || tag || "Oyuncu",
       carTag: tag,
       playerInfo,
       state: "DRIVING",
@@ -310,11 +311,10 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     k.anchor("center"),
   ]);
 
-  // Can Barı Dolgusu (Mavi oyuncu için mavi, kırmızı için kırmızı)
-  const isBlueCar = tag === "teamBlue" || tag === "player1";
+  // Can Barı Dolgusu (Dinamik oyuncu renginde)
   const healthBarFill = k.add([
     k.rect(40, 5, { radius: 1.5 }),
-    k.color(isBlueCar ? k.rgb(0, 140, 255) : k.rgb(255, 60, 60)),
+    k.color(color),
     k.pos(startPos.add(HEALTH_BAR_OFFSET_X, HEALTH_BAR_OFFSET_Y)),
     k.anchor("left"),
     k.scale(1),

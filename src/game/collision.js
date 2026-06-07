@@ -188,6 +188,7 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
           k.pos(victim.pos.add(0, -45)),
           k.color(255, 50, 50),
           k.anchor("center"),
+          k.opacity(1),
           k.lifespan(1.0),
         ]);
         warningText.onUpdate(() => {
@@ -215,6 +216,7 @@ export function setupCollisions(checkGameOver, gameMode = "NORMAL") {
             k.pos(victim.pos.add(0, -50)),
             k.color(100, 255, 100),
             k.anchor("center"),
+            k.opacity(1),
             k.lifespan(0.8),
           ]);
           healText.onUpdate(() => {

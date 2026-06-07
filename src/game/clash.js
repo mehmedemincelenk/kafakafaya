@@ -30,15 +30,15 @@ export function startDuel(car1, car2, collisionNormal, midPoint, checkGameOver) 
     clashEl.id = "hud-clash-announcement";
     clashEl.className = "hud-announcement-container";
 
-    const banner = document.createElement("div");
-    banner.className = "hud-banner-strip clash-warning";
+    const preRoundBox = document.createElement("div");
+    preRoundBox.className = "hud-pre-round";
 
-    const titleEl = document.createElement("h1");
-    titleEl.className = "hud-announcement-title";
+    const titleEl = document.createElement("div");
+    titleEl.className = "hud-countdown clash-gold";
     titleEl.innerText = "KAFA KAFAYA!";
 
-    banner.appendChild(titleEl);
-    clashEl.appendChild(banner);
+    preRoundBox.appendChild(titleEl);
+    clashEl.appendChild(preRoundBox);
     hudRoot.appendChild(clashEl);
   }
 

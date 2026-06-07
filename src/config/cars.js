@@ -66,7 +66,7 @@ export const CAR_TYPES = {
     maxSpeed: 290, reverseSpeed: -240, acceleration: 130, deceleration: 150, turnSpeed: 210, maxHp: 135, mass: 1.55,
     class: "GUCLU",
     skillId: "dengo_charge",
-    manufacturer: "BMC"
+    manufacturer: "KKSAN"
   },
 
   // --- TANK ---
@@ -92,6 +92,6 @@ export const CAR_TYPES = {
     maxSpeed: 205, reverseSpeed: -150, acceleration: 75, deceleration: 90, turnSpeed: 125, maxHp: 235, mass: 2.65,
     class: "TANK",
     skillId: "hifzatullah_shield",
-    manufacturer: "FNSS"
+    manufacturer: "KKSAN"
   }
 };
