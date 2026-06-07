@@ -347,3 +347,32 @@ export async function confirmSuggestChoice(choice) {
     this.updateView();
   }
 }
+
+export function handleSuggestKey(key) {
+  const maxIdx = 7;
+  if (this.state.selectedSuggestIdx === undefined || this.state.selectedSuggestIdx >= maxIdx) {
+    this.state.selectedSuggestIdx = 0;
+  }
+
+  if (key === "w" || key === "ArrowUp") {
+    this.state.selectedSuggestIdx = (this.state.selectedSuggestIdx - 1 + maxIdx) % maxIdx;
+    this.updateSuggestFocus();
+  } else if (key === "s" || key === "ArrowDown") {
+    this.state.selectedSuggestIdx = (this.state.selectedSuggestIdx + 1) % maxIdx;
+    this.updateSuggestFocus();
+  } else if (key === " " || key === "Enter") {
+    if (this.state.selectedSuggestIdx === 5 || this.state.selectedSuggestIdx === 6) {
+      this.confirmSuggestChoice(this.state.selectedSuggestIdx);
+    } else if (key === "Enter") {
+      if (this.state.selectedSuggestIdx < 4) {
+        this.state.selectedSuggestIdx++;
+        this.updateSuggestFocus();
+      } else {
+        this.confirmSuggestChoice(5);
+      }
+    }
+  } else if (key === "Escape") {
+    this.confirmSuggestChoice(6);
+  }
+}
+

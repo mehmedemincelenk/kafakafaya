@@ -414,3 +414,64 @@ export function renderMultiplayerJoin() {
 
   this.helpText.innerText = "SEÇİM: W-S / YÖN TUŞLARI • ONAY: ENTER";
 }
+
+export function handleLobbySelectKey(key) {
+  const maxIdx = 3;
+  if (this.state.selectedLobbyIdx === undefined || this.state.selectedLobbyIdx >= maxIdx) {
+    this.state.selectedLobbyIdx = 0;
+  }
+  if (key === "w" || key === "ArrowUp") {
+    this.state.selectedLobbyIdx = (this.state.selectedLobbyIdx - 1 + maxIdx) % maxIdx;
+    this.updateView();
+  } else if (key === "s" || key === "ArrowDown") {
+    this.state.selectedLobbyIdx = (this.state.selectedLobbyIdx + 1) % maxIdx;
+    this.updateView();
+  } else if (key === " " || key === "Enter") {
+    this.confirmLobbyChoice(this.state.selectedLobbyIdx);
+  } else if (key === "Escape") {
+    this.state.menuState = "PLAY_TYPE_SELECT";
+    this.state.selectedPlayTypeIdx = 2;
+    this.updateView();
+  }
+}
+
+export function handleCustomHostKey(key) {
+  const maxIdx = 3;
+  if (this.state.selectedCustomHostIdx === undefined || this.state.selectedCustomHostIdx >= maxIdx) {
+    this.state.selectedCustomHostIdx = 0;
+  }
+  if (key === "w" || key === "ArrowUp") {
+    this.state.selectedCustomHostIdx = (this.state.selectedCustomHostIdx - 1 + maxIdx) % maxIdx;
+    this.updateView();
+  } else if (key === "s" || key === "ArrowDown") {
+    this.state.selectedCustomHostIdx = (this.state.selectedCustomHostIdx + 1) % maxIdx;
+    this.updateView();
+  } else if (key === "Enter" || (key === " " && this.state.selectedCustomHostIdx !== 0)) {
+    this.confirmCustomHostChoice(this.state.selectedCustomHostIdx);
+  } else if (key === "Escape") {
+    this.state.menuState = "MULTIPLAYER_LOBBY_SELECT";
+    this.state.selectedLobbyIdx = 0;
+    this.updateView();
+  }
+}
+
+export function handleJoinKey(key) {
+  const maxIdx = 3;
+  if (this.state.selectedJoinIdx === undefined || this.state.selectedJoinIdx >= maxIdx) {
+    this.state.selectedJoinIdx = 0;
+  }
+  if (key === "w" || key === "ArrowUp") {
+    this.state.selectedJoinIdx = (this.state.selectedJoinIdx - 1 + maxIdx) % maxIdx;
+    this.updateView();
+  } else if (key === "s" || key === "ArrowDown") {
+    this.state.selectedJoinIdx = (this.state.selectedJoinIdx + 1) % maxIdx;
+    this.updateView();
+  } else if (key === "Enter" || (key === " " && this.state.selectedJoinIdx !== 0)) {
+    this.confirmJoinChoice(this.state.selectedJoinIdx);
+  } else if (key === "Escape") {
+    this.state.menuState = "MULTIPLAYER_LOBBY_SELECT";
+    this.state.selectedLobbyIdx = 1;
+    this.updateView();
+  }
+}
+

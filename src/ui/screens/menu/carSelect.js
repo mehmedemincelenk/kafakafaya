@@ -706,3 +706,92 @@ export function checkStartCarLocal() {
     }, 600);
   }
 }
+
+export function handleCarSelectKey(key) {
+  if (k.isMultiplayer) {
+    const meObj = this.state.players.find(p => p.id === myPlayer().id);
+    if (meObj && !meObj.ready) {
+      if (key === "a" || key === "ArrowLeft") {
+        if (meObj.focusRow === "weapon") {
+          this.cycleWeapon(meObj, -1);
+        } else {
+          this.handleCycle(meObj, -1);
+        }
+      } else if (key === "d" || key === "ArrowRight") {
+        if (meObj.focusRow === "weapon") {
+          this.cycleWeapon(meObj, 1);
+        } else {
+          this.handleCycle(meObj, 1);
+        }
+      } else if (key === "w" || key === "ArrowUp") {
+        meObj.focusRow = "vehicle";
+        myPlayer().setState("focusRow", "vehicle");
+        this.updateView();
+      } else if (key === "s" || key === "ArrowDown") {
+        meObj.focusRow = "weapon";
+        myPlayer().setState("focusRow", "weapon");
+        this.updateView();
+      } else if (key === "Enter" || key === " ") {
+        this.handleConfirm(meObj);
+      }
+    }
+  } else {
+    // Local Mode Car Select Controls (P1 vs P2/BOT)
+    const p1Obj = this.state.players[0];
+    const p2Obj = this.state.players[1];
+
+    // Player 1 controls (WASD)
+    if (p1Obj && !p1Obj.ready) {
+      if (key === "a") {
+        if (p1Obj.focusRow === "weapon") {
+          this.cycleWeapon(p1Obj, -1);
+        } else {
+          this.handleCycle(p1Obj, -1);
+        }
+      } else if (key === "d") {
+        if (p1Obj.focusRow === "weapon") {
+          this.cycleWeapon(p1Obj, 1);
+        } else {
+          this.handleCycle(p1Obj, 1);
+        }
+      } else if (key === "w") {
+        p1Obj.focusRow = "vehicle";
+        this.updateView();
+      } else if (key === "s") {
+        p1Obj.focusRow = "weapon";
+        this.updateView();
+      } else if (key === "f") {
+        this.handleConfirm(p1Obj);
+      }
+    }
+
+    // Player 2 controls (Arrow keys / Enter)
+    if (p2Obj && this.state.p2Joined && !p2Obj.ready) {
+      if (key === "ArrowLeft") {
+        if (p2Obj.focusRow === "weapon") {
+          this.cycleWeapon(p2Obj, -1);
+        } else {
+          this.handleCycle(p2Obj, -1);
+        }
+      } else if (key === "ArrowRight") {
+        if (p2Obj.focusRow === "weapon") {
+          this.cycleWeapon(p2Obj, 1);
+        } else {
+          this.handleCycle(p2Obj, 1);
+        }
+      } else if (key === "ArrowUp") {
+        p2Obj.focusRow = "vehicle";
+        this.updateView();
+      } else if (key === "ArrowDown") {
+        p2Obj.focusRow = "weapon";
+        this.updateView();
+      } else if (key === "Enter" || key === " ") {
+        this.handleConfirm(p2Obj);
+      }
+    } else if (!this.state.p2Joined && (key === "ArrowLeft" || key === "ArrowRight" || key === "ArrowUp" || key === "ArrowDown" || key === "Enter" || key === " ")) {
+      // If P2 is bot, any Arrow key or Enter triggers P2 to join
+      this.triggerP2Join();
+    }
+  }
+}
+

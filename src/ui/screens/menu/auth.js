@@ -415,3 +415,55 @@ export async function confirmAuthChoice(choice) {
   this.state.selectedPlayTypeIdx = 0;
   this.updateView();
 }
+
+export function handleAuthKey(key) {
+  const maxIdx = this.state.showP2Input ? 4 : 3;
+  if (this.state.selectedAuthIdx === undefined || this.state.selectedAuthIdx >= maxIdx) {
+    this.state.selectedAuthIdx = 0;
+  }
+
+  if (key === "w" || key === "ArrowUp") {
+    this.state.selectedAuthIdx = (this.state.selectedAuthIdx - 1 + maxIdx) % maxIdx;
+    this.updateAuthFocus();
+  } else if (key === "s" || key === "ArrowDown") {
+    this.state.selectedAuthIdx = (this.state.selectedAuthIdx + 1) % maxIdx;
+    this.updateAuthFocus();
+  } else if (key === " " || key === "Enter") {
+    if (this.state.selectedAuthIdx === 0) {
+      if (key === "Enter") {
+        const submitIdx = this.state.showP2Input ? 3 : 2;
+        this.confirmAuthChoice(submitIdx);
+      }
+    } else if (this.state.selectedAuthIdx === 1) {
+      if (this.state.showP2Input) {
+        if (key === "Enter") {
+          const submitIdx = this.state.showP2Input ? 3 : 2;
+          this.confirmAuthChoice(submitIdx);
+        }
+      } else {
+        this.state.showP2Input = true;
+        this.state.selectedAuthIdx = 1;
+        this.updateView();
+      }
+    } else if (this.state.selectedAuthIdx === 2) {
+      if (this.state.showP2Input) {
+        this.state.showP2Input = false;
+        this.state.tempUsernameP2 = "";
+        this.state.selectedAuthIdx = 0;
+        this.updateView();
+      } else {
+        this.confirmAuthChoice(2);
+      }
+    } else if (this.state.selectedAuthIdx === 3) {
+      this.confirmAuthChoice(3);
+    }
+  } else if (key === "Escape") {
+    if (this.state.prevMenuState === "SETTINGS") {
+      this.triggerCooldown();
+      this.state.menuState = "SETTINGS";
+      this.state.selectedSettingIdx = 3;
+      this.updateView();
+    }
+  }
+}
+

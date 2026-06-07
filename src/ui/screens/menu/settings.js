@@ -82,3 +82,23 @@ export function confirmSettingChoice(choice) {
     this.updateView();
   }
 }
+
+export function handleSettingsKey(key) {
+  if (this.state.selectedSettingIdx === undefined) this.state.selectedSettingIdx = 0;
+  const maxIdx = 4; // 4 buttons: shake, sfx, fps, back
+
+  if (key === "w" || key === "ArrowUp") {
+    this.state.selectedSettingIdx = (this.state.selectedSettingIdx - 1 + maxIdx) % maxIdx;
+    this.updateView();
+  } else if (key === "s" || key === "ArrowDown") {
+    this.state.selectedSettingIdx = (this.state.selectedSettingIdx + 1) % maxIdx;
+    this.updateView();
+  } else if (key === " " || key === "Enter") {
+    this.confirmSettingChoice(this.state.selectedSettingIdx);
+  } else if (key === "Escape") {
+    this.triggerCooldown();
+    this.state.menuState = this.state.prevMenuState || "PLAY_TYPE_SELECT";
+    this.updateView();
+  }
+}
+

@@ -14,16 +14,19 @@ import {
   createCarGridCard,
   createSupportGridCard
 } from "../components.js";
-import { renderAuth, confirmAuthChoice, updateAuthFocus } from "./menu/auth.js";
-import { renderSettings, confirmSettingChoice } from "./menu/settings.js";
-import { renderSuggestVehicle, updateSuggestFocus, confirmSuggestChoice } from "./menu/suggest.js";
+import { renderAuth, confirmAuthChoice, updateAuthFocus, handleAuthKey } from "./menu/auth.js";
+import { renderSettings, confirmSettingChoice, handleSettingsKey } from "./menu/settings.js";
+import { renderSuggestVehicle, updateSuggestFocus, confirmSuggestChoice, handleSuggestKey } from "./menu/suggest.js";
 import {
   renderMultiplayerLobbySelect,
   renderMultiplayerCustomHost,
   renderMultiplayerJoin,
   confirmLobbyChoice,
   confirmCustomHostChoice,
-  confirmJoinChoice
+  confirmJoinChoice,
+  handleLobbySelectKey,
+  handleCustomHostKey,
+  handleJoinKey
 } from "./menu/lobby.js";
 import {
   setupPlayersState,
@@ -34,7 +37,8 @@ import {
   cycleWeapon,
   handleConfirm,
   triggerP2Join,
-  checkStartCarLocal
+  checkStartCarLocal,
+  handleCarSelectKey
 } from "./menu/carSelect.js";
 
 // Import styles
@@ -930,199 +934,20 @@ class HTMLMenuManager {
         } else if (key === " " || key === "Enter") {
           this.confirmPlayType(this.state.selectedPlayTypeIdx);
         }
-      } else if (this.state.menuState === "SETTINGS") {
-        if (this.state.selectedSettingIdx === undefined) this.state.selectedSettingIdx = 0;
-        if (key === "w" || key === "ArrowUp") {
-          this.state.selectedSettingIdx = (this.state.selectedSettingIdx - 1 + 5) % 5;
-          this.updateView();
-        } else if (key === "s" || key === "ArrowDown") {
-          this.state.selectedSettingIdx = (this.state.selectedSettingIdx + 1) % 5;
-          this.updateView();
-        } else if (key === " " || key === "Enter") {
-          this.confirmSettingChoice(this.state.selectedSettingIdx);
-        } else if (key === "Escape") {
-          this.triggerCooldown();
-          this.state.menuState = this.state.prevMenuState || "PLAY_TYPE_SELECT";
-          this.updateView();
-        }
-      } else if (this.state.menuState === "AUTH") {
-        const maxIdx = this.state.showP2Input ? 4 : 3;
-        if (this.state.selectedAuthIdx === undefined || this.state.selectedAuthIdx >= maxIdx) {
-          this.state.selectedAuthIdx = 0;
-        }
-
-        if (key === "w" || key === "ArrowUp") {
-          this.state.selectedAuthIdx = (this.state.selectedAuthIdx - 1 + maxIdx) % maxIdx;
-          this.updateAuthFocus();
-        } else if (key === "s" || key === "ArrowDown") {
-          this.state.selectedAuthIdx = (this.state.selectedAuthIdx + 1) % maxIdx;
-          this.updateAuthFocus();
-        } else if (key === " " || key === "Enter") {
-          if (this.state.selectedAuthIdx === 0) {
-            if (key === "Enter") {
-              const submitIdx = this.state.showP2Input ? 3 : 2;
-              this.confirmAuthChoice(submitIdx);
-            }
-          } else if (this.state.selectedAuthIdx === 1) {
-            if (this.state.showP2Input) {
-              if (key === "Enter") {
-                const submitIdx = this.state.showP2Input ? 3 : 2;
-                this.confirmAuthChoice(submitIdx);
-              }
-            } else {
-              this.state.showP2Input = true;
-              this.state.selectedAuthIdx = 1;
-              this.updateView();
-            }
-          } else if (this.state.selectedAuthIdx === 2) {
-            if (this.state.showP2Input) {
-              this.state.showP2Input = false;
-              this.state.tempUsernameP2 = "";
-              this.state.selectedAuthIdx = 0;
-              this.updateView();
-            } else {
-              this.confirmAuthChoice(2);
-            }
-          } else if (this.state.selectedAuthIdx === 3) {
-            this.confirmAuthChoice(3);
-          }
-        } else if (key === "Escape") {
-          if (this.state.prevMenuState === "SETTINGS") {
-            this.triggerCooldown();
-            this.state.menuState = "SETTINGS";
-            this.state.selectedSettingIdx = 3;
-            this.updateView();
-          }
-        }
-      } else if (this.state.menuState === "SUGGEST_VEHICLE") {
-        const maxIdx = 7;
-        if (this.state.selectedSuggestIdx === undefined || this.state.selectedSuggestIdx >= maxIdx) {
-          this.state.selectedSuggestIdx = 0;
-        }
-
-        if (key === "w" || key === "ArrowUp") {
-          this.state.selectedSuggestIdx = (this.state.selectedSuggestIdx - 1 + maxIdx) % maxIdx;
-          this.updateSuggestFocus();
-        } else if (key === "s" || key === "ArrowDown") {
-          this.state.selectedSuggestIdx = (this.state.selectedSuggestIdx + 1) % maxIdx;
-          this.updateSuggestFocus();
-        } else if (key === " " || key === "Enter") {
-          if (this.state.selectedSuggestIdx === 5 || this.state.selectedSuggestIdx === 6) {
-            this.confirmSuggestChoice(this.state.selectedSuggestIdx);
-          } else if (key === "Enter") {
-            if (this.state.selectedSuggestIdx < 4) {
-              this.state.selectedSuggestIdx++;
-              this.updateSuggestFocus();
-            } else {
-              this.confirmSuggestChoice(5);
-            }
-          }
-        } else if (key === "Escape") {
-          this.confirmSuggestChoice(6);
-        }
-      } else if (this.state.menuState === "MULTIPLAYER_LOBBY_SELECT") {
-        const maxIdx = 3;
-        if (this.state.selectedLobbyIdx === undefined || this.state.selectedLobbyIdx >= maxIdx) {
-          this.state.selectedLobbyIdx = 0;
-        }
-        if (key === "w" || key === "ArrowUp") {
-          this.state.selectedLobbyIdx = (this.state.selectedLobbyIdx - 1 + maxIdx) % maxIdx;
-          this.updateView();
-        } else if (key === "s" || key === "ArrowDown") {
-          this.state.selectedLobbyIdx = (this.state.selectedLobbyIdx + 1) % maxIdx;
-          this.updateView();
-        } else if (key === " " || key === "Enter") {
-          this.confirmLobbyChoice(this.state.selectedLobbyIdx);
-        } else if (key === "Escape") {
-          this.state.menuState = "PLAY_TYPE_SELECT";
-          this.state.selectedPlayTypeIdx = 2;
-          this.updateView();
-        }
-      } else if (this.state.menuState === "MULTIPLAYER_CUSTOM_HOST") {
-        const maxIdx = 3;
-        if (this.state.selectedCustomHostIdx === undefined || this.state.selectedCustomHostIdx >= maxIdx) {
-          this.state.selectedCustomHostIdx = 0;
-        }
-        if (key === "w" || key === "ArrowUp") {
-          this.state.selectedCustomHostIdx = (this.state.selectedCustomHostIdx - 1 + maxIdx) % maxIdx;
-          this.updateView();
-        } else if (key === "s" || key === "ArrowDown") {
-          this.state.selectedCustomHostIdx = (this.state.selectedCustomHostIdx + 1) % maxIdx;
-          this.updateView();
-        } else if (key === "Enter" || (key === " " && this.state.selectedCustomHostIdx !== 0)) {
-          this.confirmCustomHostChoice(this.state.selectedCustomHostIdx);
-        } else if (key === "Escape") {
-          this.state.menuState = "MULTIPLAYER_LOBBY_SELECT";
-          this.state.selectedLobbyIdx = 0;
-          this.updateView();
-        }
-      } else if (this.state.menuState === "MULTIPLAYER_JOIN") {
-        const maxIdx = 3;
-        if (this.state.selectedJoinIdx === undefined || this.state.selectedJoinIdx >= maxIdx) {
-          this.state.selectedJoinIdx = 0;
-        }
-        if (key === "w" || key === "ArrowUp") {
-          this.state.selectedJoinIdx = (this.state.selectedJoinIdx - 1 + maxIdx) % maxIdx;
-          this.updateView();
-        } else if (key === "s" || key === "ArrowDown") {
-          this.state.selectedJoinIdx = (this.state.selectedJoinIdx + 1) % maxIdx;
-          this.updateView();
-        } else if (key === "Enter" || (key === " " && this.state.selectedJoinIdx !== 0)) {
-          this.confirmJoinChoice(this.state.selectedJoinIdx);
-        } else if (key === "Escape") {
-          this.state.menuState = "MULTIPLAYER_LOBBY_SELECT";
-          this.state.selectedLobbyIdx = 1;
-          this.updateView();
-        }
       } else {
-        // MAP OR CAR SELECT
-        if (k.isMultiplayer) {
-          const meObj = this.state.players.find(p => p.id === myPlayer().id);
-          if (meObj && !meObj.ready) {
-            if (key === "a" || key === "ArrowLeft") {
-              if (meObj.focusRow === "weapon") {
-                this.cycleWeapon(meObj, -1);
-              } else {
-                this.handleCycle(meObj, -1);
-              }
-            } else if (key === "d" || key === "ArrowRight") {
-              if (meObj.focusRow === "weapon") {
-                this.cycleWeapon(meObj, 1);
-              } else {
-                this.handleCycle(meObj, 1);
-              }
-            } else if (key === "w" || key === "ArrowUp") {
-              meObj.focusRow = "vehicle";
-              myPlayer().setState("focusRow", "vehicle");
-              this.updateView();
-            } else if (key === "s" || key === "ArrowDown") {
-              meObj.focusRow = "weapon";
-              myPlayer().setState("focusRow", "weapon");
-              this.updateView();
-            } else if (key === " " || key === "Enter") {
-              this.handleConfirm(meObj);
-            }
-          }
-        } else {
-          this.state.players.forEach(p => {
-            if (p.profileId === "p2" && !this.state.p2Joined) return;
-            if (p.ready) return;
+        const KEYBOARD_HANDLERS = {
+          SETTINGS: handleSettingsKey,
+          AUTH: handleAuthKey,
+          SUGGEST_VEHICLE: handleSuggestKey,
+          MULTIPLAYER_LOBBY_SELECT: handleLobbySelectKey,
+          MULTIPLAYER_CUSTOM_HOST: handleCustomHostKey,
+          MULTIPLAYER_JOIN: handleJoinKey,
+          CAR_SELECT: handleCarSelectKey,
+        };
 
-            if (p.cycleKeys.includes(key)) {
-              const dir = key === p.cycleKeys[0] ? -1 : 1;
-              if (p.focusRow === "weapon") {
-                this.cycleWeapon(p, dir);
-              } else {
-                this.handleCycle(p, dir);
-              }
-            } else if (p.verticalKeys && p.verticalKeys.includes(key)) {
-              const row = key === p.verticalKeys[0] ? "vehicle" : "weapon";
-              p.focusRow = row;
-              this.updateView();
-            } else if (key === p.btnKey || (p.btnKey === "space" && key === " ")) {
-              this.handleConfirm(p);
-            }
-          });
+        const handler = KEYBOARD_HANDLERS[this.state.menuState];
+        if (handler) {
+          handler.call(this, key);
         }
       }
     };
