@@ -244,18 +244,30 @@ export class MatchManager {
     if (!controlsLocked && !k.isGamePaused) {
       if (k.isMultiplayer) {
         if (isHost()) {
-          const lastCeil = Math.ceil(this.roundTimeLeft);
+          const lastFloor = Math.floor(this.roundTimeLeft);
           this.roundTimeLeft -= k.dt();
           if (this.roundTimeLeft <= 0) {
             this.roundTimeLeft = 0;
             this.triggerTimeOut();
           }
-          const nextCeil = Math.ceil(this.roundTimeLeft);
-          if (lastCeil !== nextCeil) {
-            setState("roundTime", nextCeil, true);
+          const nextFloor = Math.floor(this.roundTimeLeft);
+          if (lastFloor !== nextFloor) {
+            setState("roundTime", nextFloor, true);
           }
         } else {
-          this.roundTimeLeft = getState("roundTime") ?? 90;
+          const hostTime = getState("roundTime");
+          if (hostTime !== undefined && hostTime !== null) {
+            if (Math.abs(this.roundTimeLeft - hostTime) > 1.5) {
+              this.roundTimeLeft = hostTime;
+            } else {
+              this.roundTimeLeft -= k.dt();
+              if (this.roundTimeLeft <= 0) {
+                this.roundTimeLeft = 0;
+              }
+            }
+          } else {
+            this.roundTimeLeft -= k.dt();
+          }
         }
       } else {
         this.roundTimeLeft -= k.dt();
