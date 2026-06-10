@@ -305,4 +305,18 @@
   width: 130px !important;
 }
 
+/* Mobile viewport vertical layout compression */
+.is-touch .menu-overlay-container {
+  padding: 10px 20px !important;
+}
+
+.is-touch .stage-header {
+  margin-bottom: 8px !important;
+}
+
+.is-touch .menu-footer {
+  margin-bottom: 10px !important;
+  gap: 8px !important;
+}
+
 
