@@ -30,10 +30,14 @@
   font-family: 'Outfit', sans-serif;
   color: var(--text-main);
   box-sizing: border-box;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 #ui-root * {
   box-sizing: border-box;
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 /* Base Interactive container */
