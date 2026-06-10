@@ -343,6 +343,12 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     healthBarBg.hidden = false;
     healthBarFill.hidden = false;
 
+    // --- GİRDİ GÖNDERME (MULTIPLAYER CLIENT) ---
+    // Non-host oyuncu, kendi aracının girdilerini okuyup host'a göndermelidir.
+    if (k.isMultiplayer && playerInfo && playerInfo.id === myPlayer().id && !isHost()) {
+      getCarInputs(car, playerInfo, controls);
+    }
+
     // --- PLAYROOM CLIENT SYNCHRONIZATION ---
     // Host fizik simülasyonunu yapar. Client ise sadece Host'un gönderdiği verileri ekrana yansıtır.
     if (playerInfo && !isHost()) {

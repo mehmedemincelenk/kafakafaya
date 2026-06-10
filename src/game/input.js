@@ -1,6 +1,16 @@
 import { k } from "../kaplay.js";
 import { isHost, myPlayer } from "playroomkit";
 
+export const virtualInputs = {
+  forward: false,
+  backward: false,
+  left: false,
+  right: false,
+  dash: false,
+  skill: false,
+  clashTap: false
+};
+
 export function getCarInputs(car, playerInfo, controls) {
   if (car.isBot) {
     return {
@@ -17,29 +27,32 @@ export function getCarInputs(car, playerInfo, controls) {
   if (playerInfo) {
     // --- ÇEVRİMİÇİ / MULTIPLAYER MODU ---
     if (playerInfo.id === myPlayer().id && !car.controlsLocked) {
-      // Lokal klavyeyi oku ve ağa gönder
+      // Lokal klavyeyi veya sanal joystiği oku ve ağa gönder
       const localInputs = {
-        forward: k.isKeyDown("w") || k.isKeyDown("up"),
-        backward: k.isKeyDown("s") || k.isKeyDown("down"),
-        left: k.isKeyDown("a") || k.isKeyDown("left"),
-        right: k.isKeyDown("d") || k.isKeyDown("right"),
+        forward: k.isKeyDown("w") || k.isKeyDown("up") || virtualInputs.forward,
+        backward: k.isKeyDown("s") || k.isKeyDown("down") || virtualInputs.backward,
+        left: k.isKeyDown("a") || k.isKeyDown("left") || virtualInputs.left,
+        right: k.isKeyDown("d") || k.isKeyDown("right") || virtualInputs.right,
       };
       playerInfo.setState("inputs", localInputs);
       driveInput = localInputs;
 
       // Clash modunda hızlı basma (tap) tespiti
-      if (car.state === "CLASH" && (k.isKeyPressed("w") || k.isKeyPressed("up"))) {
+      if (car.state === "CLASH" && (k.isKeyPressed("w") || k.isKeyPressed("up") || virtualInputs.clashTap)) {
         playerInfo.setState("clashTaps", (playerInfo.getState("clashTaps") || 0) + 1);
+        virtualInputs.clashTap = false;
       }
 
       const dashKey = "shift";
       const skillKey = "q";
 
-      if (k.isKeyPressed(dashKey)) {
+      if (k.isKeyPressed(dashKey) || virtualInputs.dash) {
         playerInfo.setState("dashPressed", true);
+        virtualInputs.dash = false;
       }
-      if (k.isKeyPressed(skillKey)) {
+      if (k.isKeyPressed(skillKey) || virtualInputs.skill) {
         playerInfo.setState("skillPressed", true);
+        virtualInputs.skill = false;
       }
     } else {
       // Diğer oyuncuların girdi verilerini ağdan (Playroom state) oku
@@ -66,16 +79,21 @@ export function getCarInputs(car, playerInfo, controls) {
   } else {
     // --- ÇEVRİMDIŞI / YEREL MOD ---
     if (!car.controlsLocked) {
-      driveInput.forward = k.isKeyDown(controls.forward);
-      driveInput.backward = k.isKeyDown(controls.backward);
-      driveInput.left = k.isKeyDown(controls.left);
-      driveInput.right = k.isKeyDown(controls.right);
+      const isPlayer1 = car.is("player1") || car.tag === "player1";
 
-      triggerDashPress = controls.dash && k.isKeyPressed(controls.dash);
-      triggerSkillPress = controls.skill && (
+      driveInput.forward = k.isKeyDown(controls.forward) || (isPlayer1 && virtualInputs.forward);
+      driveInput.backward = k.isKeyDown(controls.backward) || (isPlayer1 && virtualInputs.backward);
+      driveInput.left = k.isKeyDown(controls.left) || (isPlayer1 && virtualInputs.left);
+      driveInput.right = k.isKeyDown(controls.right) || (isPlayer1 && virtualInputs.right);
+
+      triggerDashPress = (controls.dash && k.isKeyPressed(controls.dash)) || (isPlayer1 && virtualInputs.dash);
+      if (isPlayer1 && virtualInputs.dash) virtualInputs.dash = false;
+
+      triggerSkillPress = (controls.skill && (
         k.isKeyPressed(controls.skill) || 
         (controls.skill === "numpad0" && k.isKeyPressed("0"))
-      );
+      )) || (isPlayer1 && virtualInputs.skill);
+      if (isPlayer1 && virtualInputs.skill) virtualInputs.skill = false;
     }
   }
 

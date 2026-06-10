@@ -6,7 +6,11 @@ export function renderSettings() {
   navContainer.className = "menu-nav-list";
 
   let raw = localStorage.getItem("kafakafaya_settings");
-  let settings = raw ? JSON.parse(raw) : { screenShake: true, sfx: true, showFps: false };
+  let hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  let settings = raw ? JSON.parse(raw) : { screenShake: true, sfx: true, showFps: false, joystick: hasTouch };
+  if (settings.joystick === undefined) {
+    settings.joystick = hasTouch;
+  }
 
   const shakeBtn = createNavButton({
     text: `EKRAN SARSINTISI: ${settings.screenShake ? "AÇIK" : "KAPALI"}`,
@@ -38,10 +42,9 @@ export function renderSettings() {
     }
   });
 
-  const backBtn = createNavButton({
-    text: "GERİ DÖN",
+  const joystickBtn = createNavButton({
+    text: `TELEFON JOYSTICK: ${settings.joystick ? "AÇIK" : "KAPALI"}`,
     active: this.state.selectedSettingIdx === 3,
-    className: "nav-back",
     onClick: () => {
       if (this.state.inputCooldown) return;
       this.state.selectedSettingIdx = 3;
@@ -49,9 +52,21 @@ export function renderSettings() {
     }
   });
 
+  const backBtn = createNavButton({
+    text: "GERİ DÖN",
+    active: this.state.selectedSettingIdx === 4,
+    className: "nav-back",
+    onClick: () => {
+      if (this.state.inputCooldown) return;
+      this.state.selectedSettingIdx = 4;
+      this.confirmSettingChoice(4);
+    }
+  });
+
   navContainer.appendChild(shakeBtn);
   navContainer.appendChild(sfxBtn);
   navContainer.appendChild(fpsBtn);
+  navContainer.appendChild(joystickBtn);
   navContainer.appendChild(backBtn);
   this.contentArea.appendChild(navContainer);
 
@@ -61,7 +76,11 @@ export function renderSettings() {
 export function confirmSettingChoice(choice) {
   this.triggerCooldown();
   let raw = localStorage.getItem("kafakafaya_settings");
-  let settings = raw ? JSON.parse(raw) : { screenShake: true, sfx: true, showFps: false };
+  let hasTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+  let settings = raw ? JSON.parse(raw) : { screenShake: true, sfx: true, showFps: false, joystick: hasTouch };
+  if (settings.joystick === undefined) {
+    settings.joystick = hasTouch;
+  }
 
   if (choice === 0) {
     settings.screenShake = !settings.screenShake;
@@ -77,6 +96,10 @@ export function confirmSettingChoice(choice) {
     localStorage.setItem("kafakafaya_settings", JSON.stringify(settings));
     this.updateView();
   } else if (choice === 3) {
+    settings.joystick = !settings.joystick;
+    localStorage.setItem("kafakafaya_settings", JSON.stringify(settings));
+    this.updateView();
+  } else if (choice === 4) {
     this.state.menuState = "PLAY_TYPE_SELECT";
     this.state.selectedPlayTypeIdx = 3;
     this.updateView();
@@ -85,7 +108,7 @@ export function confirmSettingChoice(choice) {
 
 export function handleSettingsKey(key) {
   if (this.state.selectedSettingIdx === undefined) this.state.selectedSettingIdx = 0;
-  const maxIdx = 4; // 4 buttons: shake, sfx, fps, back
+  const maxIdx = 5; // 5 buttons: shake, sfx, fps, joystick, back
 
   if (key === "w" || key === "ArrowUp") {
     this.state.selectedSettingIdx = (this.state.selectedSettingIdx - 1 + maxIdx) % maxIdx;

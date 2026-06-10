@@ -16,6 +16,7 @@ import { setupSuddenDeath } from "../game/suddendeath.js";
 import { MatchManager } from "../game/matchmanager.js";
 import { getTurkishGuestName } from "../utils.js";
 import { cleanupGameOverMenu } from "../game/gameover.js";
+import { setupVirtualControls } from "../game/virtualControls.js";
 
 export function initGameScene() {
   k.scene("game", (localParams) => {
@@ -252,6 +253,9 @@ export function initGameScene() {
     // HUD Kurulumu
     setupHUD(cars);
 
+    // Sanal Joystick ve Kontroller Kurulumu
+    setupVirtualControls();
+
     // Sudden Death / Daralan Alan Kontrolü
     const suddenDeath = setupSuddenDeath(cars, () => matchManager.checkGameOver());
 
@@ -298,6 +302,8 @@ export function initGameScene() {
       if (pauseMenuEl) pauseMenuEl.remove();
       const gameOverMenuEl = document.getElementById("game-over-root");
       if (gameOverMenuEl) gameOverMenuEl.remove();
+      const virtControlsEl = document.getElementById("virtual-controls-root");
+      if (virtControlsEl) virtControlsEl.remove();
 
       // Cancel and cleanup event listeners/keys
       if (pauseMenu) pauseMenu.cancel();

@@ -2,6 +2,7 @@ import { k } from "../kaplay.js";
 import { changeState } from "../states.js";
 import { spawnExplosion } from "../utils.js";
 import { isHost } from "playroomkit";
+import { virtualInputs } from "./input.js";
 
 /**
  * Handle head-on duel clash state, inputs, physics push, and finish triggers.
@@ -71,7 +72,7 @@ export function startDuel(car1, car2, collisionNormal, midPoint, checkGameOver) 
       const origColor = car2.color;
       car2.color = k.rgb(255, 255, 255);
       k.wait(0.2, () => {
-        car2.color = origColor;
+        if (car2.exists()) car2.color = origColor;
       });
 
       car2.speed = -550 * (car1.mass / car2.mass);
@@ -83,7 +84,7 @@ export function startDuel(car1, car2, collisionNormal, midPoint, checkGameOver) 
       const origColor = car1.color;
       car1.color = k.rgb(255, 255, 255);
       k.wait(0.2, () => {
-        car1.color = origColor;
+        if (car1.exists()) car1.color = origColor;
       });
 
       car1.speed = -550 * (car2.mass / car1.mass);
@@ -96,8 +97,8 @@ export function startDuel(car1, car2, collisionNormal, midPoint, checkGameOver) 
     }
 
     k.wait(0.6, () => {
-      changeState(car1, "DRIVING");
-      changeState(car2, "DRIVING");
+      if (car1.exists()) changeState(car1, "DRIVING");
+      if (car2.exists()) changeState(car2, "DRIVING");
       car1.isInvulnerable = false;
       car2.isInvulnerable = false;
     });
@@ -155,6 +156,15 @@ export function startDuel(car1, car2, collisionNormal, midPoint, checkGameOver) 
 
     cancel2 = k.onKeyPress(car2.controls?.forward || "up", () => {
       processTap(2, 1);
+    });
+
+    // Sanal kontrollerden gelen clash tap girişlerini dinle (Oyuncu 1 için)
+    tapWatcher = k.onUpdate(() => {
+      if (duelEnded) return;
+      if (virtualInputs.clashTap) {
+        virtualInputs.clashTap = false;
+        processTap(1, 1);
+      }
     });
   }
 
