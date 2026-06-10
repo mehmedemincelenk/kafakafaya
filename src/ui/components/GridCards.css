@@ -393,7 +393,7 @@
   background: rgba(12, 16, 26, 0.7);
   border: 1px solid rgba(255, 255, 255, 0.06);
   border-radius: 4px;
-  padding: 14px;
+  padding: 8px 12px;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -422,7 +422,7 @@
   font-size: 9px;
   font-weight: 900;
   letter-spacing: 2.5px;
-  margin: 0 0 12px 0;
+  margin: 0 0 8px 0;
   color: var(--text-muted);
   border-left: 3px solid var(--player-color, #008cff);
   padding-left: 10px;
@@ -484,9 +484,9 @@
   gap: 8px;
   background: rgba(0, 0, 0, 0.3);
   border-radius: 4px;
-  padding: 12px;
+  padding: 8px 10px;
   border: 1px solid rgba(255, 255, 255, 0.03);
-  margin-top: 10px;
+  margin-top: 6px;
   width: 100%;
   box-sizing: border-box;
 }

@@ -65,7 +65,7 @@ export function createPlayerSelectorPanel({
   if (!isMapSelect) {
     preview.style.display = "flex";
     preview.style.flexDirection = "column";
-    preview.style.gap = "14px";
+    preview.style.gap = "8px";
     preview.style.width = "100%";
     preview.style.alignItems = "stretch";
 
@@ -85,7 +85,7 @@ export function createPlayerSelectorPanel({
     
     vehicleCard.style.display = "flex";
     vehicleCard.style.flexDirection = "column";
-    vehicleCard.style.gap = "12px";
+    vehicleCard.style.gap = "6px";
 
     if (isInteractive && !ready) {
       vehicleCard.style.cursor = "pointer";
@@ -199,7 +199,7 @@ export function createPlayerSelectorPanel({
       statsBox.style.padding = "4px 0px";
       statsBox.style.display = "flex";
       statsBox.style.flexDirection = "column";
-      statsBox.style.gap = "8px";
+      statsBox.style.gap = "4px";
 
       previewData.stats.forEach(stat => {
         const row = document.createElement("div");
@@ -270,7 +270,7 @@ export function createPlayerSelectorPanel({
       
       weaponCard.style.display = "flex";
       weaponCard.style.flexDirection = "column";
-      weaponCard.style.gap = "12px";
+      weaponCard.style.gap = "6px";
 
       if (isInteractive && !ready) {
         weaponCard.style.cursor = "pointer";
