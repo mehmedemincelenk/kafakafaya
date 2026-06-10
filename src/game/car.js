@@ -520,7 +520,7 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
           Math.abs((lastData.dashCooldownTimer || 0) - currentData.dashCooldownTimer) > 0.3;
 
         if (changed || !car.lastSentCarData) {
-          playerInfo.setState("carData", currentData);
+          playerInfo.setState("carData", currentData, false);
           car.lastSentCarData = currentData;
         }
       }

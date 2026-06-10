@@ -56,7 +56,7 @@ export function initGameScene() {
 
       if (k.isMultiplayer) {
         const nextPaused = !getState("isGamePaused");
-        setState("isGamePaused", nextPaused);
+        setState("isGamePaused", nextPaused, true);
         if (nextPaused) {
           pauseMenu.show();
         } else {
@@ -84,7 +84,7 @@ export function initGameScene() {
         if (!mapName || (blueScore === 0 && redScore === 0 && !getState("roundOver"))) {
           const randomMap = k.choose(MAPS);
           mapName = randomMap.name;
-          setState("gameMap", mapName);
+          setState("gameMap", mapName, true);
         }
         mapData = MAPS.find(m => m.name === mapName) || MAPS[0];
       } else {

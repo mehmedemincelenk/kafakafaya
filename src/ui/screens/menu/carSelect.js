@@ -202,12 +202,12 @@ export function renderCarPreviewPanel(pObj) {
     if (isWeapon) {
       store.setSelectedWeapon(activeProf, nextKey);
       if (k.isMultiplayer && pObj.id === myPlayer().id) {
-        myPlayer().setState("selectedWeapon", nextKey);
+        myPlayer().setState("selectedWeapon", nextKey, true);
       }
     } else {
       store.setSelectedSupport(activeProf, nextKey);
       if (k.isMultiplayer && pObj.id === myPlayer().id) {
-        myPlayer().setState("selectedSupport", nextKey);
+        myPlayer().setState("selectedSupport", nextKey, true);
       }
     }
     this.updateView();
@@ -280,7 +280,7 @@ export function renderCarPreviewPanel(pObj) {
     onFocusRow: (row) => {
       pObj.focusRow = row;
       if (k.isMultiplayer && pObj.id === myPlayer().id) {
-        myPlayer().setState("focusRow", row);
+        myPlayer().setState("focusRow", row, true);
       }
       this.updateView();
     },
@@ -366,9 +366,9 @@ export function renderCarGridPanel() {
               return;
             }
             meObj.idx = carIndex;
-            myPlayer().setState("carTypeIdx", carIndex);
-            myPlayer().setState("skinId", store.getSelectedSkin("p1", carType));
-            myPlayer().setState("skillId", store.getSelectedSkill("p1", carType));
+            myPlayer().setState("carTypeIdx", carIndex, true);
+            myPlayer().setState("skinId", store.getSelectedSkin("p1", carType), true);
+            myPlayer().setState("skillId", store.getSelectedSkill("p1", carType), true);
             this.updateView();
           }
         } else {
@@ -491,10 +491,10 @@ export function renderCarGridPanel() {
             }
             if (isWeapon) {
               store.setSelectedWeapon("p1", supportKey);
-              myPlayer().setState("selectedWeapon", supportKey);
+              myPlayer().setState("selectedWeapon", supportKey, true);
             } else {
               store.setSelectedSupport("p1", supportKey);
-              myPlayer().setState("selectedSupport", supportKey);
+              myPlayer().setState("selectedSupport", supportKey, true);
             }
             this.updateView();
           }
@@ -555,10 +555,10 @@ export function handleCycle(pObj, dir) {
   pObj.idx = (pObj.idx + dir + allCarTypes.length) % allCarTypes.length;
 
   if (k.isMultiplayer && pObj.id === myPlayer().id) {
-    myPlayer().setState("carTypeIdx", pObj.idx);
+    myPlayer().setState("carTypeIdx", pObj.idx, true);
     const type = allCarTypes[pObj.idx];
-    myPlayer().setState("skinId", store.getSelectedSkin("p1", type));
-    myPlayer().setState("skillId", store.getSelectedSkill("p1", type));
+    myPlayer().setState("skinId", store.getSelectedSkin("p1", type), true);
+    myPlayer().setState("skillId", store.getSelectedSkill("p1", type), true);
   }
 
   this.updateView();
@@ -582,12 +582,12 @@ export function cycleWeapon(pObj, dir) {
   if (isWeapon) {
     store.setSelectedWeapon(activeProf, nextKey);
     if (k.isMultiplayer && pObj.id === myPlayer().id) {
-      myPlayer().setState("selectedWeapon", nextKey);
+      myPlayer().setState("selectedWeapon", nextKey, true);
     }
   } else {
     store.setSelectedSupport(activeProf, nextKey);
     if (k.isMultiplayer && pObj.id === myPlayer().id) {
-      myPlayer().setState("selectedSupport", nextKey);
+      myPlayer().setState("selectedSupport", nextKey, true);
     }
   }
   this.updateView();
@@ -658,9 +658,9 @@ export function handleConfirm(pObj) {
 
   if (k.isMultiplayer) {
     if (pObj.id !== myPlayer().id) return;
-    myPlayer().setState("skinId", store.getSelectedSkin("p1", type));
-    myPlayer().setState("skillId", store.getSelectedSkill("p1", type));
-    myPlayer().setState("ready", true);
+    myPlayer().setState("skinId", store.getSelectedSkin("p1", type), true);
+    myPlayer().setState("skillId", store.getSelectedSkill("p1", type), true);
+    myPlayer().setState("ready", true, true);
   } else {
     pObj.ready = true;
     this.updateView();
@@ -725,11 +725,11 @@ export function handleCarSelectKey(key) {
         }
       } else if (key === "w" || key === "ArrowUp") {
         meObj.focusRow = "vehicle";
-        myPlayer().setState("focusRow", "vehicle");
+        myPlayer().setState("focusRow", "vehicle", true);
         this.updateView();
       } else if (key === "s" || key === "ArrowDown") {
         meObj.focusRow = "weapon";
-        myPlayer().setState("focusRow", "weapon");
+        myPlayer().setState("focusRow", "weapon", true);
         this.updateView();
       } else if (key === "Enter" || key === " ") {
         this.handleConfirm(meObj);

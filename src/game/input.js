@@ -43,14 +43,14 @@ export function getCarInputs(car, playerInfo, controls) {
         lastInputs.right !== localInputs.right;
 
       if (inputsChanged) {
-        playerInfo.setState("inputs", localInputs);
+        playerInfo.setState("inputs", localInputs, false);
         car.lastSentInputs = { ...localInputs };
       }
       driveInput = localInputs;
 
       // Clash modunda hızlı basma (tap) tespiti
       if (car.state === "CLASH" && (k.isKeyPressed("w") || k.isKeyPressed("up") || virtualInputs.clashTap)) {
-        playerInfo.setState("clashTaps", (playerInfo.getState("clashTaps") || 0) + 1);
+        playerInfo.setState("clashTaps", (playerInfo.getState("clashTaps") || 0) + 1, true);
         virtualInputs.clashTap = false;
       }
 
@@ -58,11 +58,11 @@ export function getCarInputs(car, playerInfo, controls) {
       const skillKey = "q";
 
       if (k.isKeyPressed(dashKey) || virtualInputs.dash) {
-        playerInfo.setState("dashPressed", true);
+        playerInfo.setState("dashPressed", true, true);
         virtualInputs.dash = false;
       }
       if (k.isKeyPressed(skillKey) || virtualInputs.skill) {
-        playerInfo.setState("skillPressed", true);
+        playerInfo.setState("skillPressed", true, true);
         virtualInputs.skill = false;
       }
     } else {
@@ -78,13 +78,13 @@ export function getCarInputs(car, playerInfo, controls) {
     if (playerInfo.getState("dashPressed")) {
       triggerDashPress = true;
       if (isHost()) {
-        playerInfo.setState("dashPressed", false);
+        playerInfo.setState("dashPressed", false, true);
       }
     }
     if (playerInfo.getState("skillPressed")) {
       triggerSkillPress = true;
       if (isHost()) {
-        playerInfo.setState("skillPressed", false);
+        playerInfo.setState("skillPressed", false, true);
       }
     }
   } else {

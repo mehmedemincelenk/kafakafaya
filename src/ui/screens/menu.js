@@ -696,8 +696,8 @@ class HTMLMenuManager {
       if (isConnected) {
         k.isMultiplayer = true;
         this.state.menuState = "CAR_SELECT";
-        setState("menuState", "CAR_SELECT");
-        setState("gameMode", "NORMAL");
+        setState("menuState", "CAR_SELECT", true);
+        setState("gameMode", "NORMAL", true);
         this.setupPlayersState();
         this.updateView();
         return;
@@ -794,8 +794,8 @@ class HTMLMenuManager {
         console.error("Failed to set playroom username state:", err);
       }
       this.state.menuState = "CAR_SELECT";
-      setState("menuState", "CAR_SELECT");
-      setState("gameMode", "NORMAL");
+      setState("menuState", "CAR_SELECT", true);
+      setState("gameMode", "NORMAL", true);
       this.setupPlayersState();
       this.updateView();
     } catch (e) {
@@ -891,7 +891,7 @@ class HTMLMenuManager {
       if (!k.isMultiplayer) return;
 
       if (isHost()) {
-        setState("hostId", myPlayer().id);
+        setState("hostId", myPlayer().id, true);
       }
 
       if (this.state.menuState === "PLAY_TYPE_SELECT") {
@@ -957,15 +957,15 @@ class HTMLMenuManager {
             
             // Choose the map before transitioning to playing state to avoid race condition!
             const randomMap = k.choose(MAPS);
-            setState("gameMap", randomMap.name);
-            setState("blueScore", 0);
-            setState("redScore", 0);
-            setState("roundOver", false);
-            setState("roundWinner", null);
-            setState("isGamePaused", false);
+            setState("gameMap", randomMap.name, true);
+            setState("blueScore", 0, true);
+            setState("redScore", 0, true);
+            setState("roundOver", false, true);
+            setState("roundWinner", null, true);
+            setState("isGamePaused", false, true);
 
             setTimeout(() => {
-              setState("gameState", "playing");
+              setState("gameState", "playing", true);
             }, 600);
           }
         }

@@ -252,7 +252,7 @@ export class MatchManager {
           }
           const nextCeil = Math.ceil(this.roundTimeLeft);
           if (lastCeil !== nextCeil) {
-            setState("roundTime", nextCeil);
+            setState("roundTime", nextCeil, true);
           }
         } else {
           this.roundTimeLeft = getState("roundTime") ?? 90;
@@ -300,8 +300,8 @@ export class MatchManager {
 
     if (k.isMultiplayer) {
       if (!isHost()) return;
-      setState("roundWinner", null);
-      setState("roundOver", true);
+      setState("roundWinner", null, true);
+      setState("roundOver", true, true);
     } else {
       k.shake(8);
       this.showAnnouncement("SÜRE BİTTİ", "BERABERE", "draw-match");
@@ -334,15 +334,15 @@ export class MatchManager {
           // Draw
         } else if (!blueAlive) {
           roundWinner = 2;
-          setState("redScore", (getState("redScore") || 0) + 1);
+          setState("redScore", (getState("redScore") || 0) + 1, true);
         } else {
           roundWinner = 1;
-          setState("blueScore", (getState("blueScore") || 0) + 1);
+          setState("blueScore", (getState("blueScore") || 0) + 1, true);
         }
 
         k.shake(12);
-        setState("roundWinner", roundWinner);
-        setState("roundOver", true);
+        setState("roundWinner", roundWinner, true);
+        setState("roundOver", true, true);
       }
     } else {
       const p1 = this.cars[0];
@@ -544,36 +544,36 @@ export class MatchManager {
           onRestart: () => {
             if (isHost()) {
               this.pauseMenu.cancel();
-              setState("blueScore", 0);
-              setState("redScore", 0);
-              setState("roundOver", false);
-              setState("roundWinner", null);
-              setState("isGamePaused", false);
+              setState("blueScore", 0, true);
+              setState("redScore", 0, true);
+              setState("roundOver", false, true);
+              setState("roundWinner", null, true);
+              setState("isGamePaused", false, true);
               const randomMap = k.choose(MAPS);
-              setState("gameMap", randomMap.name);
-              setState("gameReloadTrigger", (getState("gameReloadTrigger") || 0) + 1);
+              setState("gameMap", randomMap.name, true);
+              setState("gameReloadTrigger", (getState("gameReloadTrigger") || 0) + 1, true);
             }
           },
           onChangeCar: () => {
             if (isHost()) {
               this.pauseMenu.cancel();
-              setState("blueScore", 0);
-              setState("redScore", 0);
-              setState("roundOver", false);
-              setState("gameState", "lobby");
-              setState("menuState", "CAR_SELECT");
-              playroomPlayers.forEach(p => p.setState("ready", false));
+              setState("blueScore", 0, true);
+              setState("redScore", 0, true);
+              setState("roundOver", false, true);
+              setState("gameState", "lobby", true);
+              setState("menuState", "CAR_SELECT", true);
+              playroomPlayers.forEach(p => p.setState("ready", false, true));
             }
           },
           onMainMenu: () => {
             if (isHost()) {
               this.pauseMenu.cancel();
-              setState("blueScore", 0);
-              setState("redScore", 0);
-              setState("roundOver", false);
-              setState("gameState", "lobby");
-              setState("menuState", "MODE_SELECT");
-              playroomPlayers.forEach(p => p.setState("ready", false));
+              setState("blueScore", 0, true);
+              setState("redScore", 0, true);
+              setState("roundOver", false, true);
+              setState("gameState", "lobby", true);
+              setState("menuState", "MODE_SELECT", true);
+              playroomPlayers.forEach(p => p.setState("ready", false, true));
             }
           }
         });
@@ -596,9 +596,9 @@ export class MatchManager {
           this.clearAnnouncement();
           if (isHost()) {
             this.pauseMenu.cancel();
-            setState("roundOver", false);
-            setState("roundWinner", null);
-            setState("gameReloadTrigger", (getState("gameReloadTrigger") || 0) + 1);
+            setState("roundOver", false, true);
+            setState("roundWinner", null, true);
+            setState("gameReloadTrigger", (getState("gameReloadTrigger") || 0) + 1, true);
           }
         });
       }
