@@ -244,12 +244,16 @@ export class MatchManager {
     if (!controlsLocked && !k.isGamePaused) {
       if (k.isMultiplayer) {
         if (isHost()) {
+          const lastCeil = Math.ceil(this.roundTimeLeft);
           this.roundTimeLeft -= k.dt();
           if (this.roundTimeLeft <= 0) {
             this.roundTimeLeft = 0;
             this.triggerTimeOut();
           }
-          setState("roundTime", this.roundTimeLeft);
+          const nextCeil = Math.ceil(this.roundTimeLeft);
+          if (lastCeil !== nextCeil) {
+            setState("roundTime", nextCeil);
+          }
         } else {
           this.roundTimeLeft = getState("roundTime") ?? 90;
         }

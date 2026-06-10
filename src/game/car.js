@@ -484,22 +484,46 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
 
     CAR_STATES[car.state]?.update?.(car);
 
-    // --- HOST FİZİK YAYINI ---
-    if (playerInfo && isHost()) {
-      playerInfo.setState("carData", {
-        x: car.pos.x,
-        y: car.pos.y,
-        angle: car.angle,
-        hp: car.hp,
-        speed: car.speed,
-        state: car.state,
-        skillActive: car.skillActive,
-        skillCooldownTimer: car.skillCooldownTimer,
-        skillDurationTimer: car.skillDurationTimer,
-        dashActive: car.dashActive,
-        dashCooldownTimer: car.dashCooldownTimer,
-        dashDurationTimer: car.dashDurationTimer,
-      });
+    // --- HOST FİZİK YAYINI (OPTİMİZE EDİLMİŞ) ---
+    car.netTickTimer = (car.netTickTimer || 0) + k.dt();
+    if (car.netTickTimer >= 0.04) { // 25 updates per second max
+      car.netTickTimer = 0;
+
+      if (playerInfo && isHost()) {
+        const currentData = {
+          x: Math.round(car.pos.x * 10) / 10,
+          y: Math.round(car.pos.y * 10) / 10,
+          angle: Math.round(car.angle * 100) / 100,
+          hp: car.hp,
+          speed: Math.round(car.speed * 10) / 10,
+          state: car.state,
+          skillActive: car.skillActive,
+          skillCooldownTimer: Math.round(car.skillCooldownTimer * 10) / 10,
+          skillDurationTimer: Math.round(car.skillDurationTimer * 10) / 10,
+          dashActive: car.dashActive,
+          dashCooldownTimer: Math.round(car.dashCooldownTimer * 10) / 10,
+          dashDurationTimer: Math.round(car.dashDurationTimer * 10) / 10,
+        };
+
+        // Değişiklik kontrolü (Delta Compression)
+        const lastData = car.lastSentCarData || {};
+        const changed = 
+          lastData.x !== currentData.x ||
+          lastData.y !== currentData.y ||
+          lastData.angle !== currentData.angle ||
+          lastData.hp !== currentData.hp ||
+          lastData.speed !== currentData.speed ||
+          lastData.state !== currentData.state ||
+          lastData.skillActive !== currentData.skillActive ||
+          lastData.dashActive !== currentData.dashActive ||
+          Math.abs((lastData.skillCooldownTimer || 0) - currentData.skillCooldownTimer) > 0.3 ||
+          Math.abs((lastData.dashCooldownTimer || 0) - currentData.dashCooldownTimer) > 0.3;
+
+        if (changed || !car.lastSentCarData) {
+          playerInfo.setState("carData", currentData);
+          car.lastSentCarData = currentData;
+        }
+      }
     }
   });
 

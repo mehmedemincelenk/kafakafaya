@@ -91,6 +91,7 @@ export function renderCarSelect() {
       <h3 class="stage-title" style="display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 6px;">
         <span style="font-size: 14px; color: #ffb800; letter-spacing: 2px; text-shadow: 0 0 5px rgba(255, 184, 0, 0.25);">ODA KODU: ${code}</span>
         <span>ARAÇ SEÇİN</span>
+        <span style="font-size: 9px; color: rgba(255, 255, 255, 0.45); font-weight: normal; max-width: 450px; text-align: center; text-transform: none; margin-top: 4px; line-height: 1.4; letter-spacing: 0.5px;">⚠️ Oyunu arka planda/sekmede bırakmayın. Tarayıcılar arka plandaki pencereleri yavaşlattığı için yüksek pinge yol açar.</span>
       </h3>
     `;
   } else {

@@ -34,7 +34,18 @@ export function getCarInputs(car, playerInfo, controls) {
         left: k.isKeyDown("a") || k.isKeyDown("left") || virtualInputs.left,
         right: k.isKeyDown("d") || k.isKeyDown("right") || virtualInputs.right,
       };
-      playerInfo.setState("inputs", localInputs);
+      
+      const lastInputs = car.lastSentInputs || {};
+      const inputsChanged = 
+        lastInputs.forward !== localInputs.forward ||
+        lastInputs.backward !== localInputs.backward ||
+        lastInputs.left !== localInputs.left ||
+        lastInputs.right !== localInputs.right;
+
+      if (inputsChanged) {
+        playerInfo.setState("inputs", localInputs);
+        car.lastSentInputs = { ...localInputs };
+      }
       driveInput = localInputs;
 
       // Clash modunda hızlı basma (tap) tespiti
