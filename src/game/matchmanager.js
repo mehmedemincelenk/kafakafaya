@@ -32,6 +32,8 @@ export class MatchManager {
     this.lastReloadTrigger = k.isMultiplayer ? (getState("gameReloadTrigger") || 0) : 0;
     this.roundOverProcessed = false;
     this.sceneTransitioned = false;
+    this.lastTimeReceived = null;
+    this.lastTimeSentSec = null;
 
     // UI Elements
     this.blueScoreValEl = null;
@@ -252,21 +254,19 @@ export class MatchManager {
           }
           const nextFloor = Math.floor(this.roundTimeLeft);
           if (lastFloor !== nextFloor) {
-            setState("roundTime", nextFloor, true);
+            setState("roundTime", Math.round(this.roundTimeLeft * 10) / 10, true);
           }
         } else {
+          this.roundTimeLeft -= k.dt();
+          if (this.roundTimeLeft <= 0) {
+            this.roundTimeLeft = 0;
+          }
           const hostTime = getState("roundTime");
           if (hostTime !== undefined && hostTime !== null) {
-            if (Math.abs(this.roundTimeLeft - hostTime) > 1.5) {
+            if (this.lastTimeReceived !== hostTime) {
+              this.lastTimeReceived = hostTime;
               this.roundTimeLeft = hostTime;
-            } else {
-              this.roundTimeLeft -= k.dt();
-              if (this.roundTimeLeft <= 0) {
-                this.roundTimeLeft = 0;
-              }
             }
-          } else {
-            this.roundTimeLeft -= k.dt();
           }
         }
       } else {

@@ -354,8 +354,9 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
     if (playerInfo && !isHost()) {
       const data = playerInfo.getState("carData");
       if (data) {
-        car.pos = car.pos.lerp(k.vec2(data.x, data.y), 0.35);
-        car.angle = k.lerp(car.angle, data.angle, 0.35);
+        const lerpT = 1 - Math.pow(1 - 0.48, k.dt() * 60);
+        car.pos = car.pos.lerp(k.vec2(data.x, data.y), lerpT);
+        car.angle = k.lerp(car.angle, data.angle, lerpT);
         car.hp = data.hp;
         car.speed = data.speed;
         car.state = data.state;
@@ -486,7 +487,7 @@ export function addCar({ name, tag, color, startPos, startAngle, controls, type 
 
     // --- HOST FİZİK YAYINI (OPTİMİZE EDİLMİŞ) ---
     car.netTickTimer = (car.netTickTimer || 0) + k.dt();
-    if (car.netTickTimer >= 0.04) { // 25 updates per second max
+    if (car.netTickTimer >= 0.03) { // 33 updates per second max
       car.netTickTimer = 0;
 
       if (playerInfo && isHost()) {
