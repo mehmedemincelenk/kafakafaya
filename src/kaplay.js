@@ -13,6 +13,38 @@ k.gameOver = false;
 k.isGamePaused = false;
 k.isMultiplayer = false;
 
+// --- DİNAMİK ARAYÜZ (HTML UI) ÖLÇEKLENDİRME ---
+// Oyun ekranı (Kaplay Canvas) küçüldüğünde/büyüdüğünde HTML arayüz elemanlarının (HUD, menüler, sanal butonlar)
+// birbirine girmesini ve taşmasını engellemek için, #ui-root elementini piksel-piksel canvas boyutuna eşitliyoruz.
+function scaleHTMLOverlay() {
+  const uiRoot = document.getElementById("ui-root");
+  const canvas = k.canvas;
+  if (!uiRoot || !canvas) return;
+
+  const rect = canvas.getBoundingClientRect();
+  
+  uiRoot.style.position = "absolute";
+  uiRoot.style.left = `${rect.left}px`;
+  uiRoot.style.top = `${rect.top}px`;
+  uiRoot.style.width = "1920px";
+  uiRoot.style.height = "1080px";
+  
+  const scale = rect.width / 1920;
+  uiRoot.style.transform = `scale(${scale})`;
+  uiRoot.style.transformOrigin = "top left";
+  uiRoot.style.overflow = "hidden";
+}
+
+// Ekran değişimlerinde ve her karede ölçeklendirmeyi güncelle
+window.addEventListener("resize", scaleHTMLOverlay);
+k.onUpdate(scaleHTMLOverlay);
+// Sayfa yüklendiğinde de tetikle
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", scaleHTMLOverlay);
+} else {
+  scaleHTMLOverlay();
+}
+
 // Türkçe karakterlerin (ı, ş, ğ vb.) düzgün okunması ve pikselleşme sorununun çözülmesi için
 // Outfit yazı tipini yükleyip varsayılan "sans-serif" ve "monospace" fontlarının üzerine yazıyoruz.
 k.loadFont("sans-serif", "https://cdn.jsdelivr.net/npm/@fontsource/outfit@5.0.8/files/outfit-latin-ext-700-normal.woff2", { filter: "linear" });
