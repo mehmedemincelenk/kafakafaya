@@ -179,8 +179,8 @@ function injectVirtualControlsCSS() {
     /* Sol Taraf: Yönlendirme Grubu */
     #virtual-steering-group {
       position: absolute;
-      bottom: 45px;
-      left: 45px;
+      bottom: 100px;
+      left: 60px;
       display: flex;
       gap: 24px;
       pointer-events: none;
@@ -189,8 +189,8 @@ function injectVirtualControlsCSS() {
     /* Sağ Taraf: Aksiyon Grubu (Ergonomik Kavis) */
     #virtual-action-group {
       position: absolute;
-      bottom: 45px;
-      right: 45px;
+      bottom: 100px;
+      right: 60px;
       width: 230px;
       height: 150px;
       pointer-events: none;

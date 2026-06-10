@@ -552,3 +552,25 @@
     box-shadow: 0 0 18px rgba(255, 70, 85, 0.7);
   }
 }
+
+/* Touch screen adjustments (.is-touch) for gameplay HUD */
+.is-touch .hud-player-panel.player-blue {
+  top: 45px !important;
+  bottom: auto !important;
+  left: 45px !important;
+}
+
+.is-touch .hud-player-panel.player-red {
+  top: 45px !important;
+  bottom: auto !important;
+  right: 45px !important;
+}
+
+.is-touch .hud-slot {
+  width: 50px !important;
+  height: 50px !important;
+}
+
+.is-touch .hud-slot-icon {
+  font-size: 20px !important;
+}
