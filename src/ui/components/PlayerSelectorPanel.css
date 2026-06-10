@@ -379,3 +379,78 @@
   transform: scale(1.05);
   box-shadow: 0 6px 16px rgba(255, 215, 0, 0.4);
 }
+
+/* Arrow and stat labels default classes */
+.preview-arrow-btn {
+  width: 24px;
+  height: 24px;
+  font-size: 11px;
+}
+
+.preview-arrow-placeholder {
+  width: 24px;
+}
+
+.stat-label-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  font-weight: bold;
+  color: var(--text-muted);
+}
+
+/* Touch screen adjustments (.is-touch) */
+.is-touch .panel-name {
+  font-size: 20px;
+}
+
+.is-touch .panel-coins {
+  font-size: 16px;
+}
+
+.is-touch .panel-helper-text {
+  font-size: 13px;
+}
+
+.is-touch .panel-desc-text {
+  font-size: 13px;
+  max-width: 300px;
+}
+
+.is-touch .arrow-btn {
+  width: 52px !important;
+  height: 52px !important;
+  font-size: 22px !important;
+}
+
+.is-touch .arrow-btn.arrow-left {
+  left: -26px;
+}
+
+.is-touch .arrow-btn.arrow-right {
+  right: -26px;
+}
+
+.is-touch .preview-arrow-btn {
+  width: 48px !important;
+  height: 48px !important;
+  font-size: 18px !important;
+}
+
+.is-touch .preview-arrow-placeholder {
+  width: 48px;
+}
+
+.is-touch .panel-action-btn {
+  height: 52px;
+  font-size: 15px;
+}
+
+.is-touch .stat-label-row {
+  font-size: 13px;
+}
+
+.is-touch .card-locked-buy-overlay span {
+  font-size: 13px;
+  padding: 10px 18px;
+}

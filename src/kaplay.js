@@ -33,6 +33,13 @@ function scaleHTMLOverlay() {
   uiRoot.style.transform = `scale(${scale})`;
   uiRoot.style.transformOrigin = "top left";
   uiRoot.style.overflow = "hidden";
+
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 1024;
+  if (isTouch) {
+    uiRoot.classList.add("is-touch");
+  } else {
+    uiRoot.classList.remove("is-touch");
+  }
 }
 
 // Ekran değişimlerinde ve her karede ölçeklendirmeyi güncelle

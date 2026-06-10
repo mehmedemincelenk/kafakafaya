@@ -114,3 +114,40 @@
   color: var(--text-muted);
   padding-left: 20px;
 }
+
+/* Touch and mobile landscape viewport optimization rules */
+.is-touch .menu-nav-item {
+  font-size: 32px !important;
+  padding: 12px 0 12px 24px !important;
+  border-left-width: 6px !important;
+}
+
+.is-touch .menu-nav-item:hover:not(:disabled),
+.is-touch .menu-nav-item.active:not(:disabled) {
+  padding-left: 36px !important;
+}
+
+.is-touch .nav-back {
+  font-size: 20px !important;
+  margin-top: 24px !important;
+}
+
+.is-touch .menu-auth-input {
+  font-size: 18px !important;
+  padding: 16px 20px !important;
+  height: auto !important;
+}
+
+.is-touch .btn-secondary-auth {
+  font-size: 14px !important;
+  padding: 16px 24px !important;
+}
+
+.is-touch .lobby-input-field {
+  font-size: 18px !important;
+  padding: 14px 18px !important;
+}
+
+.is-touch .lobby-input-label {
+  font-size: 13px !important;
+}

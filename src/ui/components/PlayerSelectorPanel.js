@@ -118,13 +118,9 @@ export function createPlayerSelectorPanel({
     ikaVisualContainer.style.position = "relative";
     ikaVisualContainer.style.margin = "6px 0";
 
-    // Left cycle arrow for vehicle
     if (isInteractive && !ready && onPrev) {
       const leftArrow = document.createElement("button");
-      leftArrow.className = "arrow-btn arrow-left";
-      leftArrow.style.width = "24px";
-      leftArrow.style.height = "24px";
-      leftArrow.style.fontSize = "11px";
+      leftArrow.className = "arrow-btn arrow-left preview-arrow-btn";
       leftArrow.style.left = "0px";
       leftArrow.style.setProperty('--player-color', color);
       leftArrow.innerText = "<";
@@ -156,10 +152,7 @@ export function createPlayerSelectorPanel({
     // Right cycle arrow for vehicle
     if (isInteractive && !ready && onNext) {
       const rightArrow = document.createElement("button");
-      rightArrow.className = "arrow-btn arrow-right";
-      rightArrow.style.width = "24px";
-      rightArrow.style.height = "24px";
-      rightArrow.style.fontSize = "11px";
+      rightArrow.className = "arrow-btn arrow-right preview-arrow-btn";
       rightArrow.style.right = "0px";
       rightArrow.style.setProperty('--player-color', color);
       rightArrow.innerText = ">";
@@ -208,11 +201,7 @@ export function createPlayerSelectorPanel({
         row.style.gap = "4px";
 
         const labelRow = document.createElement("div");
-        labelRow.style.display = "flex";
-        labelRow.style.justifyContent = "space-between";
-        labelRow.style.fontSize = "9px";
-        labelRow.style.fontWeight = "bold";
-        labelRow.style.color = "var(--text-muted)";
+        labelRow.className = "stat-label-row";
         labelRow.innerHTML = `
           <span>${stat.name.toUpperCase()}</span>
           <span style="color: var(--text-color);">${stat.display}</span>
@@ -305,14 +294,11 @@ export function createPlayerSelectorPanel({
       // Left cycle arrow
       if (isInteractive && !ready && previewData.onPrevWeapon) {
         const leftArrow = document.createElement("button");
-        leftArrow.className = "arrow-btn arrow-left";
+        leftArrow.className = "arrow-btn arrow-left preview-arrow-btn";
         leftArrow.style.position = "relative";
         leftArrow.style.left = "auto";
         leftArrow.style.top = "auto";
         leftArrow.style.transform = "none";
-        leftArrow.style.width = "24px";
-        leftArrow.style.height = "24px";
-        leftArrow.style.fontSize = "11px";
         leftArrow.style.flexShrink = "0";
         leftArrow.style.setProperty('--player-color', dihaColor);
         leftArrow.innerText = "<";
@@ -323,7 +309,7 @@ export function createPlayerSelectorPanel({
         dihaVisualContainer.appendChild(leftArrow);
       } else {
         const leftPlaceholder = document.createElement("div");
-        leftPlaceholder.style.width = "24px";
+        leftPlaceholder.className = "preview-arrow-placeholder";
         leftPlaceholder.style.flexShrink = "0";
         dihaVisualContainer.appendChild(leftPlaceholder);
       }
@@ -395,14 +381,11 @@ export function createPlayerSelectorPanel({
       // Right cycle arrow
       if (isInteractive && !ready && previewData.onNextWeapon) {
         const rightArrow = document.createElement("button");
-        rightArrow.className = "arrow-btn arrow-right";
+        rightArrow.className = "arrow-btn arrow-right preview-arrow-btn";
         rightArrow.style.position = "relative";
         rightArrow.style.right = "auto";
         rightArrow.style.top = "auto";
         rightArrow.style.transform = "none";
-        rightArrow.style.width = "24px";
-        rightArrow.style.height = "24px";
-        rightArrow.style.fontSize = "11px";
         rightArrow.style.flexShrink = "0";
         rightArrow.style.setProperty('--player-color', dihaColor);
         rightArrow.innerText = ">";
@@ -413,7 +396,7 @@ export function createPlayerSelectorPanel({
         dihaVisualContainer.appendChild(rightArrow);
       } else {
         const rightPlaceholder = document.createElement("div");
-        rightPlaceholder.style.width = "24px";
+        rightPlaceholder.className = "preview-arrow-placeholder";
         rightPlaceholder.style.flexShrink = "0";
         dihaVisualContainer.appendChild(rightPlaceholder);
       }

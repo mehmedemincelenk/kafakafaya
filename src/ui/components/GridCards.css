@@ -550,3 +550,25 @@
   letter-spacing: 0.5px;
   text-align: left;
 }
+
+/* Touch screen adjustments (.is-touch) in GridCards */
+.is-touch .skill-title-name {
+  font-size: 14px;
+}
+.is-touch .skill-stats-meta {
+  font-size: 11px;
+}
+.is-touch .skill-description-text {
+  font-size: 13px;
+}
+.is-touch .behavior-description-text {
+  font-size: 13px;
+}
+.is-touch .car-class-badge {
+  font-size: 11px;
+  padding: 4px 8px;
+}
+.is-touch .car-skill-badge {
+  font-size: 12px;
+  padding: 4px 10px;
+}

@@ -258,4 +258,51 @@
   animation: fadeIn 0.25s ease-out;
 }
 
+/* Touch and mobile landscape viewport optimization rules for main menu */
+.is-touch .menu-title {
+  font-size: 54px !important;
+  letter-spacing: 10px !important;
+}
+
+.is-touch .menu-subtitle {
+  font-size: 14px !important;
+  letter-spacing: 12px !important;
+  margin-top: 12px !important;
+}
+
+.is-touch .stage-title {
+  font-size: 24px !important;
+  letter-spacing: 4px !important;
+}
+
+.is-touch .stage-status {
+  font-size: 16px !important;
+  letter-spacing: 5px !important;
+}
+
+.is-touch .coins-indicator {
+  font-size: 20px !important;
+  padding: 12px 24px !important;
+}
+
+.is-touch .top-settings-btn {
+  font-size: 20px !important;
+  padding: 12px 24px !important;
+  border-radius: 6px !important;
+}
+
+.is-touch .help-text {
+  font-size: 15px !important;
+  letter-spacing: 1px !important;
+}
+
+.is-touch .mth-logo-credits {
+  font-size: 13px !important;
+  letter-spacing: 1.5px !important;
+}
+
+.is-touch .mth-logo {
+  width: 130px !important;
+}
+
 
