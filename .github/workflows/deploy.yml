@@ -26,12 +26,8 @@ jobs:
         run: npm run build
 
       # --- ITCH.IO BUTLER SETUP ---
-      - name: Install Butler CLI
-        run: |
-          curl -L -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
-          unzip butler.zip -d butler-cli
-          chmod +x butler-cli/butler
-          echo "$GITHUB_WORKSPACE/butler-cli" >> $GITHUB_PATH
+      - name: Setup Butler
+        uses: remarkablegames/setup-butler@v2
 
       # --- DEPLOY WEB VERSION TO ITCH.IO ---
       - name: Push Web Build to Itch.io
