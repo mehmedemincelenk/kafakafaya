@@ -18,23 +18,42 @@ k.isMultiplayer = false;
 // birbirine girmesini ve taşmasını engellemek için, #ui-root elementini piksel-piksel canvas boyutuna eşitliyoruz.
 function scaleHTMLOverlay() {
   const uiRoot = document.getElementById("ui-root");
-  const canvas = k.canvas;
-  if (!uiRoot || !canvas) return;
+  if (!uiRoot) return;
 
-  const rect = canvas.getBoundingClientRect();
+  const w = window.innerWidth;
+  const h = window.innerHeight;
+  
+  const targetAspect = 16 / 9;
+  const currentAspect = w / h;
+  
+  let scale = 1;
+  let left = 0;
+  let top = 0;
+  
+  if (currentAspect > targetAspect) {
+    // Screen is wider than 16:9 (most phones in landscape) - fit height
+    scale = h / 1080;
+    const gameWidth = h * targetAspect;
+    left = (w - gameWidth) / 2;
+    top = 0;
+  } else {
+    // Screen is narrower than 16:9 (tablets or portrait) - fit width
+    scale = w / 1920;
+    const gameHeight = w / targetAspect;
+    left = 0;
+    top = (h - gameHeight) / 2;
+  }
   
   uiRoot.style.position = "absolute";
-  uiRoot.style.left = `${rect.left}px`;
-  uiRoot.style.top = `${rect.top}px`;
+  uiRoot.style.left = `${left}px`;
+  uiRoot.style.top = `${top}px`;
   uiRoot.style.width = "1920px";
   uiRoot.style.height = "1080px";
-  
-  const scale = rect.width / 1920;
   uiRoot.style.transform = `scale(${scale})`;
   uiRoot.style.transformOrigin = "top left";
   uiRoot.style.overflow = "hidden";
 
-  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || window.innerWidth < 1024;
+  const isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0 || w < 1024;
   if (isTouch) {
     uiRoot.classList.add("is-touch");
   } else {
